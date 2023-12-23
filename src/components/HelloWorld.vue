@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import {ref, VueElement} from 'vue'
-import {AccountResourceApiFactory, AddressResourceApiFactory, UserJwtControllerApiFactory} from "../api";
+import {
+  AccountResourceApi,
+  AccountResourceApiFactory,
+  AddressResourceApiFactory,
+  UserJwtControllerApiFactory
+} from "../api";
 import {Configuration} from "../configuration";
 
 defineProps<{ msg: string }>()
@@ -16,10 +21,13 @@ userJwtController.authorize({username: "admin", password: "admin"})
     .then((response) => {
       jwtToken.value = response.data.id_token;
       // example call api with jwt token
-      let accountResource = AccountResourceApiFactory(new Configuration({baseOptions: {headers: {Authorization: "Bearer " + jwtToken.value}}}));
+      let accountResource = new AccountResourceApiFactory(new Configuration({
+        accessToken: () => jwtToken.value // use callback because jwt token can be changed in runtime
+      }));
       accountResource.getAccount().then((response) => {
-        accountInfo.value = JSON.stringify(response.data)
+        accountInfo.value = JSON.stringify(response.data);
       });
+
     })
     .catch((error) => {
       console.log(error);
