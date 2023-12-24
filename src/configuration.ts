@@ -93,8 +93,6 @@ export class Configuration {
     this.serverIndex = param.serverIndex;
     this.baseOptions = {headers: {},...param.baseOptions};
     this.formDataCtor = param.formDataCtor;
-
-    setBearerAuthToObject(this.baseOptions.headers, this).then(r => r);
   }
 
   /**
