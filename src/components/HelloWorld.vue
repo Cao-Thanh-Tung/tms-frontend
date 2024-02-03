@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import {ref, VueElement} from 'vue'
 import {
-  AccountResourceApi,
   AccountResourceApiFactory,
-  AddressResourceApiFactory,
   UserJwtControllerApiFactory
 } from "../api";
 import {Configuration} from "../configuration";

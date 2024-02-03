@@ -1,0 +1,98 @@
+<script lang="ts" setup>
+import { ref } from 'vue';
+import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons-vue';
+const selectedKeys2 = ref<string[]>(['1']);
+const openKeys = ref<string[]>(['sub1']);
+</script>
+<template>
+    <a-layout>
+        <a-layout-header class="header" style="text-align: right;">
+            <a-avatar size="large" style="background-color: white; color: black;">
+                <template #icon>
+                    <UserOutlined />
+                </template>
+            </a-avatar>
+        </a-layout-header>
+        <a-layout>
+            <a-layout-sider width="200" style="background: #fff">
+                <a-menu v-model:selectedKeys="selectedKeys2" v-model:openKeys="openKeys" mode="inline"
+                    :style="{ height: '100%', borderRight: 0 }">
+                    <a-sub-menu key="sub1">
+                        <template #title>
+                            <span>
+                                <user-outlined />
+                                Nhân viên
+                            </span>
+                        </template>
+                        <a-menu-item key="1"><router-link :to='{ name: "employee-list" }'>Danh sách nhân
+                                viên</router-link></a-menu-item>
+                        <a-menu-item key="3"><router-link :to='{ name: "employee-driver" }'>Tài
+                                xế</router-link></a-menu-item>
+                    </a-sub-menu>
+                    <a-sub-menu key="sub2">
+                        <template #title>
+                            <span>
+                                <laptop-outlined />
+                                Quản lý xe
+                            </span>
+                        </template>
+                        <a-menu-item key="4"><router-link :to='{ name: "vehicle-list" }'>Danh sách
+                                xe</router-link></a-menu-item>
+                        <a-menu-item key="5"><router-link :to='{ name: "vehicle-status" }'>Trạng thái
+                                xe</router-link></a-menu-item>
+
+                    </a-sub-menu>
+                    <a-sub-menu key="sub3">
+                        <template #title>
+                            <span>
+                                <notification-outlined />
+                                Đơn vận chuyển
+                            </span>
+                        </template>
+                        <a-menu-item key="17"><router-link :to='{ name: "order-list" }'>Danh sách
+                                đơn</router-link></a-menu-item>
+                    </a-sub-menu>
+                    <a-sub-menu key="sub4">
+                        <template #title>
+                            <span>
+                                <laptop-outlined />
+                                Phân tuyến
+                            </span>
+                        </template>
+                        <a-menu-item key="28"><router-link :to='{ name: "auto-routing" }'>Phân
+                                tuyến</router-link></a-menu-item>
+                    </a-sub-menu>
+                </a-menu>
+            </a-layout-sider>
+            <a-layout style="padding: 0 24px 24px">
+                <a-breadcrumb style="margin: 16px 0">
+                    <a-breadcrumb-item>Home</a-breadcrumb-item>
+                    <a-breadcrumb-item>List</a-breadcrumb-item>
+                    <a-breadcrumb-item>App</a-breadcrumb-item>
+                </a-breadcrumb>
+                <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
+                    <router-view />
+                </a-layout-content>
+            </a-layout>
+        </a-layout>
+    </a-layout>
+</template>
+<style scoped>
+#components-layout-demo-top-side-2 .logo {
+    float: left;
+    width: 120px;
+    height: 31px;
+    margin: 16px 24px 16px 0;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.ant-row-rtl #components-layout-demo-top-side-2 .logo {
+    float: right;
+    margin: 16px 0 16px 24px;
+}
+
+.site-layout-background {
+    background: #fff;
+}
+</style>
+  
