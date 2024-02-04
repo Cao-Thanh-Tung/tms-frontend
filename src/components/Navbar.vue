@@ -50,7 +50,16 @@ const openKeys = ref<string[]>(['sub1']);
                                 xe</router-link></a-menu-item>
                         <a-menu-item key="32"><router-link :to='{ name: "vehicle-status" }'>Trạng thái
                                 xe</router-link></a-menu-item>
-
+                    </a-sub-menu>
+                    <a-sub-menu key="sub6">
+                        <template #title>
+                            <span>
+                                <user-outlined />
+                                Khách hàng
+                            </span>
+                        </template>
+                        <a-menu-item key="61"><router-link :to='{ name: "client-list" }'>Khách
+                                hàng</router-link></a-menu-item>
                     </a-sub-menu>
                     <a-sub-menu key="sub4">
                         <template #title>
@@ -75,14 +84,7 @@ const openKeys = ref<string[]>(['sub1']);
                 </a-menu>
             </a-layout-sider>
             <a-layout style="padding: 0 24px 24px">
-                <a-breadcrumb style="margin: 16px 0">
-                    <a-breadcrumb-item>Home</a-breadcrumb-item>
-                    <a-breadcrumb-item>List</a-breadcrumb-item>
-                    <a-breadcrumb-item>App</a-breadcrumb-item>
-                </a-breadcrumb>
-                <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-                    <router-view />
-                </a-layout-content>
+                <slot></slot>
             </a-layout>
         </a-layout>
     </a-layout>
