@@ -6,13 +6,17 @@ import vehicleList from "@/pages/vehicle/vehicleList.vue";
 import vehicleStatus from "@/pages/vehicle/vehicleStatus.vue";
 import orderList from "@/pages/order/orderList.vue";
 import autoRouting from "@/pages/routing/autoRouting.vue";
+import userInfo from "@/pages/user/userInfo.vue";
+import changePassword from "@/pages/user/changePassword.vue";
 const routes = [
+    {name:"auto-routing",path: '/', component:  autoRouting},
     {name:"employee-list",path: '/employee/list', component:  employeeList},
     {name:"employee-driver",path: '/employee/driver', component:  employeeDriver},
     {name:"order-list",path: '/order/list', component:  orderList},
     {name:"vehicle-status",path: '/vehicle/status', component:  vehicleStatus},
     {name:"vehicle-list",path: '/vehicle/list', component:  vehicleList},
-    {name:"auto-routing",path: '/routing/auto-routing', component:  autoRouting},
+    {name:"user-info", path:'/user/info', component: userInfo},
+    {name:"change-password", path:"/user/change-password", component: changePassword},
 ]
 
 const router = createRouter({

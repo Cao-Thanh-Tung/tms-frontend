@@ -7,7 +7,7 @@ watch(store.state, (oldValue, newValue) => { console.log(oldValue); console.log(
 </script>
 <template>
   <div>
-    <Authorization v-if='store.state.jwt === ""' />
+    <Authorization v-if='store.state.jwt === "" && false' />
     <Navbar v-else />
   </div>
 </template>
