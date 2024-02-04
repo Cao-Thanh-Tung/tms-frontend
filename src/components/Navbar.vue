@@ -1,8 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
+import store from '@/store';
 import { UserOutlined, ControlOutlined, CarOutlined, ReconciliationOutlined } from '@ant-design/icons-vue';
 const selectedKeys2 = ref<string[]>(['1']);
 const openKeys = ref<string[]>(['sub1']);
+function logout() {
+    store.dispatch("logout");
+}
 </script>
 <template>
     <a-layout>
@@ -25,7 +29,8 @@ const openKeys = ref<string[]>(['sub1']);
                                 nhân</router-link></a-menu-item>
                         <a-menu-item key="2"><router-link :to='{ name: "change-password" }'>Đổi mật
                                 khẩu</router-link></a-menu-item>
-                        <a-menu-item key="3">Đăng xuất</a-menu-item>
+                        <a-menu-item key="3" @click="logout" style="background-color: orange; color: #fff;">Đăng
+                            xuất</a-menu-item>
                     </a-sub-menu>
                     <a-sub-menu key="sub2">
                         <template #title>

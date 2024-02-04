@@ -15,6 +15,9 @@ const store = createStore({
   actions: {
     login (context, jwt: string) {
       context.commit('setJwt', jwt)
+    },
+    logout (context){
+      context.commit('setJwt', "")
     }
   },
 })
