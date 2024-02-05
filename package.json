@@ -9,13 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@turf/turf": "^6.5.0",
-    "@types/geojson": "^7946.0.13",
-    "@vueuse/core": "^10.7.2",
-    "axios": "^1.6.2",
-    "leaflet": "^1.9.4",
+    "@ant-design/icons-vue": "^7.0.1",
+    "@types/vue-router": "^2.0.0",
+    "ant-design-vue": "^4.1.2",
+    "axios": "^1.6.7",
+    "url": "^0.11.3",
     "vue": "^3.3.11",
-    "vue3-leaflet": "^1.0.48"
+    "vue-router": "^4.2.5",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.8",
