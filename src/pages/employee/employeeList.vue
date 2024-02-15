@@ -1,37 +1,60 @@
 <script setup lang="ts">
 import modal from '@/components/modal.vue';
-const dataSource = [
+import axios from 'axios';
+import { reactive } from 'vue';
+const dataSource = reactive([
     {
         key: '1',
         name: 'Mike',
-        age: 32,
+        phone: "0373653636",
         address: '10 Downing Street',
+        role: "Nhân viên điều phối"
     },
     {
         key: '2',
         name: 'John',
-        age: 42,
+        phone: "0373873877",
         address: '10 Downing Street',
+        role: "Tài xế"
     },
-];
+]);
 
 const columns = [
     {
-        title: 'Name',
+        title: 'Tên',
         dataIndex: 'name',
         key: 'name',
     },
     {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
+        title: 'Số điện thoại',
+        dataIndex: 'phone',
+        key: 'phone',
     },
     {
-        title: 'Address',
+        title: 'Địa chỉ',
         dataIndex: 'address',
         key: 'address',
+    }, {
+        title: 'Chức vụ',
+        dataIndex: 'role',
+        key: 'role',
     },
 ];
+axios.get("/user-xes").then((res) => {
+    // let data = res.data;
+    // let data1 = [];
+    // data1.map((item, index)=>{
+    //     return {
+    //         key: index+'',
+    //     name: item.name,
+    //     phone: "0373873877",
+    //     address: '10 Downing Street',
+    //     role: "Tài xế"
+    //     }
+    // })
+}).catch((err) => {
+    console.log("Get All Employee." + err);
+})
 </script>
 <template>
     <a-breadcrumb style="margin: 16px 0">
@@ -39,7 +62,6 @@ const columns = [
         <a-breadcrumb-item>Danh sách nhân viên</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        Employee list
         <modal open="Add New" title="Add New Employee">
             <p>Some contents...</p>
             <p>Some contents...</p>
