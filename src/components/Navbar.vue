@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import store from '@/store';
-import { UserOutlined, ControlOutlined, CarOutlined, ReconciliationOutlined } from '@ant-design/icons-vue';
+import { UserOutlined, ControlOutlined, CarOutlined, ReconciliationOutlined, UsergroupAddOutlined } from '@ant-design/icons-vue';
 const selectedKeys2 = ref<string[]>(['1']);
 const openKeys = ref<string[]>(['sub1']);
 function logout() {
@@ -55,6 +55,16 @@ function logout() {
                                 xe</router-link></a-menu-item>
                         <a-menu-item key="32"><router-link :to='{ name: "vehicle-status" }'>Trạng thái
                                 xe</router-link></a-menu-item>
+                    </a-sub-menu>
+                    <a-sub-menu key="sub7">
+                        <template #title>
+                            <span>
+                                <UsergroupAddOutlined />
+                                Quản lý nhà thầu
+                            </span>
+                        </template>
+                        <a-menu-item key="71"><router-link :to='{ name: "contractor-list" }'>Danh sách
+                                nhà thầu</router-link></a-menu-item>
                     </a-sub-menu>
                     <a-sub-menu key="sub6">
                         <template #title>
