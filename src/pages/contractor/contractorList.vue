@@ -10,7 +10,7 @@
             <p>Some contents...</p>
             <p>Some contents...</p>
         </modal>
-        <a-table :dataSource="dataSource" :columns="columns" />
+        <a-table :dataSource="state.dataSource" :columns="state.columns" />
     </a-layout-content>
 </template>
 <script lang="ts" setup>
@@ -35,8 +35,7 @@ const state = reactive({
 onMounted(async () => {
     try {
         const response = await axios.get('/contractors?page=0&size=20');
-        state.dataSource = response.data; // Assuming response.data is an array of contractor objects
-        console.log("1")
+        state.dataSource = response.data;
     } catch (error) {
         console.error('Error fetching contractors:', error);
     }
