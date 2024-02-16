@@ -19,6 +19,7 @@ const routes = [
     {name:"user-info", path:'/user/info', component: userInfo},
     {name:"change-password", path:"/user/change-password", component: changePassword},
     {name:"client-list", path: "/client/list", component: clientList},
+    {name:"map", path: "/map", component: () => import("@/pages/map/map.vue")}
 ]
 
 const router = createRouter({
