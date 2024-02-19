@@ -20,7 +20,6 @@ const getJwt = async (values: FormState) => {
         password: values.password
     });
     axios.defaults.headers.common['Authorization'] = "Bearer " + data.id_token;
-    console.log("Error!");
     store.dispatch('login', data.id_token);
 
 };
