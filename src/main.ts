@@ -7,7 +7,7 @@ import store from '@/store'
 import axios from 'axios';
 export * from "@/api";
 export * from "@/configuration";
-import { BASE_URL } from '@/config';
-axios.defaults.baseURL = BASE_URL;
+const baseUrl = import.meta.env.VITE_BASE_URL;
+axios.defaults.baseURL = baseUrl;
 createApp(App).use(store).use(router).use(Ant).mount('#app')
 

@@ -15,11 +15,13 @@ const formState = reactive<FormState>({
   remember: true,
 });
 const getJwt = async (values: FormState) => {
-  const { data } = await axios.post("/authenticate", {
-    username: values.username,
-    password: values.password,
-  });
-  store.dispatch("login", data.id_token);
+    const { data } = await axios.post("/authenticate", {
+        username: values.username,
+        password: values.password
+    });
+    axios.defaults.headers.common['Authorization'] = "Bearer " + data.id_token;
+    store.dispatch('login', data.id_token);
+
 };
 const onFinish = (values: any) => {
   getJwt(values);
