@@ -9,6 +9,8 @@ import autoRouting from "@/pages/routing/autoRouting.vue";
 import userInfo from "@/pages/user/userInfo.vue";
 import changePassword from "@/pages/user/changePassword.vue";
 import clientList from "@/pages/client/clientList.vue";
+import districtList from "@/pages/position/districtList.vue";
+import map from "@/pages/map/map.vue";
 const routes = [
     {name:"auto-routing",path: '/', component:  autoRouting},
     {name:"employee-list",path: '/employee/list', component:  employeeList},
@@ -19,6 +21,8 @@ const routes = [
     {name:"user-info", path:'/user/info', component: userInfo},
     {name:"change-password", path:"/user/change-password", component: changePassword},
     {name:"client-list", path: "/client/list", component: clientList},
+    {name:"map", path: "/map", component: map},
+    {name:"district-list", path: "/district/list", component: districtList},
 ]
 
 const router = createRouter({
