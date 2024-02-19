@@ -125,6 +125,7 @@ const handleOk = () => {
             },
         }
     ).then((res) => {
+        console.log(res);
         dataSource.forEach((employee: EmployeeInfo) => {
             if (employee.key === formState.key) {
                 employee.firstName = formState.firstName;
@@ -138,6 +139,7 @@ const handleOk = () => {
             }
         });
     }).catch(err => {
+        console.log(err);
     }).finally(() => {
         confirmLoading.value = false;
         open.value = false;
@@ -145,10 +147,12 @@ const handleOk = () => {
     });
 };
 const confirm = (e: MouseEvent) => {
+    console.log(e);
     message.success('Click on Yes');
 };
 
 const cancel = (e: MouseEvent) => {
+    console.log(e);
     message.error('Click on No');
     formRef.value.resetFields();
 
