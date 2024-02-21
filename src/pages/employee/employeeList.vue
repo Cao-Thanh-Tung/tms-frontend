@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { EditOutlined, DeleteFilled, UserOutlined } from '@ant-design/icons-vue';
+import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import axios from 'axios';
 import { reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
-
+import { UserXDTO, User } from '@/api';
 interface EmployeeInfo {
     key: number;
-    phoneNumber: string;
-    role: string;
-    id: number;
-    userId: number;
-    firstName: string;
-    lastName: String;
-    name: String;
-    email: String;
-    activated: boolean;
-    imageUrl: String;
-    addressId: number;
-    addressFullName: String;
+    id?: number;
+    username?: string;
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    email?: String;
+    addressFullName?: String;
+    role?: string;
+    activated?: boolean;
+    imageUrl?: String;
 };
 
 const columns = [
@@ -25,25 +23,26 @@ const columns = [
         title: '',
         dataIndex: 'imageUrl',
         key: 'imageUrl',
-        width: '0.1%',
+        width: '1.5%',
+        fixed: 'left',
     },
     {
         title: 'Tên',
-        dataIndex: 'name',
         key: 'name',
-        width: '3%',
+        width: '4%',
+        fixed: 'left',
     },
     {
         title: 'Số điện thoại',
         dataIndex: 'phoneNumber',
         key: 'phone',
-        width: '2%',
+        width: '3%',
     },
     {
         title: 'Địa chỉ',
         dataIndex: 'addressFullName',
         key: 'address',
-        width: '7%',
+        width: '6%',
     }, {
         title: 'Chức vụ',
         dataIndex: 'role',
@@ -53,13 +52,20 @@ const columns = [
         title: 'Email',
         dataIndex: 'email',
         key: 'email',
-        width: '4%',
+        width: '6%',
     }, {
         title: 'Kích hoạt',
         dataIndex: 'activated',
         key: 'activated',
-        width: '2%',
-    }, {
+        width: '2.5%',
+    },
+    {
+        title: 'Tài khoản',
+        dataIndex: 'username',
+        key: 'username',
+        width: '3%',
+    },
+    {
         title: 'Thao tác',
         key: 'operation',
         width: '2%',
@@ -69,21 +75,20 @@ const columns = [
 const employeeList: EmployeeInfo[] = [];
 const dataSource = reactive(employeeList);
 axios.get("/user-xes").then((res) => {
-    const employees = res.data.map((employee: any) => {
+    const employees = res.data.map((em: UserXDTO, index: number): EmployeeInfo => {
+        const user = <User>em.user;
         return {
-            key: employee.id,
-            id: employee.id,
-            name: employee.user.firstName + employee.user.lastName,
-            firstName: employee.user.firstName,
-            lastName: employee.user.lastName,
-            phoneNumber: employee.phoneNumber,
-            role: employee.role,
-            userId: employee.user.id,
-            email: employee.user.email,
-            activated: employee.user.activated,
-            imageUrl: employee.user.imageUrl,
-            addressId: employee.address.id,
-            addressFullName: employee.address.fullName,
+            key: index,
+            id: em.id,
+            username: user.login,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phoneNumber: em.phoneNumber,
+            role: em.role,
+            email: user.email,
+            activated: user.activated,
+            imageUrl: user.imageUrl,
+            addressFullName: em.address?.fullName,
         }
     });
     dataSource.push(...employees);
@@ -91,26 +96,39 @@ axios.get("/user-xes").then((res) => {
     console.log("Get All Employee." + err);
 })
 
-const open = ref<boolean>(false);
-const showModal = (v: EmployeeInfo) => {
-    formState.key = v.key;
-    formState.firstName = v.firstName;
-    formState.lastName = v.lastName;
-    formState.email = v.email;
-    formState.addressFullName = v.addressFullName;
-    formState.activated = v.activated;
-    formState.role = v.role;
-    formState.imageUrl = v.imageUrl;
-    formState.phoneNumber = v.phoneNumber;
-    open.value = true;
-};
-const confirmLoading = ref<boolean>(false);
+const openEditForm = ref<boolean>(false);
+const openAddForm = ref<boolean>(false);
 
-const handleOk = () => {
-    confirmLoading.value = true;
-    axios.patch(`/user-xes/${formState.key}`,
+const formState: UnwrapRef<EmployeeInfo> = reactive(
+    {
+        key: 0,
+        id: 0,
+        firstName: "",
+        lastName: "",
+        phoneNumber: "",
+        email: "",
+        addressFullName: "",
+        activated: false,
+        role: "",
+        imageUrl: "",
+    }
+)
+const formEditRef = ref();
+const formAddRef = ref();
+const showEditForm = (v: EmployeeInfo) => {
+    Object.assign(formState, v);
+    openEditForm.value = true;
+};
+const showAddForm = () => {
+    openAddForm.value = true;
+};
+const editLoading = ref<boolean>(false);
+const addLoading = ref<boolean>(false);
+const edit = () => {
+    editLoading.value = true;
+    axios.patch(`/user-xes/${formState.id}`,
         {
-            id: formState.key,
+            id: formState.id,
             phoneNumber: formState.phoneNumber,
             role: formState.role,
             address: {
@@ -126,54 +144,80 @@ const handleOk = () => {
         }
     ).then((res) => {
         console.log(res);
-        dataSource.forEach((employee: EmployeeInfo) => {
-            if (employee.key === formState.key) {
-                employee.firstName = formState.firstName;
-                employee.lastName = formState.lastName;
-                employee.email = formState.email;
-                employee.addressFullName = formState.addressFullName;
-                employee.activated = formState.activated;
-                employee.role = formState.role;
-                employee.imageUrl = formState.imageUrl;
-                employee.phoneNumber = formState.phoneNumber;
-            }
-        });
+        Object.assign(dataSource[formState.key], formState);
+        message.success("Đã thay đổi thông tin nhân viên thành công!");
     }).catch(err => {
         console.log(err);
+        message.success("Thay đổi thông tin nhân viên thất bại!");
     }).finally(() => {
-        confirmLoading.value = false;
-        open.value = false;
-
+        editLoading.value = false;
+        openEditForm.value = false;
     });
 };
-const confirm = (e: MouseEvent) => {
-    console.log(e);
-    message.success('Click on Yes');
+const deleteEmployee = (i: number, id?: number) => {
+    axios.delete(`/user-xes/${id}`).then((res) => {
+        console.log(res);
+        message.success('Đã xóa thông tin nhân viên thành công!');
+        dataSource.splice(i, 1);
+    }).catch((err) => {
+        console.log(err);
+        message.error('Xóa thông tin nhân viên thất bại!');
+    })
 };
 
-const cancel = (e: MouseEvent) => {
-    console.log(e);
-    message.error('Click on No');
-    formRef.value.resetFields();
-
-};
-
-const formState: UnwrapRef<EmployeeInfo> = reactive({
-    key: 0,
+interface EmployeeAccount {
+    username?: string;
+    password?: string;
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    email?: String;
+    addressId?: number;
+    role?: string;
+    activated?: boolean;
+    imageUrl?: String;
+}
+const formStateAdd: UnwrapRef<EmployeeAccount> = reactive({
+    username: "",
+    password: "",
     firstName: "",
     lastName: "",
-    addressFullName: "",
+    phoneNumber: "",
     email: "",
+    role: "none",
     activated: false,
     imageUrl: "",
-    role: "",
-    phoneNumber: "",
-    userId: 0,
-    addressId: 0,
-    name: "",
-    id: 0,
 })
-const formRef = ref();
+const add = () => {
+    addLoading.value = true;
+    axios.patch(`/user-xes/${formState.id}`,
+        {
+            id: formState.id,
+            phoneNumber: formState.phoneNumber,
+            role: formState.role,
+            address: {
+                fullName: formState.addressFullName,
+            },
+            user: {
+                activated: formState.activated,
+                email: formState.email,
+                firstName: formState.firstName,
+                lastName: formState.lastName,
+                imageUrl: formState.imageUrl,
+            },
+        }
+    ).then((res) => {
+        console.log(res);
+        Object.assign(dataSource[formState.key], formState);
+        message.success("Đã thay đổi thông tin nhân viên thành công!");
+    }).catch(err => {
+        console.log(err);
+        message.success("Tạo thông tin nhân viên thất bại!");
+    }).finally(() => {
+        addLoading.value = false;
+        openAddForm.value = false;
+    });
+}
 </script>
 <template>
     <a-breadcrumb style="margin: 16px 0">
@@ -181,13 +225,15 @@ const formRef = ref();
         <a-breadcrumb-item>Danh sách nhân viên</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        <a-table :dataSource="dataSource" :columns="columns">
+        <a-table :dataSource="dataSource" :columns="columns" :scroll="{ x: 1300 }">
             <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'name'">
+                    {{ `${(<EmployeeInfo>record).firstName} ${(<EmployeeInfo>record).lastName}` }}
+                </template>
                 <template v-if="column.key === 'imageUrl'">
-                    <a-avatar v-if="record.imageUrl === ''">
+                    <a-avatar :src="record.imageUrl">
                         <template #icon><user-outlined /></template>
                     </a-avatar>
-                    <a-avatar :src="record.imageUrl" v-else></a-avatar>
                 </template>
                 <template v-if="column.key === 'role'">
                     {{ record.role === "employee" ? "Điều phối viên" : "" }}
@@ -195,13 +241,13 @@ const formRef = ref();
                     {{ record.role === "none" ? "Chờ phân công" : "" }}
                 </template>
                 <template v-if="column.key === 'operation'">
-                    <a href="#" @click="() => showModal(<EmployeeInfo>record)">
+                    <a href="#" @click="() => showEditForm(<EmployeeInfo>record)">
                         <EditOutlined />
                     </a>
 
-                    <a-modal v-model:open="open" title="Chỉnh sửa thông tin nhân viên" :confirm-loading="confirmLoading"
-                        @ok="handleOk">
-                        <a-form ref="formRef" :model="formState">
+                    <a-modal v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên"
+                        :confirm-loading="editLoading" @ok="edit">
+                        <a-form ref="formEditRef" :model="formState">
                             <a-form-item ref="firstName" label="Họ" name="firstName">
                                 <a-input v-model:value="formState.firstName" />
                             </a-form-item>
@@ -233,7 +279,8 @@ const formRef = ref();
                             </a-form-item>
                         </a-form>
                     </a-modal>
-                    <a-popconfirm title="Xóa nhân viên?" ok-text="Yes" cancel-text="No" @confirm="confirm" @cancel="cancel">
+                    <a-popconfirm title="Xóa nhân viên?" ok-text="Yes" cancel-text="No"
+                        @confirm="() => deleteEmployee((<EmployeeInfo>record).key, (<EmployeeInfo>record).id)">
                         <a href="#">
                             <DeleteFilled style="margin-left: 12px" />
                         </a>
@@ -245,7 +292,51 @@ const formRef = ref();
                 </template>
             </template>
         </a-table>
+
     </a-layout-content>
+
+    <!-- Popup create employee form -->
+    <a-float-button type="primary" @click="showAddForm" tooltip="Tạo nhân viên mới">
+        <template #icon>
+            <plus-outlined />
+        </template>
+    </a-float-button>
+    <a-modal v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading" @ok="add">
+        <a-form ref="formAddRef" :model="formStateAdd">
+            <a-form-item ref="username" label="Tài khoản" name="username">
+                <a-input v-model:value="formStateAdd.username" />
+            </a-form-item>
+            <a-form-item ref="password" label="Mật khẩu" name="password">
+                <a-input v-model:value="formStateAdd.password" />
+            </a-form-item>
+            <a-form-item ref="firstName" label="Họ" name="firstName">
+                <a-input v-model:value="formStateAdd.firstName" />
+            </a-form-item>
+            <a-form-item ref="lastName" label="Tên" name="lastName">
+                <a-input v-model:value="formStateAdd.lastName" />
+            </a-form-item>
+            <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
+                <a-input v-model:value="formStateAdd.phoneNumber" />
+            </a-form-item>
+            <a-form-item ref="email" label="Email" name="email">
+                <a-input v-model:value="formStateAdd.email" />
+            </a-form-item>
+            <a-form-item ref="address" label="Địa chỉ" name="address">
+                <a-input v-model:value="formStateAdd.addressId" />
+            </a-form-item>
+            <a-form-item ref="imageUrl" label="Đường dẫn ảnh" name="imageUrl">
+                <a-input v-model:value="formStateAdd.imageUrl" />
+            </a-form-item>
+            <a-form-item label="Chức vụ" name="resource">
+                <a-radio-group v-model:value="formStateAdd.role">
+                    <a-radio value="employee">Nhân viên điều phối</a-radio>
+                    <a-radio value="driver">Tài xế</a-radio>
+                    <a-radio value="none">Chờ phân công</a-radio>
+                </a-radio-group>
+            </a-form-item>
+        </a-form>
+    </a-modal>
 </template>
 
 <style scoped></style>
+  
