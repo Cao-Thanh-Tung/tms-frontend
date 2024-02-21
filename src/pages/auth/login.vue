@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { reactive, computed } from "vue";
-import { UserOutlined, LockOutlined } from "@ant-design/icons-vue";
-import store from "@/store";
-import axios from "axios";
+import { reactive, computed } from 'vue';
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
+import store from '@/store';
+import axios from 'axios';
 
 interface FormState {
   username: string;
@@ -10,17 +10,17 @@ interface FormState {
   remember: boolean;
 }
 const formState = reactive<FormState>({
-  username: "",
-  password: "",
+  username: '',
+  password: '',
   remember: true,
 });
 const getJwt = async (values: FormState) => {
-    const { data } = await axios.post("/authenticate", {
-        username: values.username,
-        password: values.password
-    });
-    axios.defaults.headers.common['Authorization'] = "Bearer " + data.id_token;
-    store.dispatch('login', data.id_token);
+  const { data } = await axios.post("/authenticate", {
+    username: values.username,
+    password: values.password
+  });
+  axios.defaults.headers.common['Authorization'] = "Bearer " + data.id_token;
+  store.dispatch('login', data.id_token);
 
 };
 const onFinish = (values: any) => {
@@ -28,34 +28,18 @@ const onFinish = (values: any) => {
 };
 
 const onFinishFailed = (errorInfo: any) => {
-  console.log("Failed:", errorInfo);
+  console.log('Failed:', errorInfo);
 };
 const disabled = computed(() => {
   return !(formState.username && formState.password);
 });
+
 </script>
 
 <template>
-  <h2
-    style="
-      text-align: center;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    "
-  >
-    Log in
-  </h2>
-  <a-form
-    :model="formState"
-    name="normal_login"
-    class="login-form"
-    @finish="onFinish"
-    @finishFailed="onFinishFailed"
-  >
-    <a-form-item
-      label="Username"
-      name="username"
-      :rules="[{ required: true, message: 'Please input your username!' }]"
-    >
+  <h2 style="text-align: center; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Log in</h2>
+  <a-form :model="formState" name="normal_login" class="login-form" @finish="onFinish" @finishFailed="onFinishFailed">
+    <a-form-item label="Username" name="username" :rules="[{ required: true, message: 'Please input your username!' }]">
       <a-input v-model:value="formState.username">
         <template #prefix>
           <UserOutlined class="site-form-item-icon" />
@@ -63,11 +47,7 @@ const disabled = computed(() => {
       </a-input>
     </a-form-item>
 
-    <a-form-item
-      label="Password"
-      name="password"
-      :rules="[{ required: true, message: 'Please input your password!' }]"
-    >
+    <a-form-item label="Password" name="password" :rules="[{ required: true, message: 'Please input your password!' }]">
       <a-input-password v-model:value="formState.password">
         <template #prefix>
           <LockOutlined class="site-form-item-icon" />
@@ -77,20 +57,13 @@ const disabled = computed(() => {
 
     <a-form-item>
       <a-form-item name="remember" no-style>
-        <a-checkbox v-model:checked="formState.remember"
-          >Remember me</a-checkbox
-        >
+        <a-checkbox v-model:checked="formState.remember">Remember me</a-checkbox>
       </a-form-item>
       <a class="login-form-forgot" href="">Forgot password</a>
     </a-form-item>
 
     <a-form-item>
-      <a-button
-        :disabled="disabled"
-        type="primary"
-        html-type="submit"
-        class="login-form-button"
-      >
+      <a-button :disabled="disabled" type="primary" html-type="submit" class="login-form-button">
         Log in
       </a-button>
     </a-form-item>
@@ -110,3 +83,4 @@ const disabled = computed(() => {
   width: 100%;
 }
 </style>
+  
