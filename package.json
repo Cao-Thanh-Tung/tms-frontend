@@ -19,8 +19,12 @@
     "leaflet-routing-machine": "^3.2.12",
     "url": "^0.11.3",
     "vue": "^3.3.11",
+    "vue3-leaflet": "^1.0.48",
     "vue-router": "^4.2.5",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "url": "^0.11.3",
+    "@types/vue-router": "^2.0.0",
+    "ant-design-vue": "^4.1.1"
   },
   "devDependencies": {
     "@types/concaveman": "^1.1.6",
