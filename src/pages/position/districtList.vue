@@ -3,9 +3,8 @@ import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons-vue";
 import store from "@/store";
-import { ProvinceDTO ,DistrictDTO,CommuneDTO} from "@/api";
+import { ProvinceDTO, DistrictDTO, CommuneDTO } from "@/api";
 const token = store.state.jwt;
-
 
 const provinces = ref<ProvinceDTO[]>([]);
 const districts = ref<DistrictDTO[]>([]);
@@ -16,31 +15,39 @@ const selectedDistrict = ref(null);
 const selectedCommune = ref(null);
 
 watch(selectedProvince, async (newProvince) => {
-  if (newProvince) {
-    const res = await axios.get(`/districts/province/${newProvince}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    districts.value = res.data;
-  } else {
-    districts.value = [];
+  try {
+    if (newProvince) {
+      const res = await axios.get(`/districts/province/${newProvince}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      districts.value = res.data;
+    } else {
+      districts.value = [];
+    }
+    selectedDistrict.value = null;
+  } catch (e) {
+    console.error(e);
   }
-  selectedDistrict.value = null;
 });
 
 watch(selectedDistrict, async (newDistrict) => {
-  if (newDistrict) {
-    const res = await axios.get(`/communes/district/${newDistrict}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    communes.value = res.data;
-  } else {
-    communes.value = [];
+  try {
+    if (newDistrict) {
+      const res = await axios.get(`/communes/district/${newDistrict}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      communes.value = res.data;
+    } else {
+      communes.value = [];
+    }
+    selectedCommune.value = null;
+  } catch (e) {
+    console.error(e);
   }
-  selectedCommune.value = null;
 });
 onMounted(async () => {
   const res = await axios.get("/provinces?size=63", {

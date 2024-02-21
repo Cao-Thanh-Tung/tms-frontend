@@ -1,21 +1,51 @@
-<script setup lang="ts">
-</script>
 <template>
+  <div>
     <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>Phân tuyên</a-breadcrumb-item>
-        <a-breadcrumb-item>Phân tuyến tự động</a-breadcrumb-item>
+      <a-breadcrumb-item>Phân tuyến</a-breadcrumb-item>
+      <a-breadcrumb-item>Phân tuyến tự động</a-breadcrumb-item>
     </a-breadcrumb>
-    <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        Phân tuyến tự động
-        <modal open="Add New" title="Add New Employee">
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-        </modal>
-    </a-layout-content>
+
+    <a-dropdown trigger="click">
+      <a-button type="primary" @click="clickSetup">
+        Cài đặt <DownOutlined />
+      </a-button>
+      <a-menu slot="overlay">
+        <a-menu-item @click="setupOrdersHandler"
+          >Thiết lập đơn hàng</a-menu-item
+        >
+        <a-menu-item @click="setupVehiclesHandler">Thiết lập xe</a-menu-item>
+        <a-menu-item @click="configureAlgorithmHandler"
+          >Cấu hình thuật toán</a-menu-item
+        >
+        <a-menu-item @click="viewResultsHandler">Xem kết quả</a-menu-item>
+      </a-menu>
+    </a-dropdown>
+
+    <map-app />
+  </div>
 </template>
-<script lang="ts" setup>
-// import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons-vue';
+
+<script setup lang="ts">
+import mapApp from "@/components/Map.vue";
+import { DownOutlined } from "@ant-design/icons-vue";
+const clickSetup = () => {
+  console.log("setup");
+};
+const setupOrdersHandler = () => {
+  console.log("Setting up order");
+};
+
+const setupVehiclesHandler = () => {
+  // Logic for setting up vehicles
+};
+
+const configureAlgorithmHandler = () => {
+  // Logic for configuring algorithms
+};
+
+const viewResultsHandler = () => {
+  // Logic for viewing results
+};
 </script>
+
 <style scoped></style>
-  
