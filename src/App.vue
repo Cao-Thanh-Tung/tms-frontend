@@ -3,8 +3,11 @@ import Navbar from '@/components/Navbar.vue';
 import Authorization from '@/pages/auth/Authorization.vue';
 import store from '@/store';
 // import Navbar from './components/Navbar.vue';
-import { watch } from 'vue';
-watch(store.state, () => { })
+import { watch, onBeforeMount } from 'vue';
+watch(store.state, () => { });
+onBeforeMount(() => {
+  store.dispatch('checkCacheLogin');
+})
 </script>
 <template>
   <div>
