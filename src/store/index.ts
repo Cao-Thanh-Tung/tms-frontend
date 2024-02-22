@@ -1,34 +1,33 @@
 import { createStore } from 'vuex'
-import axios from 'axios';
-// Create a new store instance.
+
+const initialState = () => {
+  return {
+    jwt: localStorage.getItem('jwt') || ''
+  }
+}
+
+const SET_JWT = 'SET_JWT';
+
 const store = createStore({
-  state () {
-    return {
-      jwt: ''
-    }
-  },
+  state: initialState(),
   mutations: {
-    setJwt (state, jwtToken: string) {
-      state.jwt = jwtToken;
-      axios.defaults.headers.common['Authorization'] = "Bearer " + jwtToken;
+    [SET_JWT](state, jwt) {
+      state.jwt = jwt;
+      localStorage.setItem('jwt', jwt);
     }
   },
   actions: {
-    login (context, jwt: string) {
-      localStorage.setItem('jwt', jwt);
-      context.commit('setJwt', jwt)
+    login({ commit }, jwt) {
+      commit(SET_JWT, jwt)
     },
-    logout (context){
+    logout({ commit }) {
       localStorage.removeItem('jwt');
-      context.commit('setJwt', "");
-    },
-    checkCacheLogin(context){
-      let jwt = localStorage.getItem('jwt');
-      if(jwt){
-        context.commit('setJwt', jwt);
-      }
+      commit(SET_JWT, "")
     }
   },
+  getters: {
+    jwt: state => state.jwt
+  }
 })
 
 export default store;
