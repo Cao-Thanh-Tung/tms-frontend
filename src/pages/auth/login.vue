@@ -1,34 +1,23 @@
 <script lang="ts" setup>
 import { reactive, computed } from 'vue';
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
+import { LoginVM } from '@/api';
+import { authorize } from '@/service/apiconfig';
 import store from '@/store';
-import axios from 'axios';
-
-interface FormState {
-  username: string;
-  password: string;
-  remember: boolean;
-}
-const formState = reactive<FormState>({
-  username: '',
-  password: '',
-  remember: true,
+import { message } from 'ant-design-vue';
+const formState = reactive<LoginVM>({
+  username: "",
+  password: "",
+  rememberMe: false,
 });
-const getJwt = async (values: FormState) => {
-  const { data } = await axios.post("/authenticate", {
-    username: values.username,
-    password: values.password
-  });
-  axios.defaults.headers.common['Authorization'] = "Bearer " + data.id_token;
-  store.dispatch('login', data.id_token);
 
-};
-const onFinish = (values: any) => {
-  getJwt(values);
-};
-
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
+const login = async (values: LoginVM) => {
+  try {
+    const { data } = await authorize(values);
+    store.dispatch('login', data);
+  } catch (e) {
+    message.error("Đăng nhập thất bại!");
+  }
 };
 const disabled = computed(() => {
   return !(formState.username && formState.password);
@@ -38,7 +27,7 @@ const disabled = computed(() => {
 
 <template>
   <h2 style="text-align: center; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Log in</h2>
-  <a-form :model="formState" name="normal_login" class="login-form" @finish="onFinish" @finishFailed="onFinishFailed">
+  <a-form :model="formState" name="normal_login" class="login-form" @finish="login">
     <a-form-item label="Username" name="username" :rules="[{ required: true, message: 'Please input your username!' }]">
       <a-input v-model:value="formState.username">
         <template #prefix>
@@ -57,7 +46,7 @@ const disabled = computed(() => {
 
     <a-form-item>
       <a-form-item name="remember" no-style>
-        <a-checkbox v-model:checked="formState.remember">Remember me</a-checkbox>
+        <a-checkbox v-model:checked="formState.rememberMe">Remember me</a-checkbox>
       </a-form-item>
       <a class="login-form-forgot" href="">Forgot password</a>
     </a-form-item>
@@ -82,5 +71,5 @@ const disabled = computed(() => {
 #components-form-demo-normal-login .login-form-button {
   width: 100%;
 }
-</style>
+</style>@/service/apiconfig
   
