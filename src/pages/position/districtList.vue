@@ -3,9 +3,21 @@ import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons-vue";
 import store from "@/store";
+import { Configuration } from "@/configuration";
 import { ProvinceDTO, DistrictDTO, CommuneDTO } from "@/api";
 const token = store.state.jwt;
-
+import { ProvinceResourceApi, DistrictResourceApi } from "@/api";
+import {
+  ProvinceResourceApiFactory,
+  DistrictResourceApiFactory,
+} from "../../api";
+const config = new Configuration({
+  accessToken: () => token,
+});
+console.log(token);
+const provinceApi = new ProvinceResourceApiFactory(config);
+const districtResource = new DistrictResourceApiFactory(config);
+console.log(provinceApi);
 const provinces = ref<ProvinceDTO[]>([]);
 const districts = ref<DistrictDTO[]>([]);
 const communes = ref<CommuneDTO[]>([]);
@@ -17,13 +29,9 @@ const selectedCommune = ref(null);
 watch(selectedProvince, async (newProvince) => {
   try {
     if (newProvince) {
-      const res = await axios.get(`/districts/province/${newProvince}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      districts.value = res.data;
-    } else {
+      //   dis
+      //   districts.value = res.data;
+      // } else {
       districts.value = [];
     }
     selectedDistrict.value = null;
@@ -49,13 +57,17 @@ watch(selectedDistrict, async (newDistrict) => {
     console.error(e);
   }
 });
-onMounted(async () => {
-  const res = await axios.get("/provinces?size=63", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  provinces.value = res.data;
+
+onMounted(() => {
+  districtResource
+    .getAllDistricts(0, 100)
+    .then((response) => {
+      provinces.value = response.data;
+      console.log("Danh sách tỉnh/thành phố:", response.data);
+    })
+    .catch((error) => {
+      console.error("Đã xảy ra lỗi khi lấy danh sách tỉnh/thành phố:", error);
+    });
 });
 defineExpose({
   EditOutlined,
