@@ -15,6 +15,7 @@ const login = async (values: LoginVM) => {
   try {
     const res = await userJwtControllerApi.authorize(values);
     store.commit("SET_JWT", res.data.id_token);
+    console.log(res.data.id_token);
   } catch (e) {
     message.error("Login failed");
   }
