@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
-import axios from "axios";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons-vue";
 import store from "@/store";
 import { Configuration } from "@/configuration";
 import { ProvinceDTO, DistrictDTO, CommuneDTO } from "@/api";
-const token = store.state.jwt;
 import { ProvinceResourceApi, DistrictResourceApi } from "@/api";
-import {
-  ProvinceResourceApiFactory,
-  DistrictResourceApiFactory,
-} from "../../api";
+import { CommuneResourceApi } from "../../api";
+const numberOfProvince = 64;
 const config = new Configuration({
-  accessToken: () => token,
+  accessToken: () => store.getters.jwt,
 });
-console.log(token);
-const provinceApi = new ProvinceResourceApiFactory(config);
-const districtResource = new DistrictResourceApiFactory(config);
-console.log(provinceApi);
+const provinceApi = new ProvinceResourceApi(config);
+const districtApi = new DistrictResourceApi(config);
+const communeResourceApi = new CommuneResourceApi(config);
 const provinces = ref<ProvinceDTO[]>([]);
 const districts = ref<DistrictDTO[]>([]);
 const communes = ref<CommuneDTO[]>([]);
@@ -27,47 +22,35 @@ const selectedDistrict = ref(null);
 const selectedCommune = ref(null);
 
 watch(selectedProvince, async (newProvince) => {
-  try {
-    if (newProvince) {
-      //   dis
-      //   districts.value = res.data;
-      // } else {
-      districts.value = [];
-    }
-    selectedDistrict.value = null;
-  } catch (e) {
-    console.error(e);
-  }
+  if (!newProvince) return;
+  districtApi
+    .getDistrictsByProvince(newProvince)
+    .then((res) => {
+      districts.value = res.data;
+    })
+    .catch((e) => {
+      console.error(e);
+    });
 });
 
 watch(selectedDistrict, async (newDistrict) => {
-  try {
-    if (newDistrict) {
-      const res = await axios.get(`/communes/district/${newDistrict}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  if (!newDistrict) return;
+  communeResourceApi
+    .getCommunesByDistrict(newDistrict)
+    .then((res) => {
       communes.value = res.data;
-    } else {
-      communes.value = [];
-    }
-    selectedCommune.value = null;
-  } catch (e) {
-    console.error(e);
-  }
+    })
+    .catch((e) => {
+      console.error(e);
+    });
 });
 
 onMounted(() => {
-  districtResource
-    .getAllDistricts(0, 100)
-    .then((response) => {
-      provinces.value = response.data;
-      console.log("Danh sách tỉnh/thành phố:", response.data);
-    })
-    .catch((error) => {
-      console.error("Đã xảy ra lỗi khi lấy danh sách tỉnh/thành phố:", error);
-    });
+  provinceApi.getAllProvinces(0, numberOfProvince).then((res) => {
+    provinces.value = res.data;
+  }).catch((e) => {
+    console.error(e);
+  });
 });
 defineExpose({
   EditOutlined,
