@@ -23,7 +23,7 @@ const routes = [
     {name:"user-info", path:'/user/info', component: userInfo},
     {name:"change-password", path:"/user/change-password", component: changePassword},
     {name:"client-list", path: "/client/list", component: clientList},
-    {name:"contractor-list", path: "/contractor/list", component: contractorList}
+    {name:"contractor-list", path: "/contractor/list", component: contractorList},
     {name:"map", path: "/map", component: map},
     {name:"district-list", path: "/district/list", component: districtList},
 ]
