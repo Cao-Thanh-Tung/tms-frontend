@@ -84,7 +84,7 @@ export default {
 
     const createMap = () => {
       const mapInstance = L.map(mapContainer.value, {
-        doubleClickZoom: false, // Disable double-click zoom
+        doubleClickZoom: false,
       }).setView([lat.value, lng.value], 13);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -94,6 +94,22 @@ export default {
       }).addTo(mapInstance);
       return mapInstance;
     };
+    // const createMap = () => {
+    //   const mapInstance = L.map(mapContainer.value, {
+    //     doubleClickZoom: false, // Disable double-click zoom
+    //   }).setView([lat.value, lng.value], 13);
+
+    //   L.tileLayer(
+    //     "https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=VdkO6JnBHszsEYIJXZtR",
+    //     {
+    //       attribution:
+    //         '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
+    //       maxZoom: 18,
+    //     }
+    //   ).addTo(mapInstance);
+
+    //   return mapInstance;
+    // };
 
     onMounted(() => {
       map.value = createMap();
@@ -160,11 +176,18 @@ export default {
         navigator.geolocation.watchPosition((position) => {
           lat.value = position.coords.latitude;
           lng.value = position.coords.longitude;
-          map.value.setView([lat.value, lng.value], 13);
+          if (map.value) map.value.setView([lat.value, lng.value], 13);
         });
       } else {
         console.log("Geolocation is not supported by this browser.");
       }
+      setTimeout(() => {
+        if (!lat.value && !lng.value) {
+          lat.value = 21.0285;
+          lng.value = 105.8542;
+          if (map.value) map.value.setView([lat.value, lng.value], 13);
+        }
+      }, 2000);
     };
     const searchLocation = async () => {
       const search = document.querySelector("input");

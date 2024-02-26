@@ -46,11 +46,14 @@ watch(selectedDistrict, async (newDistrict) => {
 });
 
 onMounted(() => {
-  provinceApi.getAllProvinces(0, numberOfProvince).then((res) => {
-    provinces.value = res.data;
-  }).catch((e) => {
-    console.error(e);
-  });
+  provinceApi
+    .getAllProvinces(0, numberOfProvince)
+    .then((res) => {
+      provinces.value = res.data;
+    })
+    .catch((e) => {
+      console.error(e);
+    });
 });
 defineExpose({
   EditOutlined,

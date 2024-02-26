@@ -146,9 +146,10 @@ export const createRequestFunction = function (axiosArgs: RequestArgs, globalAxi
             ...axiosArgs.options,
             url: (axios.defaults.baseURL ? '' : configuration?.basePath ?? basePath) + axiosArgs.url
         };
-        if (configuration?.baseOptions.headers && configuration?.baseOptions.headers.Authorization) {
+        if (configuration?.baseOptions.headers && configuration?.baseOptions.headers.Authorization ) {
             axiosRequestArgs.headers = configuration.baseOptions.headers;
         }
+        console.log(axiosRequestArgs);
         return axios.request<T, R>(axiosRequestArgs);
     };
 }

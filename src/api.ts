@@ -1246,6 +1246,36 @@ export interface UserDTO {
      * @memberof UserDTO
      */
     'login'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDTO
+     */
+    'firstName'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDTO
+     */
+    'lastName'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDTO
+     */
+    'email'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDTO
+     */
+    'imageUrl'?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserDTO
+     */
+    'activated'?: boolean;
 }
 /**
  * 
