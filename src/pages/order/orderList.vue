@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled } from '@ant-design/icons-vue';
+import { OrderDTO, OrderItemDTO, OrderResourceApi } from '@/api';
 const columns = [
     { title: 'Mã', dataIndex: 'code', key: 'code' },
     { title: 'Chi phí', dataIndex: 'cost', key: 'cost' },
@@ -8,6 +9,7 @@ const columns = [
     { title: 'Người đặt', dataIndex: 'owner', key: 'owner' },
     { title: 'Thao tác', key: 'operation' },
 ];
+const orderApi = new OrderResourceApi();
 
 interface DataItem {
     key: number;
@@ -78,12 +80,12 @@ const innerColumns = [
         key: 'height',
     },
     {
-        title: 'h bắt đầu',
+        title: 'Bắt đầu',
         dataIndex: 'earliest_time',
         key: 'earliest_time',
     },
     {
-        title: 'h kết thúc',
+        title: 'Kết thúc',
         dataIndex: 'latest_time',
         key: 'latest_time',
     },
