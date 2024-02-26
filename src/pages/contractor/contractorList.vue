@@ -16,7 +16,7 @@
       <a-button type="primary" @click="showModal">Add new Contractor</a-button>
       <!-- Add New Contractor Modal -->
       <a-modal
-        v-model:visible="visible"
+        v-model:open="openCreate"
         title="Add New Contractor"
         @ok="handleAddContractor"
       >
@@ -31,9 +31,9 @@
           <a-form-item label="Expiration Date">
             <a-date-picker v-model:value="newContractor.expirationDate" />
           </a-form-item>
-          <a-form-item label="Address">
+          <!-- <a-form-item label="Address">
             <a-input v-model:value="newContractor.address" />
-          </a-form-item>
+          </a-form-item> -->
         </form>
       </a-modal>
 
@@ -53,12 +53,35 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <span>
-              <a>Update</a>
+              <a @click="showUpdate(record)">Update</a>
+              <a-modal
+                v-model:open="openUpdate"
+                title="Update Contractor"
+                @ok="handleUpdateContractor()"
+              >
+                <!-- Form for adding a new contractor -->
+                <form>
+                  <a-form-item label="Name">
+                    <a-input v-model:value="newContractor.name" />
+                  </a-form-item>
+                  <a-form-item label="Signing Date">
+                    <a-date-picker v-model:value="newContractor.signingDate" />
+                  </a-form-item>
+                  <a-form-item label="Expiration Date">
+                    <a-date-picker
+                      v-model:value="newContractor.expirationDate"
+                    />
+                  </a-form-item>
+                  <!-- <a-form-item label="Address">
+                    <a-input v-model:value="newContractor.address" />
+                  </a-form-item> -->
+                </form>
+              </a-modal>
               <a-divider type="vertical" />
               <a-popconfirm
-                v-if="state.dataSource.length"
+                v-if="state.dataSource"
                 title="Sure to delete?"
-                @confirm="onDelete(record.key)"
+                @confirm="onDelete(record.id)"
               >
                 <a>Delete</a>
               </a-popconfirm>
@@ -74,66 +97,49 @@
 <script setup lang="ts">
 import { reactive, onMounted, ref } from "vue";
 import axios from "axios";
-import moment from "moment";
 import { ContractorDTO } from '../../api';
 
 const state = reactive({
   dataSource: <ContractorDTO>[],
   columns: [
     { title: "Name", dataIndex: "name", key: "name" },
-    {
-      title: "Signing Date",
-      dataIndex: "signingDate",
-      key: "signingDate",
-      customCell: (object: ContractorDTO) => {
-        console.log(object);
-        const formattedDate = moment(object.signingDate).format("DD/MM/YYYY");
-        return formattedDate;
-      },
-    },
-    {
-      title: "Expiration Date",
-      dataIndex: "expirationDate",
-      key: "expirationDate",
-      // customRender: (text: string) => moment(text).format("DD/MM/YYYY"),
-    },
+    { title: "Signing Date", dataIndex: "signingDate", key: "signingDate" },
+    { title: "Expiration Date", dataIndex: "expirationDate", key: "expirationDate" },
     { title: "Address", dataIndex: "address", key: "address" },
-    {
-      title: "Action",
-      key: "action",
-    },
+    { title: "Action", key: "action" },
   ],
 });
 
-// Modal visibility state
-const visible = ref<boolean>(false);
+const openCreate = ref<boolean>(false);
+const openUpdate = ref<boolean>(false);
+const selectedContractor = ref<ContractorDTO | null>(null);
 
 const showModal = () => {
-  visible.value = !visible.value;
+  openCreate.value = !openCreate.value;
 };
 
-// Data for adding a new contractor
-const newContractor = reactive({
+const showUpdate = (record: ContractorDTO) => {
+  selectedContractor.value = record; // Store the selected contractor
+  openUpdate.value = true;
+};
+
+const newContractor = reactive<ContractorDTO>({
   name: "",
-  signingDate: null,
-  expirationDate: null,
-  address: "",
+  signingDate: "",
+  expirationDate: "",
+  addressId: undefined,
 });
 
-// Function to handle adding a new contractor
 const handleAddContractor = async () => {
   try {
-    // Make HTTP POST request to add a new contractor
     const response = await axios.post("/contractors", newContractor);
     console.log("New contractor added:", response.data);
-    // Reset the form after successful addition
     Object.assign(newContractor, {
       name: "",
       signingDate: null,
       expirationDate: null,
       address: "",
     });
-    // Hide the modal after adding the contractor
     showModal();
     await fetchData();
   } catch (error) {
@@ -141,7 +147,6 @@ const handleAddContractor = async () => {
   }
 };
 
-// Fetch data from the API endpoint when the component is mounted
 const fetchData = async () => {
   try {
     const response = await axios.get("/contractors?page=0&size=20");
@@ -151,8 +156,36 @@ const fetchData = async () => {
   }
 };
 
-// Fetch data from the API endpoint when the component is mounted
 onMounted(async () => {
   await fetchData();
 });
+
+const onDelete = async (id: number) => {
+  try {
+    console.log(id);
+    await axios.delete(`/contractors/${id}`);
+    await fetchData();
+  } catch (error) {
+    console.error("Error deleting contractor:", error);
+  }
+};
+
+const handleUpdateContractor = async () => {
+  try {
+    if (!selectedContractor.value) return; // Exit if no contractor is selected for update
+    const response = await axios.put(`/contractors/${selectedContractor.value.id}`, selectedContractor.value);
+    console.log("Contractor updated:", response.data);
+    Object.assign(newContractor, {
+      name: "",
+      signingDate: null,
+      expirationDate: null,
+      address: "",
+    });
+    openUpdate.value = false;
+    selectedContractor.value = null; // Clear the selected contractor after update
+    await fetchData();
+  } catch (error) {
+    console.error("Error updating contractor:", error);
+  }
+};
 </script>

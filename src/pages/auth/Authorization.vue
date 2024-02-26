@@ -19,7 +19,7 @@ const formLogin = ref(true);
 .form {
     width: 30%;
     margin: auto;
-    margin-top: 200px;
+    margin-top: 50px;
     padding: 50px;
     padding-top: 40px;
     border: 1px solid blue;
