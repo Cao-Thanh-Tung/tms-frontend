@@ -1,25 +1,33 @@
 import { createStore } from 'vuex'
 
-// Create a new store instance.
+const initialState = () => {
+  return {
+    jwt: localStorage.getItem('jwt') || ''
+  }
+}
+
+const SET_JWT = 'SET_JWT';
+
 const store = createStore({
-  state () {
-    return {
-      jwt: ''
-    }
-  },
+  state: initialState(),
   mutations: {
-    setJwt (state, jwtLogin: string) {
-      state.jwt = jwtLogin;
+    [SET_JWT](state, jwt) {
+      state.jwt = jwt;
+      localStorage.setItem('jwt', jwt);
     }
   },
   actions: {
-    login (context, jwt: string) {
-      context.commit('setJwt', jwt)
+    login({ commit }, jwt) {
+      commit(SET_JWT, jwt)
     },
-    logout (context){
-      context.commit('setJwt', "")
+    logout({ commit }) {
+      localStorage.removeItem('jwt');
+      commit(SET_JWT, "")
     }
   },
+  getters: {
+    jwt: state => state.jwt
+  }
 })
 
 export default store;
