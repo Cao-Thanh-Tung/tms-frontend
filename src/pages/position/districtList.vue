@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
-import axios from "axios";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons-vue";
 import store from "@/store";
-import { ProvinceDTO ,DistrictDTO,CommuneDTO} from "@/api";
-const token = store.state.jwt;
-
-
+import { Configuration } from "@/configuration";
+import { ProvinceDTO, DistrictDTO, CommuneDTO } from "@/api";
+import { ProvinceResourceApi, DistrictResourceApi } from "@/api";
+import { CommuneResourceApi } from "../../api";
+const numberOfProvince = 64;
+const config = new Configuration({
+  accessToken: () => store.getters.jwt,
+});
+const provinceApi = new ProvinceResourceApi(config);
+const districtApi = new DistrictResourceApi(config);
+const communeResourceApi = new CommuneResourceApi(config);
 const provinces = ref<ProvinceDTO[]>([]);
 const districts = ref<DistrictDTO[]>([]);
 const communes = ref<CommuneDTO[]>([]);
@@ -16,39 +22,38 @@ const selectedDistrict = ref(null);
 const selectedCommune = ref(null);
 
 watch(selectedProvince, async (newProvince) => {
-  if (newProvince) {
-    const res = await axios.get(`/districts/province/${newProvince}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  if (!newProvince) return;
+  districtApi
+    .getDistrictsByProvince(newProvince)
+    .then((res) => {
+      districts.value = res.data;
+    })
+    .catch((e) => {
+      console.error(e);
     });
-    districts.value = res.data;
-  } else {
-    districts.value = [];
-  }
-  selectedDistrict.value = null;
 });
 
 watch(selectedDistrict, async (newDistrict) => {
-  if (newDistrict) {
-    const res = await axios.get(`/communes/district/${newDistrict}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  if (!newDistrict) return;
+  communeResourceApi
+    .getCommunesByDistrict(newDistrict)
+    .then((res) => {
+      communes.value = res.data;
+    })
+    .catch((e) => {
+      console.error(e);
     });
-    communes.value = res.data;
-  } else {
-    communes.value = [];
-  }
-  selectedCommune.value = null;
 });
-onMounted(async () => {
-  const res = await axios.get("/provinces?size=63", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  provinces.value = res.data;
+
+onMounted(() => {
+  provinceApi
+    .getAllProvinces(0, numberOfProvince)
+    .then((res) => {
+      provinces.value = res.data;
+    })
+    .catch((e) => {
+      console.error(e);
+    });
 });
 defineExpose({
   EditOutlined,
