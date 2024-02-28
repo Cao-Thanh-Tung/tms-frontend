@@ -149,7 +149,6 @@ export const createRequestFunction = function (axiosArgs: RequestArgs, globalAxi
         if (configuration?.baseOptions.headers && configuration?.baseOptions.headers.Authorization ) {
             axiosRequestArgs.headers = configuration.baseOptions.headers;
         }
-        console.log(axiosRequestArgs);
         return axios.request<T, R>(axiosRequestArgs);
     };
 }
