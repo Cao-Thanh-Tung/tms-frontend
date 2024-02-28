@@ -1,0 +1,10 @@
+
+services:
+  tms_be:
+    image: 6794f232c1c3
+    build: .
+    ports:
+      - 3000:3000
+    restart: always
+
+
