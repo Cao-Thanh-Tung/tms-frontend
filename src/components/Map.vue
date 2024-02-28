@@ -55,6 +55,7 @@ export default {
   setup() {
     const lat = ref(0);
     const lng = ref(0);
+
     const map = ref<L.Map | null>(null);
     const mapContainer = ref();
     const polygonLayer = ref<L.Polygon | null>(null);
@@ -122,7 +123,7 @@ export default {
 
       map.value.on("dblclick", function (e: L.LeafletMouseEvent) {
         if (map.value) {
-          createMarker(e.latlng.lat, e.latlng.lng).addTo(map.value);
+          createMarker(e.latlng.lat, e.latlng.lng).addTo(map.value as L.Map);
         }
       });
     });
@@ -142,7 +143,7 @@ export default {
             }
             const data = await response.json();
             searchResults.value = data.features.map(
-              (feature) => feature.properties
+              (feature: any) => feature.properties
             );
             console.log(searchResults.value);
             showSearchResults.value = true;
@@ -160,7 +161,7 @@ export default {
         navigator.geolocation.watchPosition((position) => {
           lat.value = position.coords.latitude;
           lng.value = position.coords.longitude;
-          map.value.setView([lat.value, lng.value], 13);
+          if (map.value) map.value.setView([lat.value, lng.value], 13);
         });
       } else {
         console.log("Geolocation is not supported by this browser.");
@@ -197,7 +198,7 @@ export default {
         ]);
         if (map.value) {
           L.polygon(reversedCoordinates.value, { color: "red" }).addTo(
-            map.value
+            map.value as L.Map
           );
         }
       } catch (e) {
@@ -205,9 +206,9 @@ export default {
       }
       if (map.value) {
         map.value.setView([lat, lon], 13);
-        createMarker(lat, lon, true).addTo(map.value);
+        createMarker(lat, lon, true).addTo(map.value as L.Map);
         L.marker([lat, lon])
-          .addTo(map.value)
+          .addTo(map.value as L.Map)
           .bindPopup(`<b>Địa chỉ:</b> ${data[0].display_name}`)
           .openPopup();
       }
@@ -257,6 +258,7 @@ export default {
 
     const drawPolygon = () => {
       const markers: L.Marker[] = [];
+      if (!map.value) return;
       map.value.eachLayer((layer: L.Layer) => {
         if (layer instanceof L.Marker) {
           markers.push(layer);
@@ -269,16 +271,11 @@ export default {
 
       const concaveHull = concaveman(points);
 
-      const latLngs = concaveHull.map(([lng, lat]: any) => [
-        lat,
-        lng,
-      ]);
-      if (polygonLayer.value) {
-        map.value!.removeLayer(polygonLayer.value);
-      }
-
-      polygonLayer.value = L.polygon(latLngs: , { color: "red" }).addTo(
-        map.value
+      const latLngs = concaveHull.map(
+        (point) => point.reverse() as L.LatLngTuple
+      );
+      polygonLayer.value = L.polygon(latLngs, { color: "red" }).addTo(
+        map.value as L.Map
       );
       console.log(polygonLayer.value);
     };
@@ -314,7 +311,7 @@ export default {
     const navigateToResult = (lat: number, lon: number) => {
       if (map.value) {
         map.value.setView([lat, lon], 13);
-        createMarker(lat, lon).addTo(map.value);
+        createMarker(lat, lon).addTo(map.value as L.Map);
       }
       showSearchResults.value = false;
     };
@@ -327,32 +324,32 @@ export default {
           }
         });
       }
-      const waypoints = markers.map((marker) => marker.getLatLng());
-      L.Routing.control({
-        waypoints,
-        routeWhileDragging: true,
-        showAlternatives: false,
-        lineOptions: {
-          styles: [{ color: "red", opacity: 1, weight: 2 }],
-        },
-        formatter: new L.Routing.Formatter({
-          units: "metric",
-          show: false,
-          formatInstruction: function (
-            instruction,
-            distances,
-            totalTime,
-            formatter
-          ) {
-            // Customize the instruction text here
-            // instruction is an object representing the current routing instruction
-            // distances is an object representing the total and remaining distances of the route
-            // totalTime is the total time of the route in seconds
-            // formatter is an instance of L.Routing.Formatter for formatting distances and times
-            return instruction.text;
-          },
-        }),
-      }).addTo(map.value);
+      // const waypoints = markers.map((marker) => marker.getLatLng());
+      // L.Routing.control({
+      //   waypoints,
+      //   routeWhileDragging: true,
+      //   showAlternatives: false,
+      //   lineOptions: {
+      //     styles: [{ color: "red", opacity: 1, weight: 2 }],
+      //   },
+      //   formatter: new L.Routing.Formatter({
+      //     units: "metric",
+      //     show: false,
+      //     formatInstruction: function (
+      //       instruction,
+      //       distances,
+      //       totalTime,
+      //       formatter
+      //     ) {
+      //       // Customize the instruction text here
+      //       // instruction is an object representing the current routing instruction
+      //       // distances is an object representing the total and remaining distances of the route
+      //       // totalTime is the total time of the route in seconds
+      //       // formatter is an instance of L.Routing.Formatter for formatting distances and times
+      //       return instruction.text;
+      //     },
+      //   }),
+      // }).addTo(map.value);
     };
     return {
       searchLocation,
