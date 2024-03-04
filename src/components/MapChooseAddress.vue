@@ -6,6 +6,7 @@
         </div>
     </div>
 </template>
+
 <script lang="ts" setup>
 // using ant-design-vue
 import { onMounted, ref } from 'vue';
@@ -48,6 +49,7 @@ onMounted(() => {
     });
 });
 </script>
+
 <style scoped>
 .map-app {
     height: 100vh;
@@ -117,4 +119,3 @@ onMounted(() => {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>
-  

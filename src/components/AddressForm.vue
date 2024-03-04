@@ -128,6 +128,21 @@ function save() {
     // })
     emit('save',)
 }
+import { watch } from 'vue';
+import type { SelectProps } from 'ant-design-vue';
+const options = ref<SelectProps['options']>([
+    {
+        value: 'a1',
+        label: 'a1',
+    },
+]);
+const value = ref<string[]>([]);
+const handleChange = (value: []) => {
+    console.log(`selected ${value}`);
+};
+watch(value, () => {
+    console.log('value', value.value);
+});
 </script>
 
 <template>

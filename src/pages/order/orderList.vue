@@ -2,6 +2,7 @@
 import { EditOutlined, DeleteFilled } from '@ant-design/icons-vue';
 import { Configuration } from '@/configuration';
 import store from '@/store';
+
 const columns = [
     { title: 'Mã', dataIndex: 'code', key: 'code' },
     { title: 'Chi phí', dataIndex: 'cost', key: 'cost' },
@@ -16,6 +17,7 @@ const config = new Configuration({
         headers: { 'Content-Type': 'application/json' }
     }
 })
+
 
 interface DataItem {
     key: number;
@@ -170,6 +172,7 @@ onBeforeMount(() => {
 
 })
 </script>
+
 <template>
     <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item>Đơn vận chuyển</a-breadcrumb-item>
@@ -188,14 +191,15 @@ onBeforeMount(() => {
                         <!--<cost, goodtype, weight, volume>, (immediate_delivery, status)-->
                         <!-- type, goodtype, weight, volume, num_pallets, width, height, length, earliest_time, latest_time,carry_in_time_sec, carry_out_time_sec, note, address(cho chọn địa điểm thoải mái ha, đây là điểm đến), (status), <waiting_time_sec> -->
                     </a-modal>
-                    <a-popconfirm title="Are you sure delete this task?" ok-text="Yes" cancel-text="No" @confirm="confirm"
-                        @cancel="cancel">
+                    <a-popconfirm title="Are you sure delete this task?" ok-text="Yes" cancel-text="No"
+                        @confirm="confirm" @cancel="cancel">
                         <a href="#">
                             <DeleteFilled style="margin-left: 12px" />
                         </a>
                     </a-popconfirm>
                 </template>
             </template>
+
             <template #expandedRowRender>
                 <a-table :columns="innerColumns" :data-source="innerData" :pagination="false">
                 </a-table>
@@ -203,10 +207,9 @@ onBeforeMount(() => {
         </a-table>
     </a-layout-content>
 </template>
+
 <style scoped>
 .editable-row-operations a {
     margin-right: 8px;
 }
 </style>
-
-  
