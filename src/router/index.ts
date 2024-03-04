@@ -23,6 +23,7 @@ const routes = [
     {name:"client-list", path: "/client/list", component: clientList},
     {name:"map", path: "/map", component: map},
     {name:"district-list", path: "/district/list", component: districtList},
+    {name:"auto-routing",path: '/auto-routing', component:  autoRouting},
 ]
 
 const router = createRouter({
