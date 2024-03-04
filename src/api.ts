@@ -238,10 +238,10 @@ export interface ContractorDTO {
     'expirationDate'?: string;
     /**
      * 
-     * @type {number}
+     * @type {AddressDTO}
      * @memberof ContractorDTO
      */
-    'addressId'?: number;
+    'address'?: AddressDTO;
 }
 /**
  * 
@@ -1288,7 +1288,7 @@ export interface UserXDTO {
      * @type {number}
      * @memberof UserXDTO
      */
-    'id': number;
+    'id'?: number;
     /**
      * 
      * @type {string}
@@ -1418,16 +1418,16 @@ export interface VehicleDTO {
     'maxStopPoints'?: number;
     /**
      * 
-     * @type {number}
+     * @type {UserXDTO}
      * @memberof VehicleDTO
      */
-    'ownerUserXId'?: number;
+    'ownerUserX'?: UserXDTO;
     /**
      * 
-     * @type {number}
+     * @type {AddressDTO}
      * @memberof VehicleDTO
      */
-    'currentAddressId'?: number;
+    'address'?: AddressDTO;
 }
 /**
  * 

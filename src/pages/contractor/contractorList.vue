@@ -1,191 +1,396 @@
-<template>
-  <div>
-    <a-breadcrumb style="margin: 16px 0">
-      <a-breadcrumb-item>Nhà thầu</a-breadcrumb-item>
-      <a-breadcrumb-item>Danh sách nhà thầu</a-breadcrumb-item>
-    </a-breadcrumb>
-    <a-layout-content
-      :style="{
-        background: '#fff',
-        padding: '24px',
-        margin: 0,
-        minHeight: '280px',
-      }"
-    >
-      Danh sách nhà thầu
-      <a-button type="primary" @click="showModal">Add new Contractor</a-button>
-      <!-- Add New Contractor Modal -->
-      <a-modal
-        v-model:open="openCreate"
-        title="Add New Contractor"
-        @ok="handleAddContractor"
-      >
-        <!-- Form for adding a new contractor -->
-        <form>
-          <a-form-item label="Name">
-            <a-input v-model:value="newContractor.name" />
-          </a-form-item>
-          <a-form-item label="Signing Date">
-            <a-date-picker v-model:value="newContractor.signingDate" />
-          </a-form-item>
-          <a-form-item label="Expiration Date">
-            <a-date-picker v-model:value="newContractor.expirationDate" />
-          </a-form-item>
-          <!-- <a-form-item label="Address">
-            <a-input v-model:value="newContractor.address" />
-          </a-form-item> -->
-        </form>
-      </a-modal>
-
-      <!-- Table to display contractors -->
-      <a-table :columns="state.columns" :data-source="state.dataSource">
-        <template #headerCell="{ column }">
-          <template v-if="column.key === 'name'">
-            <span> Name </span>
-          </template>
-        </template>
-
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'name'">
-            <a>
-              {{ record.name }}
-            </a>
-          </template>
-          <template v-else-if="column.key === 'action'">
-            <span>
-              <a @click="showUpdate(record)">Update</a>
-              <a-modal
-                v-model:open="openUpdate"
-                title="Update Contractor"
-                @ok="handleUpdateContractor()"
-              >
-                <!-- Form for adding a new contractor -->
-                <form>
-                  <a-form-item label="Name">
-                    <a-input v-model:value="newContractor.name" />
-                  </a-form-item>
-                  <a-form-item label="Signing Date">
-                    <a-date-picker v-model:value="newContractor.signingDate" />
-                  </a-form-item>
-                  <a-form-item label="Expiration Date">
-                    <a-date-picker
-                      v-model:value="newContractor.expirationDate"
-                    />
-                  </a-form-item>
-                  <!-- <a-form-item label="Address">
-                    <a-input v-model:value="newContractor.address" />
-                  </a-form-item> -->
-                </form>
-              </a-modal>
-              <a-divider type="vertical" />
-              <a-popconfirm
-                v-if="state.dataSource"
-                title="Sure to delete?"
-                @confirm="onDelete(record.id)"
-              >
-                <a>Delete</a>
-              </a-popconfirm>
-              <a-divider type="vertical" />
-            </span>
-          </template>
-        </template>
-      </a-table>
-    </a-layout-content>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { reactive, onMounted, ref } from "vue";
-import axios from "axios";
-import { ContractorDTO } from '../../api';
-
-const state = reactive({
-  dataSource: <ContractorDTO>[],
-  columns: [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Signing Date", dataIndex: "signingDate", key: "signingDate" },
-    { title: "Expiration Date", dataIndex: "expirationDate", key: "expirationDate" },
-    { title: "Address", dataIndex: "address", key: "address" },
-    { title: "Action", key: "action" },
-  ],
+import {
+  EditOutlined,
+  DeleteFilled,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons-vue";
+import { reactive, ref, UnwrapRef, onMounted } from "vue";
+import { message } from "ant-design-vue";
+import { AddressDTO } from "@/api";
+import { AddressResourceApi } from "@/api";
+import store from "@/store";
+import { Configuration } from "@/configuration";
+import { ContractorResourceApi, ContractorDTO } from "../../api";
+// config request object
+const config = new Configuration({
+  accessToken: () => store.getters.jwt,
+  baseOptions: {
+    headers: { "Content-Type": "application/json" },
+  },
 });
+const contractorApi = new ContractorResourceApi(config);
 
-const openCreate = ref<boolean>(false);
-const openUpdate = ref<boolean>(false);
-const selectedContractor = ref<ContractorDTO | null>(null);
+// helper function
 
-const showModal = () => {
-  openCreate.value = !openCreate.value;
+function createDefaultAddressDTO(): AddressDTO {
+  return {
+    fullName: "",
+  };
+}
+
+function createDefaultContractorDTO() {
+  return {
+    id: 0, // Hoặc giá trị mặc định của id tùy thuộc vào yêu cầu của bạn
+    name: "",
+    signingDate: "",
+    expirationDate: "",
+    address: createDefaultAddressDTO(), // Đây là một cách để tạo một đối tượng rỗng của AddressDTO
+  };
+}
+
+// table config
+
+const columns = [
+  {
+    title: "Tên nhà thầu",
+    key: "name",
+    dataIndex: "name",
+    customFilterDropdown: true,
+    onFilter: (value: string, record: ContractorDTO) =>
+      record.name!.toLowerCase().includes(value.toLowerCase()),
+  },
+  {
+    title: "Ngày đăng kí",
+    key: "signingDate",
+    dataIndex: "signingDate",
+  },
+  {
+    title: "Ngày hết hạn",
+    dataIndex: "expirationDate",
+    key: "expirationDate",
+  },
+  {
+    title: "Địa chỉ",
+    dataIndex: ["address", "fullName"],
+    key: "address",
+    customFilterDropdown: true,
+    onFilter: (value: string, record: ContractorDTO) =>
+      record.address!.fullName!.toLowerCase().includes(value.toLowerCase()),
+  },
+  {
+    title: "Thao tác",
+    key: "operation",
+    fixed: "right",
+  },
+];
+
+const contractors = reactive<ContractorDTO[]>([]);
+
+// Get contractors from server to push in table content
+const fetchData = () => {
+  contractorApi
+    .getAllContractors()
+    .then((res) => {
+      contractors.splice(0, contractors.length, ...res.data.reverse());
+    })
+    .catch((err) => {
+      console.log("Get All Contractor." + err);
+    });
+};
+onMounted(fetchData);
+
+// Delete user and update to table content
+const deleteContractor = async (Contractor?: ContractorDTO) => {
+  try {
+    await contractorApi.deleteContractor(Contractor!.id);
+    await addressApi.deleteAddress(Contractor!.address!.id!);
+    const index = contractors.indexOf(<ContractorDTO>Contractor);
+    console.log(index);
+    message.success("Đã xóa thông tin Nhà thầu thành công!");
+    contractors.splice(index, 1);
+  } catch (err) {
+    console.log(err);
+    message.error("Xóa thông tin Nhà thầu thất bại!");
+  }
 };
 
-const showUpdate = (record: ContractorDTO) => {
-  selectedContractor.value = record; // Store the selected contractor
-  openUpdate.value = true;
+// Logic editForm
+const openEditForm = ref<boolean>(false);
+
+const formEditState: UnwrapRef<ContractorDTO> = reactive<ContractorDTO>(
+  createDefaultContractorDTO()
+);
+const showEditForm = (v: ContractorDTO) => {
+  // Deep copy the object
+  const copy = JSON.parse(JSON.stringify(v));
+
+  // Convert string dates to Date objects
+  if (copy.signingDate) {
+    copy.signingDate = "";
+  }
+  if (copy.expirationDate) {
+    copy.expirationDate = "";
+  }
+
+  // Assign the modified object to formEditState
+  Object.assign(formEditState, copy);
+  console.log(formEditState);
+  openEditForm.value = true;
 };
 
-const newContractor = reactive<ContractorDTO>({
+
+const editLoading = ref<boolean>(false);
+const edit = () => {
+  editLoading.value = true;
+  console.log(JSON.parse(JSON.stringify(formEditState)));
+  console.log(formEditState.id);
+  contractorApi
+    .partialUpdateContractor(formEditState.id, formEditState)
+    .then((res) => {
+      console.log(res);
+      const index = contractors.findIndex((user: ContractorDTO) => {
+        return user.id === formEditState.id;
+      });
+      console.log(index);
+      console.log(contractors[index]);
+      Object.assign(
+        contractors[index],
+        JSON.parse(JSON.stringify(formEditState))
+      );
+      message.success("Đã thay đổi thông tin Nhà thầu thành công!");
+    })
+    .catch((err) => {
+      console.log(err);
+      message.success("Thay đổi thông tin Nhà thầu thất bại!");
+    })
+    .finally(() => {
+      editLoading.value = false;
+      openEditForm.value = false;
+    });
+};
+
+// Logic addForm
+const openAddForm = ref<boolean>(false);
+const addLoading = ref<boolean>(false);
+const addressApi = new AddressResourceApi(config);
+const formAddState = reactive({
   name: "",
   signingDate: "",
   expirationDate: "",
-  addressId: undefined,
+  address: {
+    id: -1,
+    fullName: "",
+  },
+});
+function reset() {
+  formAddState.name = "";
+  formAddState.signingDate = "";
+  formAddState.expirationDate = "";
+  formAddState.address.id = -1;
+  formAddState.address.fullName = "";
+}
+
+const showAddForm = () => {
+  openAddForm.value = true;
+};
+
+const add = async () => {
+  addLoading.value = true;
+  try {
+    let addressId = (
+      await addressApi.createAddress(<AddressDTO>{
+        fullName: formAddState.address.fullName,
+      })
+    ).data.id;
+
+    await contractorApi.createContractor(<ContractorDTO>{
+        name: formAddState.name,
+        signingDate: formAddState.signingDate,
+        expirationDate: formAddState.expirationDate,
+        address: {
+          id: addressId,
+        },
+      })
+    
+    // console.log(contractors);
+    message.success("Tạo tài khoản Nhà thầu thành công!");
+  } catch (err) {
+    message.error("Tạo tài khoản Nhà thầu thất bại!");
+  } finally {
+    addLoading.value = false;
+    openAddForm.value = false;
+    reset();
+    fetchData();
+  }
+};
+
+const pagination = {
+  pageSize: 6,
+};
+const state = reactive({
+  searchText: "",
+  searchedColumn: "",
 });
 
-const handleAddContractor = async () => {
-  try {
-    const response = await axios.post("/contractors", newContractor);
-    console.log("New contractor added:", response.data);
-    Object.assign(newContractor, {
-      name: "",
-      signingDate: null,
-      expirationDate: null,
-      address: "",
-    });
-    showModal();
-    await fetchData();
-  } catch (error) {
-    console.error("Error adding new contractor:", error);
-  }
+const searchInput = ref();
+
+const handleSearch = (selectedKeys: any, confirm: any, dataIndex: any) => {
+  confirm();
+  state.searchText = selectedKeys[0];
+  state.searchedColumn = dataIndex;
 };
 
-const fetchData = async () => {
-  try {
-    const response = await axios.get("/contractors?page=0&size=20");
-    state.dataSource = response.data;
-  } catch (error) {
-    console.error("Error fetching contractors:", error);
-  }
-};
-
-onMounted(async () => {
-  await fetchData();
-});
-
-const onDelete = async (id: number) => {
-  try {
-    console.log(id);
-    await axios.delete(`/contractors/${id}`);
-    await fetchData();
-  } catch (error) {
-    console.error("Error deleting contractor:", error);
-  }
-};
-
-const handleUpdateContractor = async () => {
-  try {
-    if (!selectedContractor.value) return; // Exit if no contractor is selected for update
-    const response = await axios.put(`/contractors/${selectedContractor.value.id}`, selectedContractor.value);
-    console.log("Contractor updated:", response.data);
-    Object.assign(newContractor, {
-      name: "",
-      signingDate: null,
-      expirationDate: null,
-      address: "",
-    });
-    openUpdate.value = false;
-    selectedContractor.value = null; // Clear the selected contractor after update
-    await fetchData();
-  } catch (error) {
-    console.error("Error updating contractor:", error);
-  }
+const handleReset = (clearFilters: any) => {
+  clearFilters({ confirm: true });
+  state.searchText = "";
 };
 </script>
+<template>
+  <!-- -->
+  <a-breadcrumb style="margin: 16px 0">
+    <a-breadcrumb-item>Nhà thầu</a-breadcrumb-item>
+    <a-breadcrumb-item>Danh sách Nhà thầu</a-breadcrumb-item>
+  </a-breadcrumb>
+
+  <!-- Contractor list table -->
+  <a-layout-content
+    :style="{
+      background: '#fff',
+      padding: '24px',
+      margin: 0,
+      minHeight: '280px',
+    }"
+  >
+    <a-table
+      :dataSource="contractors"
+      :columns="columns"
+      :scroll="{ x: 1300 }"
+      :pagination="pagination"
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'name'">
+          <a>
+            {{ record.name }}
+          </a>
+        </template>
+        <template v-if="column.key === 'operation'">
+          <a href="#" @click="() => showEditForm(record)">
+            <EditOutlined />
+          </a>
+          <a-popconfirm
+            title="Xóa Nhà thầu?"
+            ok-text="Yes"
+            cancel-text="No"
+            @confirm="() => deleteContractor((<ContractorDTO>record))"
+          >
+            <a href="#">
+              <DeleteFilled style="margin-left: 12px" />
+            </a>
+          </a-popconfirm>
+        </template>
+      </template>
+      <!-- Filter-->
+      <template #customFilterIcon="{ filtered }">
+        <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
+      </template>
+      <template
+        #customFilterDropdown="{
+          setSelectedKeys,
+          selectedKeys,
+          confirm,
+          clearFilters,
+          column,
+        }"
+      >
+        <div style="padding: 8px">
+          <a-input
+            ref="searchInput"
+            :placeholder="`Search`"
+            :value="selectedKeys[0]"
+            style="width: 188px; margin-bottom: 8px; display: block"
+            @change="(e: any) => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+            @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
+          />
+          <a-button
+            type="primary"
+            size="small"
+            style="width: 90px; margin-right: 8px"
+            @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
+          >
+            <template #icon>
+              <SearchOutlined />
+            </template>
+            Search
+          </a-button>
+          <a-button
+            size="small"
+            style="width: 90px"
+            @click="handleReset(clearFilters)"
+          >
+            Reset
+          </a-button>
+        </div>
+      </template>
+      <!-- Filter end -->
+    </a-table>
+  </a-layout-content>
+
+  <!-- Float button create new Contractor-->
+  <a-float-button
+    type="primary"
+    @click="showAddForm"
+    tooltip="Tạo Nhà thầu mới"
+  >
+    <template #icon>
+      <plus-outlined />
+    </template>
+  </a-float-button>
+
+  <!-- Popup edit Contractor form -->
+  <a-modal
+    v-model:open="openEditForm"
+    title="Chỉnh sửa thông tin Nhà thầu"
+    :confirm-loading="editLoading"
+    @ok="edit"
+  >
+    <a-form :model="formEditState">
+      <a-form-item ref="firstName" label="Tên nhà thầu" name="name">
+        <a-input v-model:value="formEditState.name" />
+      </a-form-item>
+      <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
+        <a-date-picker v-model:value="formEditState.signingDate" />
+      </a-form-item>
+      <a-form-item
+        ref="expirationDate"
+        label="Ngày hết hạn"
+        name="expirationDate"
+      >
+        <a-date-picker v-model:value="formEditState.expirationDate" />
+      </a-form-item>
+      <a-form-item ref="address" label="Địa chỉ" name="address">
+        <a-input v-model:value="formEditState.address!.fullName" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
+
+  <!-- Popup create Contractor form -->
+  <a-modal
+    v-model:open="openAddForm"
+    title="Tạo mới Nhà thầu"
+    :confirm-loading="addLoading"
+    @ok="add"
+    @cancel="reset"
+  >
+    <a-form>
+      <a-form-item ref="name" label="Tên nhà thầu" name="name">
+        <a-input v-model:value="formAddState.name" />
+      </a-form-item>
+      <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
+        <a-date-picker v-model:value="formAddState.signingDate" />
+      </a-form-item>
+      <a-form-item
+        ref="expirationDate"
+        label="Ngày hết hạn"
+        name="expirationDate"
+      >
+        <a-date-picker v-model:value="formAddState.expirationDate" />
+      </a-form-item>
+      <a-form-item ref="address" label="Địa chỉ" name="address">
+        <a-input v-model:value="formAddState.address!.fullName" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
+</template>
+
+<style scoped></style>
