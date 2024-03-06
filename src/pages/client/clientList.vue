@@ -25,11 +25,28 @@
         {{ getEmployeeName(record.id) }}
       </template>
     </a-table-column>
+    <a-table-column title="Địa chỉ" dataIndex="address" key="address">
+      <template #customRender="{ record }">
+        {{ record.address?.fullName }}
+      </template>
+    </a-table-column>
     <a-table-column title="Thao tác" key="action">
       <template #customRender="{ record }">
         <a-space>
-          <a-button type="primary" @click="editCustomer(record)">Sửa</a-button>
-          <a-button type="danger" @click="deleteCustomer(record)">Xóa</a-button>
+          <a-button type="primary" @click="editCustomer(record)">
+            <EditOutlined />
+          </a-button>
+
+          <a-popconfirm
+            title="Bạn có muốn xóa khách hàng?"
+            ok-text="Yes"
+            cancel-text="No"
+            @confirm="deleteCustomer(record)"
+          >
+            <a href="#">
+              <DeleteOutlined style="margin-left: 12px" />
+            </a>
+          </a-popconfirm>
         </a-space>
       </template>
     </a-table-column>
@@ -78,7 +95,8 @@ import {
 import { Configuration } from "../../configuration";
 import { onMounted, ref } from "vue";
 import store from "@/store";
-import { get } from "http";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
   baseOptions: {
@@ -106,10 +124,10 @@ const confirmLoading = ref<boolean>(false);
 onMounted(() => {
   userXApi.getUserXByRole("KH").then((res) => {
     clientList.value = res.data;
+    console.log(clientList.value);
   });
   userXApi.getUserXByRole("NV").then((res) => {
     allEmployeeList.value = res.data;
-    console.log(allEmployeeList.value);
   });
   customerAssignmentApi.getAllCustomerAssignments().then((res) => {
     customerAssignmentList.value = res.data;
@@ -137,8 +155,21 @@ const editCustomer = (record: UserXDTO) => {
   formState.value.employee = getEmployeeIdByCustomerId(record.id) || 0;
   formState.value.assignmentId = getAssignmentIdByCustomerId(record.id) || 0;
 };
-const deleteCustomer = (id: UserXDTO) => {
-  console.log(id);
+const deleteCustomer = (user: UserXDTO) => {
+  const user_id = user.id || 0;
+  const assignmentId = getAssignmentIdByCustomerId(user_id) || 0;
+  customerAssignmentApi
+    .deleteCustomerAssignment(assignmentId)
+    .then(() => {
+      userXApi.deleteUserX(user_id).then(() => {
+        userXApi.getUserXByRole("KH").then((res) => {
+          clientList.value = res.data;
+        });
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 const getAssignmentIdByCustomerId = (customerId: any) => {
   const assignment = customerAssignmentList.value.find(
@@ -167,7 +198,6 @@ const formState2UserXDTO = (form: any) => {
 };
 const handleOk = () => {
   confirmLoading.value = true;
-  console.log(formState.value);
   userXApi
     .partialUpdateUserX(formState.value.id, formState2UserXDTO(formState.value))
     .then(() => {
@@ -193,6 +223,7 @@ const handleOk = () => {
         console.log(err);
       });
   }
+  message.success("Chỉnh sửa thông tin khách hàng thành công");
 };
 </script>
 <style scoped></style>
