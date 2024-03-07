@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onUpdated } from "vue";
 import { KJUR } from "jsrsasign";
 import store from "@/store";
 import Navbar from "@/components/Navbar.vue";
@@ -18,11 +18,13 @@ const isTokenExpired = (token: string): boolean => {
   }
 };
 
-let tokenExpired = ref(true) as import("vue").Ref<boolean>;
-onMounted(() => {
+let tokenExpired = ref(true);
+onUpdated(() => {
   tokenExpired.value = isTokenExpired(store.state.jwt);
 });
+
 </script>
+
 <template>
   <div>
     <Authorization v-if="store.state.jwt === '' || tokenExpired" />

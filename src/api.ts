@@ -1792,7 +1792,7 @@ export const AccountResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async registerAccount(managedUserVM: ManagedUserVM, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async registerAccount(managedUserVM: ManagedUserVM, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerAccount(managedUserVM, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -1875,7 +1875,7 @@ export const AccountResourceApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        registerAccount(managedUserVM: ManagedUserVM, options?: any): AxiosPromise<void> {
+        registerAccount(managedUserVM: ManagedUserVM, options?: any): AxiosPromise<User> {
             return localVarFp.registerAccount(managedUserVM, options).then((request) => request(axios, basePath));
         },
         /**
@@ -2149,18 +2149,21 @@ export const AddressResourceApiAxiosParamCreator = function (configuration?: Con
          * 
          * @param {number} communeId 
          * @param {number} districtId 
+         * @param {string} street 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
          * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllAddressesByCommuneAndDistrict: async (communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAllAddressesByCondition: async (communeId: number, districtId: number, street: string, page?: number, size?: number, sort?: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'communeId' is not null or undefined
-            assertParamExists('getAllAddressesByCommuneAndDistrict', 'communeId', communeId)
+            assertParamExists('getAllAddressesByCondition', 'communeId', communeId)
             // verify required parameter 'districtId' is not null or undefined
-            assertParamExists('getAllAddressesByCommuneAndDistrict', 'districtId', districtId)
-            const localVarPath = `/api/addresses-by-commune-and-district`;
+            assertParamExists('getAllAddressesByCondition', 'districtId', districtId)
+            // verify required parameter 'street' is not null or undefined
+            assertParamExists('getAllAddressesByCondition', 'street', street)
+            const localVarPath = `/api/addresses-by-condition`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2190,6 +2193,10 @@ export const AddressResourceApiAxiosParamCreator = function (configuration?: Con
 
             if (districtId !== undefined) {
                 localVarQueryParameter['districtId'] = districtId;
+            }
+
+            if (street !== undefined) {
+                localVarQueryParameter['street'] = street;
             }
 
 
@@ -2337,14 +2344,15 @@ export const AddressResourceApiFp = function(configuration?: Configuration) {
          * 
          * @param {number} communeId 
          * @param {number} districtId 
+         * @param {string} street 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
          * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllAddressesByCommuneAndDistrict(communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AddressDTO>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAddressesByCommuneAndDistrict(communeId, districtId, page, size, sort, options);
+        async getAllAddressesByCondition(communeId: number, districtId: number, street: string, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AddressDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAddressesByCondition(communeId, districtId, street, page, size, sort, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -2421,14 +2429,15 @@ export const AddressResourceApiFactory = function (configuration?: Configuration
          * 
          * @param {number} communeId 
          * @param {number} districtId 
+         * @param {string} street 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
          * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllAddressesByCommuneAndDistrict(communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<AddressDTO>> {
-            return localVarFp.getAllAddressesByCommuneAndDistrict(communeId, districtId, page, size, sort, options).then((request) => request(axios, basePath));
+        getAllAddressesByCondition(communeId: number, districtId: number, street: string, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<AddressDTO>> {
+            return localVarFp.getAllAddressesByCondition(communeId, districtId, street, page, size, sort, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2510,6 +2519,7 @@ export class AddressResourceApi extends BaseAPI {
      * 
      * @param {number} communeId 
      * @param {number} districtId 
+     * @param {string} street 
      * @param {number} [page] Zero-based page index (0..N)
      * @param {number} [size] The size of the page to be returned
      * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
@@ -2517,8 +2527,8 @@ export class AddressResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AddressResourceApi
      */
-    public getAllAddressesByCommuneAndDistrict(communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
-        return AddressResourceApiFp(this.configuration).getAllAddressesByCommuneAndDistrict(communeId, districtId, page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    public getAllAddressesByCondition(communeId: number, districtId: number, street: string, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
+        return AddressResourceApiFp(this.configuration).getAllAddressesByCondition(communeId, districtId, street, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -12849,7 +12859,7 @@ export const UserResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteUser(login: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async deleteUser(login: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteUser(login, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -12910,7 +12920,7 @@ export const UserResourceApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteUser(login: string, options?: any): AxiosPromise<void> {
+        deleteUser(login: string, options?: any): AxiosPromise<string> {
             return localVarFp.deleteUser(login, options).then((request) => request(axios, basePath));
         },
         /**

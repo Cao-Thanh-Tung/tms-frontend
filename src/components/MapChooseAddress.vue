@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 // using ant-design-vue
-import { onMounted, ref } from 'vue';
+import { ref, onUpdated, onMounted } from 'vue';
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
@@ -26,8 +26,14 @@ const props = withDefaults(defineProps<Coord>(), {
 const marker = ref<L.Marker>();
 const map = ref<L.Map | null>(null);
 const mapContainer = ref();
-
+const emit = defineEmits(['choose']);
+const choosePosition = (lat: number, lng: number) => {
+    console.log("lat: " + lat + ", long: " + lng);
+    emit('choose', lat, lng);
+}
 const createMap = () => {
+    console.log("map");
+    console.log(props);
     const mapInstance = L.map(mapContainer.value, {
         doubleClickZoom: false,
     }).setView([props.lat, props.lng], 13);
@@ -38,15 +44,26 @@ const createMap = () => {
 };
 onMounted(() => {
     map.value = createMap();
-    map.value.on("dblclick", function (e: L.LeafletMouseEvent) {
+    marker.value = L.marker([props.lat, props.lng], { draggable: false });
+    marker.value!.addTo(map.value as L.Map);
+    map.value?.on("dblclick", function (e: L.LeafletMouseEvent) {
         if (map.value) {
             if (marker.value) {
                 map.value.removeLayer(marker.value);
             }
             marker.value = L.marker([e.latlng.lat, e.latlng.lng], { draggable: false });
             marker.value!.addTo(map.value as L.Map);
+            choosePosition(e.latlng.lat, e.latlng.lng);
         }
     });
+})
+onUpdated(() => {
+    map.value?.setView([props.lat, props.lng], 13);
+    if (marker.value) {
+        map.value?.removeLayer(marker.value);
+    }
+    marker.value = L.marker([props.lat, props.lng], { draggable: false });
+    marker.value!.addTo(map.value as L.Map);
 });
 </script>
 
