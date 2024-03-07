@@ -84,7 +84,7 @@ export default {
 
     const createMap = () => {
       const mapInstance = L.map(mapContainer.value, {
-        doubleClickZoom: false, // Disable double-click zoom
+        doubleClickZoom: false,
       }).setView([lat.value, lng.value], 13);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -94,6 +94,22 @@ export default {
       }).addTo(mapInstance);
       return mapInstance;
     };
+    // const createMap = () => {
+    //   const mapInstance = L.map(mapContainer.value, {
+    //     doubleClickZoom: false, // Disable double-click zoom
+    //   }).setView([lat.value, lng.value], 13);
+
+    //   L.tileLayer(
+    //     "https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=VdkO6JnBHszsEYIJXZtR",
+    //     {
+    //       attribution:
+    //         '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
+    //       maxZoom: 18,
+    //     }
+    //   ).addTo(mapInstance);
+
+    //   return mapInstance;
+    // };
 
     onMounted(() => {
       map.value = createMap();
@@ -121,7 +137,7 @@ export default {
 
       map.value.on("dblclick", function (e: L.LeafletMouseEvent) {
         if (map.value) {
-          createMarker(e.latlng.lat, e.latlng.lng).addTo(map.value);
+          createMarker(e.latlng.lat, e.latlng.lng).addTo(map.value as L.Map);
         }
       });
       searchInput.value.addEventListener("input", handleSearchInput);
@@ -142,7 +158,7 @@ export default {
             }
             const data = await response.json();
             searchResults.value = data.features.map(
-              (feature) => feature.properties
+              (feature: any) => feature.properties
             );
             console.log(searchResults.value);
             showSearchResults.value = true;
@@ -160,11 +176,18 @@ export default {
         navigator.geolocation.watchPosition((position) => {
           lat.value = position.coords.latitude;
           lng.value = position.coords.longitude;
-          map.value.setView([lat.value, lng.value], 13);
+          if (map.value) map.value.setView([lat.value, lng.value], 13);
         });
       } else {
         console.log("Geolocation is not supported by this browser.");
       }
+      setTimeout(() => {
+        if (!lat.value && !lng.value) {
+          lat.value = 21.0285;
+          lng.value = 105.8542;
+          if (map.value) map.value.setView([lat.value, lng.value], 13);
+        }
+      }, 2000);
     };
     const searchLocation = async () => {
       const search = document.querySelector("input");
@@ -197,7 +220,7 @@ export default {
         ]);
         if (map.value) {
           L.polygon(reversedCoordinates.value, { color: "red" }).addTo(
-            map.value
+            map.value as L.Map
           );
         }
       } catch (e) {
@@ -205,9 +228,9 @@ export default {
       }
       if (map.value) {
         map.value.setView([lat, lon], 13);
-        createMarker(lat, lon, true).addTo(map.value);
+        createMarker(lat, lon, true).addTo(map.value as L.Map);
         L.marker([lat, lon])
-          .addTo(map.value)
+          .addTo(map.value as L.Map)
           .bindPopup(`<b>Địa chỉ:</b> ${data[0].display_name}`)
           .openPopup();
       }
@@ -257,6 +280,7 @@ export default {
 
     const drawPolygon = () => {
       const markers: L.Marker[] = [];
+      if (!map.value) return;
       map.value.eachLayer((layer: L.Layer) => {
         if (layer instanceof L.Marker) {
           markers.push(layer);
@@ -269,16 +293,11 @@ export default {
 
       const concaveHull = concaveman(points);
 
-      const latLngs = concaveHull.map(([lng, lat]: [number, number]) => [
-        lat,
-        lng,
-      ]);
-      if (polygonLayer.value) {
-        map.value.removeLayer(polygonLayer.value);
-      }
-
+      const latLngs = concaveHull.map(
+        (point) => point.reverse() as L.LatLngTuple
+      );
       polygonLayer.value = L.polygon(latLngs, { color: "red" }).addTo(
-        map.value
+        map.value as L.Map
       );
       console.log(polygonLayer.value);
     };
@@ -314,7 +333,7 @@ export default {
     const navigateToResult = (lat: number, lon: number) => {
       if (map.value) {
         map.value.setView([lat, lon], 13);
-        createMarker(lat, lon).addTo(map.value);
+        createMarker(lat, lon).addTo(map.value as L.Map);
       }
       showSearchResults.value = false;
     };
@@ -327,32 +346,32 @@ export default {
           }
         });
       }
-      const waypoints = markers.map((marker) => marker.getLatLng());
-      L.Routing.control({
-        waypoints,
-        routeWhileDragging: true,
-        showAlternatives: false,
-        lineOptions: {
-          styles: [{ color: "red", opacity: 1, weight: 2 }],
-        },
-        formatter: new L.Routing.Formatter({
-          units: "metric",
-          show: false,
-          formatInstruction: function (
-            instruction,
-            distances,
-            totalTime,
-            formatter
-          ) {
-            // Customize the instruction text here
-            // instruction is an object representing the current routing instruction
-            // distances is an object representing the total and remaining distances of the route
-            // totalTime is the total time of the route in seconds
-            // formatter is an instance of L.Routing.Formatter for formatting distances and times
-            return instruction.text;
-          },
-        }),
-      }).addTo(map.value);
+      // const waypoints = markers.map((marker) => marker.getLatLng());
+      // L.Routing.control({
+      //   waypoints,
+      //   routeWhileDragging: true,
+      //   showAlternatives: false,
+      //   lineOptions: {
+      //     styles: [{ color: "red", opacity: 1, weight: 2 }],
+      //   },
+      //   formatter: new L.Routing.Formatter({
+      //     units: "metric",
+      //     show: false,
+      //     formatInstruction: function (
+      //       instruction,
+      //       distances,
+      //       totalTime,
+      //       formatter
+      //     ) {
+      //       // Customize the instruction text here
+      //       // instruction is an object representing the current routing instruction
+      //       // distances is an object representing the total and remaining distances of the route
+      //       // totalTime is the total time of the route in seconds
+      //       // formatter is an instance of L.Routing.Formatter for formatting distances and times
+      //       return instruction.text;
+      //     },
+      //   }),
+      // }).addTo(map.value);
     };
     return {
       searchLocation,
