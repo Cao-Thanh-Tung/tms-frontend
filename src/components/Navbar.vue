@@ -100,6 +100,19 @@ function logout() {
               ></a-menu-item
             >
           </a-sub-menu>
+          <a-sub-menu key="sub9">
+            <template #title>
+              <span>
+                <user-outlined />
+                Nhà Thầu
+              </span>
+            </template>
+            <a-menu-item key="91"
+              ><router-link :to="{ name: 'contractor-list' }"
+                >Danh sách nhà thầu</router-link
+              ></a-menu-item
+            >
+          </a-sub-menu>
           <a-sub-menu key="sub4">
             <template #title>
               <span>
