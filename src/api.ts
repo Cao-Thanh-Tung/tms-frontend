@@ -1427,7 +1427,7 @@ export interface VehicleDTO {
      * @type {AddressDTO}
      * @memberof VehicleDTO
      */
-    'address'?: AddressDTO;
+    'currentAddress'?: AddressDTO;
 }
 /**
  * 

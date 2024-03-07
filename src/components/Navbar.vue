@@ -16,13 +16,14 @@ function logout() {
 <template>
   <a-layout>
     <a-layout>
-        <a-layout>
-            <a-layout-sider width="200" style="background: #fff">
-                <a-menu v-model:selectedKeys="selectedKeys2" v-model:openKeys="openKeys" mode="inline"
-                    :style="{ height: '100%', borderRight: 0 }">
-                    <a-sub-menu key="sub1">
-                        <template #title>
-                            <span>
+      <a-layout-sider width="200" style="background: #fff">
+        <a-menu
+          v-model:selectedKeys="selectedKeys2"
+          v-model:openKeys="openKeys"
+          mode="inline"
+          :style="{ height: '100%', borderRight: 0 }"
+        >
+          <a-sub-menu key="sub1">
             <template #title>
               <span>
                 <a-avatar size="small" shape="square">
@@ -99,6 +100,19 @@ function logout() {
               ></a-menu-item
             >
           </a-sub-menu>
+          <a-sub-menu key="sub9">
+            <template #title>
+              <span>
+                <user-outlined />
+                Nhà Thầu
+              </span>
+            </template>
+            <a-menu-item key="91"
+              ><router-link :to="{ name: 'contractor-list' }"
+                >Danh sách nhà thầu</router-link
+              ></a-menu-item
+            >
+          </a-sub-menu>
           <a-sub-menu key="sub4">
             <template #title>
               <span>
@@ -156,7 +170,6 @@ function logout() {
       <a-layout style="padding: 0 24px 24px">
         <slot></slot>
       </a-layout>
->>>>>>> origin/dev
     </a-layout>
   </a-layout>
 </template>
@@ -164,6 +177,7 @@ function logout() {
 #components-layout-demo-top-side-2 .logo {
   float: left;
   width: 120px;
+  height: 31px;
   margin: 16px 24px 16px 0;
   background: rgba(255, 255, 255, 0.3);
 }
