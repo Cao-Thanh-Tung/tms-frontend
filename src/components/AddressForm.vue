@@ -3,7 +3,7 @@ import { Configuration } from '@/configuration';
 import store from '@/store';
 import MapChooseAddress from '@/components/MapChooseAddress.vue';
 import { CommuneResourceApi, DistrictResourceApi, ProvinceResourceApi, AddressResourceApi, AddressDTO, PositionResourceApi } from '@/api';
-import { onMounted, reactive, ref, computed } from 'vue';
+import { onMounted, reactive, ref, computed, onUpdated } from 'vue';
 import { Coord } from './MapChooseAddress.vue';
 import axios from 'axios';
 import { ProvinceDTO, DistrictDTO, CommuneDTO, PositionDTO } from '../api';
@@ -142,7 +142,6 @@ function chooseCommune(commune: CommuneDTO) {
     address.detail = "";
 }
 async function save() {
-
     if (address.positionId == -1) {
         addressLoading.value = true;
         try {
@@ -175,6 +174,7 @@ const handleChange = (value: string) => {
     });
     address.detail = addressSelected?.street!;
     searchValue.value = addressSelected?.street!;
+    address.positionId = addressSelected?.positionId!;
     address.id = Number(value);
     openSelect2.value = false;
     positionApi.getPosition(addressSelected?.positionId!).then((res) => {

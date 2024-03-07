@@ -1307,10 +1307,10 @@ export interface UserXDTO {
     'user'?: UserDTO;
     /**
      * 
-     * @type {AddressDTO}
+     * @type {number}
      * @memberof UserXDTO
      */
-    'address'?: AddressDTO;
+    'addressId'?: number;
 }
 /**
  * 
