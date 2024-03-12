@@ -134,9 +134,12 @@ type APIParams = {
     pageSize?: number;
 };
 const queryData = async (params: APIParams) => {
-    return (await userxApi.getAllUserXES(params.page! - 1, 6)).data.filter((userx: UserXDTO) => {
+    // return
+    const a = (await userxApi.getAllUserXES(params.page! - 1, 6)).data.filter((userx: UserXDTO) => {
         return userx.role === "employee" || userx.role === "driver" || userx.role === "none"
     });
+    console.log(a);
+    return a;
 };
 
 const {
