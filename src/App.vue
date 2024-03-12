@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onUpdated } from "vue";
+import { ref, onMounted } from "vue";
 import { KJUR } from "jsrsasign";
 import store from "@/store";
 import Navbar from "@/components/Navbar.vue";
