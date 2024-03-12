@@ -5,29 +5,29 @@ import store from "@/store";
 import Navbar from "@/components/Navbar.vue";
 import Authorization from "@/pages/auth/Authorization.vue";
 
-const isTokenExpired = (token: string): boolean => {
-  try {
-    const decoded: any = KJUR.jws.JWS.parse(token).payloadObj;
-    if (!decoded || !decoded.exp) {
-      return true;
-    }
-    const dateNow = new Date();
-    return decoded.exp < dateNow.getTime() / 1000;
-  } catch (err) {
-    return true;
-  }
-};
+let isTokenExpired = ref(false);
 
-let tokenExpired = ref(true);
-onUpdated(() => {
-  tokenExpired.value = isTokenExpired(store.state.jwt);
+onMounted(() => {
+  const jwt = store.getters.jwt;
+  if (jwt) {
+    const decodedToken = KJUR.jws.JWS.parse(jwt);
+    if (decodedToken.payloadObj) {
+      const payloadObj = decodedToken.payloadObj as { exp: number };
+      const now = Math.floor(Date.now() / 1000);
+      if (now > payloadObj.exp) {
+        isTokenExpired.value = true;
+      }
+    } else {
+      isTokenExpired.value = true;
+    }
+  }
 });
 
 </script>
 
 <template>
   <div>
-    <Authorization v-if="store.state.jwt === '' || tokenExpired" />
+    <Authorization v-if="store.getters.jwt == '' || isTokenExpired" />
     <Navbar v-else>
       <router-view />
     </Navbar>

@@ -270,40 +270,6 @@ const onOrderSelectChange = (selectedRowKeys: (string | number)[]) => {
   state.selectedOrderCount = selectedRowKeys.length;
 };
 
-watch(setupStep, (newVal) => {
-  switch (newVal) {
-    case 1:
-      if (originalVehicleList.value.length === 0) {
-        vehicleResourceApi
-          .getAllVehicles()
-          .then((res) => {
-            vehicleList.value = res.data;
-            originalVehicleList.value = res.data;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-      break;
-    case 2:
-      if (originalOrderList.value.length === 0) {
-        orderResourceApi
-          .getAllOrders()
-          .then((res) => {
-            orderList.value = res.data;
-            originalOrderList.value = res.data;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-      break;
-    case 3:
-      break;
-    case 4:
-      break;
-  }
-});
 const setupVehiclesHandler = () => {
   setupStep.value = 1;
 };
