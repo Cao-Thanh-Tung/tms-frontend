@@ -126,32 +126,7 @@ function logout() {
               ></a-menu-item
             >
           </a-sub-menu>
-          <a-sub-menu key="sub7">
-            <template #title>
-              <span>
-                <user-outlined />
-                Bản đồ
-              </span>
-            </template>
-            <a-menu-item key="71"
-              ><router-link :to="{ name: 'map' }"
-                >Bản đồ</router-link
-              ></a-menu-item
-            >
-          </a-sub-menu>
-          <a-sub-menu key="sub8">
-            <template #title>
-              <span>
-                <user-outlined />
-                Quản lý điểm
-              </span>
-            </template>
-            <a-menu-item key="81"
-              ><router-link :to="{ name: 'district-list' }"
-                >Danh sách Tỉnh/Huyện/X</router-link
-              ></a-menu-item
-            >
-          </a-sub-menu>
+          
         </a-menu>
       </a-layout-sider>
       <a-layout style="padding: 0 24px 24px">
