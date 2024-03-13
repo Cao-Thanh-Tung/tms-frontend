@@ -9,10 +9,10 @@
 
 <script setup lang="ts">
 // using ant-design-vue
-import { onMounted, ref, defineProps } from 'vue';
+import { onMounted, ref, defineProps } from "vue";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet.control.layers.tree/L.Control.Layers.Tree.css"
+import "leaflet.control.layers.tree/L.Control.Layers.Tree.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
@@ -334,9 +334,9 @@ function getConvexHull(markers: L.Marker[]) {
       const p = markers[i];
       const direction =
         (next.getLatLng().lng - current.getLatLng().lng) *
-        (p.getLatLng().lat - current.getLatLng().lat) -
+          (p.getLatLng().lat - current.getLatLng().lat) -
         (next.getLatLng().lat - current.getLatLng().lat) *
-        (p.getLatLng().lng - current.getLatLng().lng);
+          (p.getLatLng().lng - current.getLatLng().lng);
       if (direction < 0) {
         next = p;
       }
