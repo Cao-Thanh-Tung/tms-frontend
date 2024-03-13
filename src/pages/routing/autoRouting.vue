@@ -20,8 +20,12 @@
       <ul v-if="setupStep === 1">
         <a-table
           :dataSource="vehicleList"
-          :row-selection="rowVehicleSelection"
+          :row-selection="{
+            selectedRowKeys: state.selectedRowKeys,
+            onChange: onVehicleSelectChange,
+          }"
           :pagination="true"
+          rowKey="id"
         >
           <a-table-column dataIndex="type" key="type">
             <template #title>
@@ -57,7 +61,10 @@
             <template #title>
               <div>
                 Trọng tải
-                <a-input-number placeholder="" @input="" />
+                <a-input-number
+                  placeholder=""
+                  @input="handleVehicleNumberSearch($event, 'maxLoadKg')"
+                />
               </div>
             </template>
           </a-table-column>
@@ -74,8 +81,12 @@
       <ul v-if="setupStep === 2">
         <a-table
           :dataSource="orderList"
-          :rowSelection="rowOrderSelection"
+          :row-selection="{
+            selectedRowKeys: state.selectedOrderKeys,
+            onChange: onOrderSelectChange,
+          }"
           :pagination="true"
+          rowKey="id"
         >
           <a-table-column dataIndex="goodType" key="goodType">
             <template #title>
@@ -127,6 +138,16 @@
       <div class="next-button-container">
         <a-button type="primary" @click="nextStep">Tiếp theo</a-button>
       </div>
+      <div class="selection-counts">
+        <div class="count-item">
+          <span class="count-label">Xe đã chọn:</span>
+          <span class="count-value">{{ state.selectedVehicleCount }}</span>
+        </div>
+        <div class="count-item">
+          <span class="count-label">Đơn hàng đã chọn:</span>
+          <span class="count-value">{{ state.selectedOrderCount }}</span>
+        </div>
+      </div>
     </a-drawer>
     <map-app />
   </div>
@@ -135,7 +156,7 @@
 <script setup lang="ts">
 import mapApp from "@/components/Map.vue";
 import { SettingOutlined } from "@ant-design/icons-vue";
-import { ref, watch } from "vue";
+import { ref, watch, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";
 import { Configuration } from "../../configuration";
 import store from "../../store";
@@ -163,7 +184,7 @@ const clickSetup = async () => {
     .getAllVehicles()
     .then((res) => {
       vehicleList.value = res.data;
-      originalOrderList.value = res.data;
+      originalVehicleList.value = res.data;
     })
     .catch((err) => {
       console.log(err);
@@ -173,7 +194,6 @@ const clickSetup = async () => {
     .then((res) => {
       orderList.value = res.data;
       originalOrderList.value = res.data;
-      console.log(orderList.value);
     })
     .catch((err) => {
       console.log(err);
@@ -206,87 +226,50 @@ const handleOrderSearch = (value: string, property: keyof OrderDTO) => {
     orderList.value = [...originalOrderList.value];
   }
 };
+const handleVehicleNumberSearch = (
+  value: number,
+  property: keyof VehicleDTO
+) => {
+  if (value) {
+    console.log(value);
+    vehicleList.value = originalVehicleList.value.filter((vehicle) => {
+      const propertyValue = vehicle[property];
+      if (typeof propertyValue === "number") {
+        return propertyValue >= value;
+      }
+    });
+  } else {
+    vehicleList.value = [...originalVehicleList.value];
+  }
+};
 const nextStep = () => {
+  if (setupStep.value === 4) {
+    setupStep.value = 1;
+    return;
+  }
   setupStep.value += 1;
 };
-
-const rowVehicleSelection = ref({
-  checkStrictly: true,
-  onChange: (
-    selectedVehicleRowKeys: (string | number)[],
-    selectedVehicleRows: VehicleDTO[]
-  ) => {
-    console.log("các xe đã chọn", selectedVehicleRowKeys, selectedVehicleRows);
-  },
-  onSelect: (
-    record: VehicleDTO,
-    selected: boolean,
-    selectedVehicleRows: VehicleDTO[]
-  ) => {
-    console.log("Các xe đã chọn", record, selected, selectedVehicleRows);
-  },
-  onSelectAll: (
-    selected: boolean,
-    selectedVehicleRows: VehicleDTO[],
-    changeRows: VehicleDTO[]
-  ) => {
-    console.log("Chọn hết", selected, selectedVehicleRows, changeRows);
-  },
+const state = reactive<{
+  selectedRowKeys: (string | number)[];
+  selectedOrderKeys: (string | number)[];
+  selectedVehicleCount: number;
+  selectedOrderCount: number;
+}>({
+  selectedRowKeys: [],
+  selectedOrderKeys: [],
+  selectedVehicleCount: 0,
+  selectedOrderCount: 0,
 });
-const rowOrderSelection = {
-  selectedRowKeys: ref([] as (number | undefined)[]),
-  onChange: (selectedRowKeys: any) => {
-    rowOrderSelection.selectedRowKeys.value = selectedRowKeys;
-  },
-  selectAll: (selected: boolean) => {
-    if (selected) {
-      rowOrderSelection.selectedRowKeys.value = orderList.value.map(
-        (order) => order.id
-      );
-    } else {
-      rowOrderSelection.selectedRowKeys.value = [];
-    }
-  },
+const onVehicleSelectChange = (selectedRowKeys: (string | number)[]) => {
+  state.selectedRowKeys = selectedRowKeys;
+  state.selectedVehicleCount = selectedRowKeys.length;
 };
-//watch setupStep
-watch(setupStep, (newVal) => {
-  switch (newVal) {
-    case 1:
-      if (originalVehicleList.value.length === 0) {
-        console.log("Fetch from API for vehicle");
-        vehicleResourceApi
-          .getAllVehicles()
-          .then((res) => {
-            vehicleList.value = res.data;
-            originalOrderList.value = res.data;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-      break;
-    case 2:
-      if (originalOrderList.value.length === 0) {
-        console.log("Fetch from API for order");
 
-        orderResourceApi
-          .getAllOrders()
-          .then((res) => {
-            orderList.value = res.data;
-            originalOrderList.value = res.data;
-            console.log(orderList.value);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-      break;
-    case 3:
-      break;
-    case 4:
-      break;
-  }
-});
+const onOrderSelectChange = (selectedRowKeys: (string | number)[]) => {
+  state.selectedOrderKeys = selectedRowKeys;
+  state.selectedOrderCount = selectedRowKeys.length;
+};
+
 const setupVehiclesHandler = () => {
   setupStep.value = 1;
 };
@@ -306,8 +289,49 @@ const viewResultsHandler = () => {
 
 <style scoped>
 .next-button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: absolute;
-  right: 20px;
-  bottom: 20px;
+  bottom: 0;
+  left: 85%;
+  width: 100%;
+  padding: 20px;
+  z-index: 999;
+}
+
+.count-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.count-label {
+  font-weight: bold;
+  margin-right: 5px;
+  font-size: 18px; /* Increase the font size */
+  color: #333; /* Change the color to a dark gray */
+}
+
+.selection-counts {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-bottom: 20px;
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  width: 100%;
+  font-size: 20px;
+  margin-right: 100px;
+}
+
+.count-value {
+  color: #1890ff;
+  font-size: 22px; /* Increase the font size */
+  font-weight: bold; /* Make the font bold */
 }
 </style>

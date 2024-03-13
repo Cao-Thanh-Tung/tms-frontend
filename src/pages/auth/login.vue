@@ -5,6 +5,7 @@ import { LoginVM } from "@/api";
 import store from "@/store";
 import { message } from "ant-design-vue";
 import { UserJwtControllerApi } from "../../api";
+import router from "@/router";
 const formState = reactive<LoginVM>({
   username: "",
   password: "",
@@ -14,8 +15,12 @@ let userJwtControllerApi = new UserJwtControllerApi();
 const login = async (values: LoginVM) => {
   try {
     const res = await userJwtControllerApi.authorize(values);
+    console.log(res.data.id_token);
     store.commit("SET_JWT", res.data.id_token);
+    message.success("Login successful");
+    router.push("/user/info");
   } catch (e) {
+    console.log(e);
     message.error("Login failed");
   }
 };

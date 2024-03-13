@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { reactive, ref, UnwrapRef, onMounted } from 'vue';
+import { reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
-import { UserXDTO, UserDTO, AddressDTO } from '@/api';
+import { UserXDTO, UserDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
 import store from '@/store';
 import { Configuration } from '@/configuration';
 import { AdminUserDTO } from '../../api';
+import AddressForm from '@/components/AddressForm.vue';
+import { computed } from 'vue';
+import { usePagination } from 'vue-request';
 // config request object
 const config = new Configuration({
     accessToken: () => store.getters.jwt,
@@ -29,24 +32,18 @@ function createDefaultUserDTO(): UserDTO {
     };
 }
 
-function createDefaultAddressDTO(): AddressDTO {
-    return {
-        fullName: '',
-    };
-}
 
 function createDefaultUserXDTO() {
     return {
-        id: 0, // Hoặc giá trị mặc định của id tùy thuộc vào yêu cầu của bạn
+        id: 0,
         phoneNumber: '',
         role: 'none',
         user: createDefaultUserDTO(),
-        address: createDefaultAddressDTO() // Đây là một cách để tạo một đối tượng rỗng của AddressDTO
+        addressId: -1,
     };
 }
 
 // table config
-
 const columns = [
     {
         title: '',
@@ -73,14 +70,6 @@ const columns = [
             record.phoneNumber!.toLowerCase().includes(value.toLowerCase()),
     },
     {
-        title: 'Địa chỉ',
-        dataIndex: ['address', 'fullName'],
-        key: 'address',
-        width: '6%',
-        customFilterDropdown: true,
-        onFilter: (value: string, record: UserXDTO) =>
-            record.address!.fullName!.toLowerCase().includes(value.toLowerCase()),
-    }, {
         title: 'Chức vụ',
         dataIndex: 'role',
         key: 'role',
@@ -140,31 +129,76 @@ const columns = [
         fixed: 'right',
     },
 ];
+type APIParams = {
+    page?: number;
+    pageSize?: number;
+};
+const queryData = async (params: APIParams) => {
+    // return
+    const a = (await userxApi.getAllUserXES(params.page! - 1, 6)).data.filter((userx: UserXDTO) => {
+        return userx.role === "employee" || userx.role === "driver" || userx.role === "none"
+    });
+    console.log(a);
+    return a;
+};
 
-const users = reactive<UserXDTO[]>([]);
+const {
+    data: users,
+    run,
+    loading,
+    current,
+} = usePagination(queryData, {
+    pagination: {
+        currentKey: 'page',
+    },
+});
 
-// Get users from server to push in table content
-onMounted(() => {
-    userxApi.getAllUserXES().then((res) => {
-        const employees = res.data.filter((userx: UserXDTO) => {
-            return userx.role === "employee" || userx.role === "driver" || userx.role === "none"
-        })
-        users.push(...employees.reverse());
-    }).catch((err) => {
-        console.log("Get All Employee." + err);
-    })
+const pagination = computed(() => ({
+    total: 9,
+    current: current.value,
+    pageSize: 6,
+}));
+const tableCondition = reactive<{
+    pag: { pageSize: number; current: number },
+    filters: any,
+    sorter: any,
+}>({
+    pag: { pageSize: 6, current: 1 },
+    filters: {},
+    sorter: {},
 })
+const updateTable = (
+    pag: { pageSize: number; current: number },
+    filters: any,
+    sorter: any
+) => {
+    run({
+        results: pag.pageSize,
+        page: pag?.current,
+        sortField: sorter.field,
+        sortOrder: sorter.order,
+        ...filters,
+    });
+}
+const handleTableChange = (
+    pag: { pageSize: number; current: number },
+    filters: any,
+    sorter: any,
+) => {
+    tableCondition.pag = pag;
+    tableCondition.filters = filters;
+    tableCondition.sorter = sorter;
+    updateTable(pag, filters, sorter);
 
+};
 // Delete user and update to table content
 const deleteEmployee = async (employee?: UserXDTO) => {
     try {
-        await userxApi.deleteUserX(employee!.id)
+        await userxApi.deleteUserX(employee?.id!)
         await userApi.deleteUser(employee!.user!.login!);
-        await addressApi.deleteAddress(employee!.address!.id!);
-        const index = users.indexOf(<UserXDTO>employee);
-        console.log(index);
+        await addressApi.deleteAddress(employee!.addressId!);
         message.success('Đã xóa thông tin nhân viên thành công!');
-        users.splice(index, 1);
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
     } catch (err) {
         console.log(err);
         message.error('Xóa thông tin nhân viên thất bại!');
@@ -177,30 +211,27 @@ const openEditForm = ref<boolean>(false);
 const formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>(createDefaultUserXDTO());
 const showEditForm = (v: UserXDTO) => {
     Object.assign(formEditState, JSON.parse(JSON.stringify(v)));
+    formEditState.addressId = v.addressId;
+    console.log(v);
     openEditForm.value = true;
 };
 
 const editLoading = ref<boolean>(false);
 const edit = () => {
     editLoading.value = true;
-    console.log(JSON.parse(JSON.stringify(formEditState)));
-    console.log(formEditState.id);
-    userxApi.partialUpdateUserX(formEditState.id, formEditState).then((res) => {
+    console.log(formEditState);
+    userxApi.partialUpdateUserX(formEditState.id!, formEditState).then((res) => {
         console.log(res);
-        const index = users.findIndex((user: UserXDTO) => { return user.id === formEditState.id });
-        console.log(index);
-        console.log(users[index]);
-        Object.assign(users[index], JSON.parse(JSON.stringify(formEditState)));
         message.success("Đã thay đổi thông tin nhân viên thành công!");
     }).catch((err) => {
         console.log(err);
         message.success("Thay đổi thông tin nhân viên thất bại!");
     }).finally(() => {
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
         editLoading.value = false;
         openEditForm.value = false;
     })
 };
-
 
 // Logic addForm
 const openAddForm = ref<boolean>(false);
@@ -215,10 +246,7 @@ const formAddState = reactive({
     phone: "",
     email: "",
     imageUrl: "",
-    address: {
-        id: -1,
-        fullName: "",
-    },
+    addressId: -1,
     role: "none",
 })
 function reset() {
@@ -229,8 +257,7 @@ function reset() {
     formAddState.phone = "";
     formAddState.email = "";
     formAddState.imageUrl = "";
-    formAddState.address.id = -1;
-    formAddState.address.fullName = "";
+    formAddState.addressId = -1;
     formAddState.role = "none";
 }
 
@@ -248,50 +275,25 @@ const add = async () => {
             lastName: formAddState.lastName,
             imageUrl: formAddState.imageUrl,
         })).data.id;
-        let addressId = (await addressApi.createAddress(<AddressDTO>{
-            fullName: formAddState.address.fullName,
-        })).data.id;
-        let userXId = (await userxApi.createUserX(<UserXDTO>{
+        await userxApi.createUserX(<UserXDTO>{
             phoneNumber: formAddState.phone,
             role: formAddState.role,
             user: {
                 id: userId,
             },
-            address: {
-                id: addressId
-            }
-        })).data.id;
-        users.unshift(<UserXDTO>{
-            id: userXId,
-            phoneNumber: formAddState.phone,
-            role: formAddState.role,
-            user: {
-                id: userId,
-                login: formAddState.login,
-                email: formAddState.email,
-                firstName: formAddState.firstName,
-                lastName: formAddState.lastName,
-                imageUrl: formAddState.imageUrl,
-                activated: true,
-            },
-            address: {
-                id: addressId,
-                fullName: formAddState.address.fullName,
-            }
+            addressId: formAddState.addressId,
         });
         message.success("Tạo tài khoản nhân viên thành công!");
     } catch (err) {
         message.error("Tạo tài khoản nhân viên thất bại!");
     } finally {
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
         addLoading.value = false;
         openAddForm.value = false;
         reset();
     }
 }
 
-const pagination = {
-    pageSize: 6,
-}
 const state = reactive({
     searchText: '',
     searchedColumn: '',
@@ -309,7 +311,18 @@ const handleReset = (clearFilters: any) => {
     clearFilters({ confirm: true });
     state.searchText = '';
 };
+const chooseAddressAddForm = (addressId: number) => {
+    formAddState.addressId = addressId;
+}
+const chooseAddressEditForm = (addressId: number) => {
+    formEditState.addressId = addressId;
+    console.log(addressId);
+}
+
+
+
 </script>
+
 <template>
     <!-- -->
     <a-breadcrumb style="margin: 16px 0">
@@ -319,21 +332,25 @@ const handleReset = (clearFilters: any) => {
 
     <!-- Employee list table -->
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        <a-table :dataSource="users" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination">
+        <a-table :dataSource="users" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination"
+            :loading="loading" @change="handleTableChange">
             <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'name'">
                     {{ `${(<UserXDTO>record).user?.firstName} ${(<UserXDTO>record).user?.lastName} ` }}
                 </template>
+
                 <template v-if="column.key === 'imageUrl'">
                     <a-avatar :src="(<UserXDTO>record).user?.imageUrl">
                         <template #icon><user-outlined /></template>
                     </a-avatar>
                 </template>
+
                 <template v-if="column.key === 'role'">
                     {{ record.role === "employee" ? "Điều phối viên" : "" }}
                     {{ record.role === "driver" ? "Tài xế" : "" }}
                     {{ record.role === "none" ? "Chờ phân công" : "" }}
                 </template>
+
                 <template v-if="column.key === 'operation'">
                     <a href="#" @click="() => showEditForm(record)">
                         <EditOutlined />
@@ -345,15 +362,18 @@ const handleReset = (clearFilters: any) => {
                         </a>
                     </a-popconfirm>
                 </template>
+
                 <template v-if="column.key === 'activated'">
                     <a-checkbox checked v-if="(<UserXDTO>record).user?.activated"></a-checkbox>
                     <a-checkbox v-else disabled></a-checkbox>
                 </template>
             </template>
             <!-- Filter-->
+
             <template #customFilterIcon="{ filtered }">
                 <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
             </template>
+
             <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
                 <div style="padding: 8px">
                     <a-input ref="searchInput" :placeholder="`Search`" :value="selectedKeys[0]"
@@ -379,13 +399,15 @@ const handleReset = (clearFilters: any) => {
 
     <!-- Float button create new employee-->
     <a-float-button type="primary" @click="showAddForm" tooltip="Tạo nhân viên mới">
+
         <template #icon>
             <plus-outlined />
         </template>
     </a-float-button>
 
     <!-- Popup edit employee form -->
-    <a-modal v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên" :confirm-loading="editLoading" @ok="edit">
+    <a-modal v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên"
+        :confirm-loading="editLoading" @ok="edit">
         <a-form :model="formEditState">
             <a-form-item ref="firstName" label="Họ" name="firstName">
                 <a-input v-model:value="formEditState.user!.firstName" />
@@ -393,14 +415,15 @@ const handleReset = (clearFilters: any) => {
             <a-form-item ref="lastName" label="Tên" name="lastName">
                 <a-input v-model:value="formEditState.user!.lastName" />
             </a-form-item>
+            <a-form-item ref="address" label="Địa chỉ" name="address">
+                <address-form :initial-address-id="formEditState.addressId"
+                    @save="chooseAddressEditForm"></address-form>
+            </a-form-item>
             <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
                 <a-input v-model:value="formEditState.phoneNumber" />
             </a-form-item>
             <a-form-item ref="email" label="Email" name="email">
                 <a-input v-model:value="formEditState.user!.email" />
-            </a-form-item>
-            <a-form-item ref="address" label="Địa chỉ" name="address">
-                <a-input v-model:value="formEditState.address!.fullName" />
             </a-form-item>
             <a-form-item label="Kích hoạt tài khoản" name="activated">
                 <a-switch v-model:checked="formEditState.user!.activated" />
@@ -420,7 +443,8 @@ const handleReset = (clearFilters: any) => {
     </a-modal>
 
     <!-- Popup create employee form -->
-    <a-modal v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading" @ok="add" @cancel="reset">
+    <a-modal v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading"
+        @ok="add" @cancel="reset">
         <a-form>
             <a-form-item label="Tài khoản" name="username">
                 <a-input v-model:value="formAddState.login" />
@@ -431,14 +455,14 @@ const handleReset = (clearFilters: any) => {
             <a-form-item label="Tên" name="lastName">
                 <a-input v-model:value="formAddState.lastName" />
             </a-form-item>
+            <a-form-item label="Địa chỉ" name="address">
+                <address-form @save="chooseAddressAddForm"></address-form>
+            </a-form-item>
             <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
                 <a-input v-model:value="formAddState.phone" />
             </a-form-item>
             <a-form-item label="Email" name="email">
                 <a-input v-model:value="formAddState.email" />
-            </a-form-item>
-            <a-form-item label="Địa chỉ" name="address">
-                <a-input v-model:value="formAddState.address.fullName" />
             </a-form-item>
             <a-form-item label="Ảnh" name="imageUrl">
                 <a-input v-model:value="formAddState.imageUrl" />
@@ -455,4 +479,3 @@ const handleReset = (clearFilters: any) => {
 </template>
 
 <style scoped></style>
-  

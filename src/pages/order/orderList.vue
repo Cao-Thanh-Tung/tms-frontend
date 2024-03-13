@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled } from '@ant-design/icons-vue';
-// import { OrderResourceApi } from '@/api';
+import { Configuration } from '@/configuration';
+import store from '@/store';
+
 const columns = [
     { title: 'Mã', dataIndex: 'code', key: 'code' },
     { title: 'Chi phí', dataIndex: 'cost', key: 'cost' },
     { title: 'Loại hàng', dataIndex: 'goodType', key: 'goodType' },
-    { title: 'Trọng lượng', dataIndex: 'weight', key: 'weight' },
+    { title: 'Số lượng', dataIndex: 'weight', key: 'weight' },
     { title: 'Người đặt', dataIndex: 'owner', key: 'owner' },
     { title: 'Thao tác', key: 'operation' },
 ];
+const config = new Configuration({
+    accessToken: () => store.getters.jwt,
+    baseOptions: {
+        headers: { 'Content-Type': 'application/json' }
+    }
+})
 
 
 interface DataItem {
@@ -139,7 +147,7 @@ for (let i = 0; i < 3; ++i) {
         address: `London Park no. ${i}`,
     });
 }
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 const open = ref<boolean>(false);
 
 const showModal = () => {
@@ -160,7 +168,11 @@ const cancel = (e: MouseEvent) => {
     console.log(e);
     message.error('Click on No');
 };
+onBeforeMount(() => {
+
+})
 </script>
+
 <template>
     <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item>Đơn vận chuyển</a-breadcrumb-item>
@@ -179,14 +191,15 @@ const cancel = (e: MouseEvent) => {
                         <!--<cost, goodtype, weight, volume>, (immediate_delivery, status)-->
                         <!-- type, goodtype, weight, volume, num_pallets, width, height, length, earliest_time, latest_time,carry_in_time_sec, carry_out_time_sec, note, address(cho chọn địa điểm thoải mái ha, đây là điểm đến), (status), <waiting_time_sec> -->
                     </a-modal>
-                    <a-popconfirm title="Are you sure delete this task?" ok-text="Yes" cancel-text="No" @confirm="confirm"
-                        @cancel="cancel">
+                    <a-popconfirm title="Are you sure delete this task?" ok-text="Yes" cancel-text="No"
+                        @confirm="confirm" @cancel="cancel">
                         <a href="#">
                             <DeleteFilled style="margin-left: 12px" />
                         </a>
                     </a-popconfirm>
                 </template>
             </template>
+
             <template #expandedRowRender>
                 <a-table :columns="innerColumns" :data-source="innerData" :pagination="false">
                 </a-table>
@@ -194,10 +207,9 @@ const cancel = (e: MouseEvent) => {
         </a-table>
     </a-layout-content>
 </template>
+
 <style scoped>
 .editable-row-operations a {
     margin-right: 8px;
 }
 </style>
-
-  

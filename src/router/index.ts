@@ -26,6 +26,7 @@ const routes = [
     {name:"contractor-list", path: "/contractor/list", component: contractorList},
     {name:"map", path: "/map", component: map},
     {name:"district-list", path: "/district/list", component: districtList},
+    {name:"auto-routing",path: '/auto-routing', component:  autoRouting},
 ]
 
 const router = createRouter({
