@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { reactive, ref, UnwrapRef } from 'vue';
+import { onMounted, reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
@@ -18,6 +18,19 @@ const config = new Configuration({
     }
 })
 const userxApi = new UserXResourceApi(config);
+const numOfUserX = ref(0);
+async function getNumberOfUsers() {
+    let num = 0;
+    try {
+        num += (await userxApi.getNumberOfUserXByRole("none")).data!;
+        num += (await userxApi.getNumberOfUserXByRole("employee")).data!;
+        num += (await userxApi.getNumberOfUserXByRole("driver")).data!;
+    } catch (e: any) {
+        console.log(e);
+    }
+    console.log(num);
+    numOfUserX.value = num;
+}
 
 // helper function
 function createDefaultUserDTO(): UserDTO {
@@ -39,7 +52,10 @@ function createDefaultUserXDTO() {
         phoneNumber: '',
         role: 'none',
         user: createDefaultUserDTO(),
-        addressId: -1,
+        address: {
+            id: -1,
+            fullName: '',
+        }
     };
 }
 
@@ -98,6 +114,13 @@ const columns = [
         onFilter: (value: string, record: UserXDTO) =>
             record.user!.email!.toLowerCase().includes(value.toLowerCase()),
     }, {
+        title: 'Địa chỉ',
+        dataIndex: ['address', 'fullName'],
+        key: 'fullName',
+        width: '6%',
+        customFilterDropdown: true,
+        onFilter: (value: string, record: UserXDTO) => record.address?.fullName?.toLocaleLowerCase().includes(value.toLowerCase()),
+    }, {
         title: 'Kích hoạt',
         key: 'activated',
         width: '4%',
@@ -134,12 +157,10 @@ type APIParams = {
     pageSize?: number;
 };
 const queryData = async (params: APIParams) => {
-    // return
-    const a = (await userxApi.getAllUserXES(params.page! - 1, 6)).data.filter((userx: UserXDTO) => {
+    await getNumberOfUsers();
+    return (await userxApi.getAllUserXES(params.page! - 1, 6)).data.filter((userx: UserXDTO) => {
         return userx.role === "employee" || userx.role === "driver" || userx.role === "none"
     });
-    console.log(a);
-    return a;
 };
 
 const {
@@ -154,7 +175,7 @@ const {
 });
 
 const pagination = computed(() => ({
-    total: 9,
+    total: numOfUserX.value,
     current: current.value,
     pageSize: 6,
 }));
@@ -211,7 +232,7 @@ const openEditForm = ref<boolean>(false);
 const formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>(createDefaultUserXDTO());
 const showEditForm = (v: UserXDTO) => {
     Object.assign(formEditState, JSON.parse(JSON.stringify(v)));
-    formEditState.addressId = v.addressId;
+    formEditState.address!.id = v.addressId;
     console.log(v);
     openEditForm.value = true;
 };
@@ -246,7 +267,7 @@ const formAddState = reactive({
     phone: "",
     email: "",
     imageUrl: "",
-    addressId: -1,
+    address: { id: -1, fullName: '' },
     role: "none",
 })
 function reset() {
@@ -257,7 +278,8 @@ function reset() {
     formAddState.phone = "";
     formAddState.email = "";
     formAddState.imageUrl = "";
-    formAddState.addressId = -1;
+    formAddState.address.id = -1;
+    formAddState.address.fullName = "";
     formAddState.role = "none";
 }
 
@@ -281,7 +303,10 @@ const add = async () => {
             user: {
                 id: userId,
             },
-            addressId: formAddState.addressId,
+            address: {
+                id: formAddState.address.id,
+                fullName: formAddState.address.fullName,
+            }
         });
         message.success("Tạo tài khoản nhân viên thành công!");
     } catch (err) {
@@ -312,10 +337,10 @@ const handleReset = (clearFilters: any) => {
     state.searchText = '';
 };
 const chooseAddressAddForm = (addressId: number) => {
-    formAddState.addressId = addressId;
+    formAddState.address.id = addressId;
 }
 const chooseAddressEditForm = (addressId: number) => {
-    formEditState.addressId = addressId;
+    formEditState.address!.id = addressId;
     console.log(addressId);
 }
 
