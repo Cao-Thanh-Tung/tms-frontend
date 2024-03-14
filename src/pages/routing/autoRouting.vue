@@ -5,55 +5,39 @@
       <a-breadcrumb-item>Phân tuyến tự động</a-breadcrumb-item>
     </a-breadcrumb>
     <a-button type="primary" @click="clickSetup">
-      Cài đặt <SettingOutlined />
+      Cài đặt
+      <SettingOutlined />
     </a-button>
     <a-drawer v-model:open="isModalVisible" width="50%" placement="right">
       <a-steps :current="setupStep" style="margin-bottom: 20px">
         <a-step title="Cài đặt xe" @click="setupVehiclesHandler" />
         <a-step title="Cài đặt đơn hàng" @click="setupOrdersHandler" />
-        <a-step
-          title="Cấu hình thuật toán"
-          @click="configureAlgorithmHandler"
-        />
+        <a-step title="Cấu hình thuật toán" @click="configureAlgorithmHandler" />
         <a-step title="Xem kết quả" @click="viewResultsHandler" />
       </a-steps>
       <ul v-if="setupStep === 1">
-        <a-table
-          :dataSource="vehicleList"
-          :row-selection="{
-            selectedRowKeys: state.selectedRowKeys,
-            onChange: onVehicleSelectChange,
-          }"
-          :pagination="true"
-          rowKey="id"
-        >
+        <a-table :dataSource="vehicleList" :row-selection="{
+      selectedRowKeys: state.selectedRowKeys,
+      onChange: onVehicleSelectChange,
+    }" :pagination="true" rowKey="id">
           <a-table-column dataIndex="type" key="type">
             <template #title>
               <div>
                 Loại xe
-                <a-input
-                  placeholder="Filter Type"
-                  @input="handleVehicleSearch($event.target.value, 'type')"
-                />
+                <a-input placeholder="Filter Type" @input="handleVehicleSearch($event.target.value, 'type')" />
               </div>
             </template>
           </a-table-column>
-          <a-table-column
-            dataIndex="licensePlatesNumber"
-            key="licensePlatesNumber"
-          >
+          <a-table-column dataIndex="licensePlatesNumber" key="licensePlatesNumber">
             <template #title>
               <div>
                 Biển số xe
-                <a-input
-                  placeholder="Filter License Plates Number"
-                  @input="
-                    handleVehicleSearch(
-                      $event.target.value,
-                      'licensePlatesNumber'
-                    )
-                  "
-                />
+                <a-input placeholder="Filter License Plates Number" @input="
+      handleVehicleSearch(
+        $event.target.value,
+        'licensePlatesNumber'
+      )
+      " />
               </div>
             </template>
           </a-table-column>
@@ -61,10 +45,7 @@
             <template #title>
               <div>
                 Trọng tải
-                <a-input-number
-                  placeholder=""
-                  @input="handleVehicleNumberSearch($event, 'maxLoadKg')"
-                />
+                <a-input-number placeholder="" @input="handleVehicleNumberSearch($event, 'maxLoadKg')" />
               </div>
             </template>
           </a-table-column>
@@ -79,23 +60,15 @@
         </a-table>
       </ul>
       <ul v-if="setupStep === 2">
-        <a-table
-          :dataSource="orderList"
-          :row-selection="{
-            selectedRowKeys: state.selectedOrderKeys,
-            onChange: onOrderSelectChange,
-          }"
-          :pagination="true"
-          rowKey="id"
-        >
+        <a-table :dataSource="orderList" :row-selection="{
+      selectedRowKeys: state.selectedOrderKeys,
+      onChange: onOrderSelectChange,
+    }" :pagination="true" rowKey="id">
           <a-table-column dataIndex="goodType" key="goodType">
             <template #title>
               <div>
                 Loại hàng
-                <a-input
-                  placeholder="Loại hàng"
-                  @input="handleOrderSearch($event.target.value, 'goodType')"
-                />
+                <a-input placeholder="Loại hàng" @input="handleOrderSearch($event.target.value, 'goodType')" />
               </div>
             </template>
           </a-table-column>
@@ -120,11 +93,7 @@
               <div>Giao lập tức</div>
             </template>
             <template #customRender="{ record }">
-              <a-switch
-                :checked="record.immediateDelivery"
-                v-model="record.immediateDelivery"
-                @change=""
-              />
+              <a-switch :checked="record.immediateDelivery" v-model="record.immediateDelivery" @change="" />
             </template>
           </a-table-column>
         </a-table>
@@ -156,7 +125,7 @@
 <script setup lang="ts">
 import mapApp from "@/components/Map.vue";
 import { SettingOutlined } from "@ant-design/icons-vue";
-import { ref, watch, reactive } from "vue";
+import { ref, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";
 import { Configuration } from "../../configuration";
 import store from "../../store";
@@ -311,8 +280,10 @@ const viewResultsHandler = () => {
 .count-label {
   font-weight: bold;
   margin-right: 5px;
-  font-size: 18px; /* Increase the font size */
-  color: #333; /* Change the color to a dark gray */
+  font-size: 18px;
+  /* Increase the font size */
+  color: #333;
+  /* Change the color to a dark gray */
 }
 
 .selection-counts {
@@ -331,7 +302,9 @@ const viewResultsHandler = () => {
 
 .count-value {
   color: #1890ff;
-  font-size: 22px; /* Increase the font size */
-  font-weight: bold; /* Make the font bold */
+  font-size: 22px;
+  /* Increase the font size */
+  font-weight: bold;
+  /* Make the font bold */
 }
 </style>
