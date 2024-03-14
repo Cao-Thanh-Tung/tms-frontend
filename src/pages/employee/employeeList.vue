@@ -68,27 +68,6 @@ const columns = [
         customFilterDropdown: true,
         onFilter: (value: string, record: UserXDTO) =>
             record.phoneNumber!.toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-        title: 'Chức vụ',
-        dataIndex: 'role',
-        key: 'role',
-        width: '4%',
-        filters: [
-            {
-                text: 'Nhân viên điều phối',
-                value: 'employee',
-            },
-            {
-                text: 'Tài xế',
-                value: 'driver',
-            },
-            {
-                text: 'Chờ phân công',
-                value: 'none'
-            }
-        ],
-        onFilter: (value: string, record: UserXDTO) => record.role === value,
     }, {
         title: 'Email',
         dataIndex: ['user', 'email'],
@@ -134,12 +113,7 @@ type APIParams = {
     pageSize?: number;
 };
 const queryData = async (params: APIParams) => {
-    // return
-    const a = (await userxApi.getAllUserXES(params.page! - 1, 6)).data.filter((userx: UserXDTO) => {
-        return userx.role === "employee" || userx.role === "driver" || userx.role === "none"
-    });
-    console.log(a);
-    return a;
+    return (await userxApi.getUserXByRole('employee', params.page! - 1, 6)).data;
 };
 
 const {
