@@ -3,4 +3,5 @@ services:
  tms_fe:
    image: tms_fe
    ports:
-     - 3000:3000
+     - 3000:80
+ 
