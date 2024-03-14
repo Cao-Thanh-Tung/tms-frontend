@@ -1,9 +1,6 @@
 FROM node:lts-alpine
 
 
-RUN npm install -g http-server
-
-
 WORKDIR /app
 
 
@@ -19,7 +16,3 @@ COPY . .
 RUN npm run dev
 
 
-EXPOSE 3000
-
-
-CMD [ "http-server", "dist" ]
