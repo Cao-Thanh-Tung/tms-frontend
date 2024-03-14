@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled } from '@ant-design/icons-vue';
-import { Configuration } from '@/configuration';
-import store from '@/store';
+// import { Configuration } from '@/configuration';
+// import store from '@/store';
 
 const columns = [
     { title: 'Mã', dataIndex: 'code', key: 'code' },
@@ -11,12 +11,12 @@ const columns = [
     { title: 'Người đặt', dataIndex: 'owner', key: 'owner' },
     { title: 'Thao tác', key: 'operation' },
 ];
-const config = new Configuration({
-    accessToken: () => store.getters.jwt,
-    baseOptions: {
-        headers: { 'Content-Type': 'application/json' }
-    }
-})
+// const config = new Configuration({
+//     accessToken: () => store.getters.jwt,
+//     baseOptions: {
+//         headers: { 'Content-Type': 'application/json' }
+//     }
+// })
 
 
 interface DataItem {

@@ -9,30 +9,30 @@
 
 <script setup lang="ts">
 // using ant-design-vue
-import { onMounted, ref, defineProps } from 'vue';
+import { onMounted, ref } from 'vue';
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.control.layers.tree/L.Control.Layers.Tree.css"
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
-import concaveman from "concaveman";
+// import concaveman from "concaveman";
 import "leaflet.control.layers.tree";
 
-interface SearchResults {
-  name: string;
-  country: string;
-  city: string;
-  formatted: string;
-  lat: number;
-  lon: number;
-}
+// interface SearchResults {
+//   name: string;
+//   country: string;
+//   city: string;
+//   formatted: string;
+//   lat: number;
+//   lon: number;
+// }
 const lat = ref(0);
 const lng = ref(0);
 
 const map = ref<L.Map | null>(null);
 const mapContainer = ref();
-const polygonLayer = ref<L.Polygon | null>(null);
+// const polygonLayer = ref<L.Polygon | null>(null);
 // const url = "https://nominatim.openstreetmap.org/search";
 // const autocomplete_url = "https://api.geoapify.com/v1/geocode/autocomplete";
 // const geoapify_api_key = "9a7f9b6701a449e8a97f9cad0d22125e";
@@ -41,7 +41,7 @@ const polygonLayer = ref<L.Polygon | null>(null);
 // let searchTimeout: NodeJS.Timeout | null = null;
 // const coordinatesDisplay = ref(""); // initialize with empty string or whatever default value you want
 // const reversedCoordinates = ref<L.LatLngExpression[]>([]);
-const showSearchResults = ref(true);
+// const showSearchResults = ref(true);
 const createMarker = (lat: number, lng: number, draggable = false) => {
   const marker = L.marker([lat, lng], { draggable });
   if (draggable) {
@@ -297,99 +297,99 @@ const displayCoordinates = (lat: number, lng: number) => {
 //   console.log(uniqueLocations.length);
 // };
 
-const drawPolygon = () => {
-  const markers: L.Marker[] = [];
-  if (!map.value) return;
-  map.value.eachLayer((layer: L.Layer) => {
-    if (layer instanceof L.Marker) {
-      markers.push(layer);
-    }
-  });
+// const drawPolygon = () => {
+//   const markers: L.Marker[] = [];
+//   if (!map.value) return;
+//   map.value.eachLayer((layer: L.Layer) => {
+//     if (layer instanceof L.Marker) {
+//       markers.push(layer);
+//     }
+//   });
 
-  const points = markers.map((marker) =>
-    Object.values(marker.getLatLng()).reverse()
-  );
+//   const points = markers.map((marker) =>
+//     Object.values(marker.getLatLng()).reverse()
+//   );
 
-  const concaveHull = concaveman(points);
+//   const concaveHull = concaveman(points);
 
-  const latLngs = concaveHull.map((point) => point.reverse() as L.LatLngTuple);
-  polygonLayer.value = L.polygon(latLngs, { color: "red" }).addTo(
-    map.value as L.Map
-  );
-  console.log(polygonLayer.value);
-};
+//   const latLngs = concaveHull.map((point) => point.reverse() as L.LatLngTuple);
+//   polygonLayer.value = L.polygon(latLngs, { color: "red" }).addTo(
+//     map.value as L.Map
+//   );
+//   console.log(polygonLayer.value);
+// };
 
-function getConvexHull(markers: L.Marker[]) {
-  markers.sort((a, b) => a.getLatLng().lng - b.getLatLng().lng);
+// function getConvexHull(markers: L.Marker[]) {
+//   markers.sort((a, b) => a.getLatLng().lng - b.getLatLng().lng);
 
-  const output = [];
-  const leftMost = markers[0];
-  let current = leftMost;
-  output.push(current);
-  let next;
+//   const output = [];
+//   const leftMost = markers[0];
+//   let current = leftMost;
+//   output.push(current);
+//   let next;
 
-  do {
-    next = markers[(markers.indexOf(current) + 1) % markers.length];
-    for (let i = 0; i < markers.length; i++) {
-      const p = markers[i];
-      const direction =
-        (next.getLatLng().lng - current.getLatLng().lng) *
-        (p.getLatLng().lat - current.getLatLng().lat) -
-        (next.getLatLng().lat - current.getLatLng().lat) *
-        (p.getLatLng().lng - current.getLatLng().lng);
-      if (direction < 0) {
-        next = p;
-      }
-    }
-    current = next;
-    output.push(current);
-  } while (current !== leftMost);
+//   do {
+//     next = markers[(markers.indexOf(current) + 1) % markers.length];
+//     for (let i = 0; i < markers.length; i++) {
+//       const p = markers[i];
+//       const direction =
+//         (next.getLatLng().lng - current.getLatLng().lng) *
+//         (p.getLatLng().lat - current.getLatLng().lat) -
+//         (next.getLatLng().lat - current.getLatLng().lat) *
+//         (p.getLatLng().lng - current.getLatLng().lng);
+//       if (direction < 0) {
+//         next = p;
+//       }
+//     }
+//     current = next;
+//     output.push(current);
+//   } while (current !== leftMost);
 
-  return output;
-}
-const navigateToResult = (lat: number, lon: number) => {
-  if (map.value) {
-    map.value.setView([lat, lon], 13);
-    createMarker(lat, lon).addTo(map.value as L.Map);
-  }
-  showSearchResults.value = false;
-};
-const route = () => {
-  const markers: L.Marker[] = [];
-  if (map.value) {
-    map.value.eachLayer((layer: L.Layer) => {
-      if (layer instanceof L.Marker) {
-        markers.push(layer);
-      }
-    });
-  }
-  // const waypoints = markers.map((marker) => marker.getLatLng());
-  // L.Routing.control({
-  //   waypoints,
-  //   routeWhileDragging: true,
-  //   showAlternatives: false,
-  //   lineOptions: {
-  //     styles: [{ color: "red", opacity: 1, weight: 2 }],
-  //   },
-  //   formatter: new L.Routing.Formatter({
-  //     units: "metric",
-  //     show: false,
-  //     formatInstruction: function (
-  //       instruction,
-  //       distances,
-  //       totalTime,
-  //       formatter
-  //     ) {
-  //       // Customize the instruction text here
-  //       // instruction is an object representing the current routing instruction
-  //       // distances is an object representing the total and remaining distances of the route
-  //       // totalTime is the total time of the route in seconds
-  //       // formatter is an instance of L.Routing.Formatter for formatting distances and times
-  //       return instruction.text;
-  //     },
-  //   }),
-  // }).addTo(map.value);
-};
+//   return output;
+// }
+// const navigateToResult = (lat: number, lon: number) => {
+//   if (map.value) {
+//     map.value.setView([lat, lon], 13);
+//     createMarker(lat, lon).addTo(map.value as L.Map);
+//   }
+//   showSearchResults.value = false;
+// };
+// const route = () => {
+//   const markers: L.Marker[] = [];
+//   if (map.value) {
+//     map.value.eachLayer((layer: L.Layer) => {
+//       if (layer instanceof L.Marker) {
+//         markers.push(layer);
+//       }
+//     });
+//   }
+// const waypoints = markers.map((marker) => marker.getLatLng());
+// L.Routing.control({
+//   waypoints,
+//   routeWhileDragging: true,
+//   showAlternatives: false,
+//   lineOptions: {
+//     styles: [{ color: "red", opacity: 1, weight: 2 }],
+//   },
+//   formatter: new L.Routing.Formatter({
+//     units: "metric",
+//     show: false,
+//     formatInstruction: function (
+//       instruction,
+//       distances,
+//       totalTime,
+//       formatter
+//     ) {
+//       // Customize the instruction text here
+//       // instruction is an object representing the current routing instruction
+//       // distances is an object representing the total and remaining distances of the route
+//       // totalTime is the total time of the route in seconds
+//       // formatter is an instance of L.Routing.Formatter for formatting distances and times
+//       return instruction.text;
+//     },
+//   }),
+// }).addTo(map.value);
+// };
 </script>
 
 <style scoped>

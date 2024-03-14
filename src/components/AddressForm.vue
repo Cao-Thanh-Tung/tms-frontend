@@ -3,10 +3,10 @@ import { Configuration } from '@/configuration';
 import store from '@/store';
 import MapChooseAddress from '@/components/MapChooseAddress.vue';
 import { CommuneResourceApi, DistrictResourceApi, ProvinceResourceApi, AddressResourceApi, AddressDTO, PositionResourceApi } from '@/api';
-import { onMounted, reactive, ref, computed, onUpdated } from 'vue';
+import { onMounted, reactive, ref, computed } from 'vue';
 import { Coord } from './MapChooseAddress.vue';
 import axios from 'axios';
-import { ProvinceDTO, DistrictDTO, CommuneDTO, PositionDTO } from '../api';
+import { ProvinceDTO, DistrictDTO, CommuneDTO } from '../api';
 import type { SelectProps } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { defineComponent } from 'vue';
@@ -222,7 +222,7 @@ const addItem = (e: any) => {
                     format: "json",
                 }
             }).then((res1) => {
-                const { lat, lon } = res.data[0];
+                const { lat, lon } = res1.data[0];
                 coord.lat = lat;
                 coord.lng = lon;
             }).catch((err) => {
