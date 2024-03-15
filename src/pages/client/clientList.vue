@@ -6,8 +6,8 @@
     </a-breadcrumb>
 
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        <a-table :dataSource="customerList" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination"
-            :loading="loading" @change="handleTableChange">
+        <a-table :dataSource="customerList" :columns="columns" :scroll="{ x: 1300 }"
+            :pagination="{ pageSize: 6, totalPage: totalPage }" :loading="loading" @change="handleTableChange">
             <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'name'">
                     {{ `${(<UserXDTO>record).user?.firstName} ${(<UserXDTO>record).user?.lastName} ` }}
@@ -407,9 +407,17 @@ const handleTableChange = (
     updateTable(pag, filters, sorter);
 
 };
-
+const numberOfCustomer = ref(0);
+const totalPage = computed(() => {
+    const numberPage = Math.ceil(numberOfCustomer.value / 6);
+    if (numberPage === 0) return 1;
+    return numberPage;
+});
 
 onMounted(() => {
+    userXApi.getNumberOfUserXByRole("customer").then((res) => {
+        numberOfCustomer.value = res.data;
+    });
     fetchCustomer({ page: 1, pageSize: 6 });
     userXApi.getUserXByRole("employee").then((res) => {
         allEmployeeList.value = res.data;
