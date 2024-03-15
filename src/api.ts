@@ -13599,7 +13599,7 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getNumberOfUserXByRole: async (role: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getNumberOfUserXByRole: async (role: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'role' is not null or undefined
             assertParamExists('getNumberOfUserXByRole', 'role', role)
             const localVarPath = `/api/user-xes-num/{role}`
@@ -13637,6 +13637,39 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
             assertParamExists('getUserX', 'id', id)
             const localVarPath = `/api/user-xes/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserXByLogin: async (login: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'login' is not null or undefined
+            assertParamExists('getUserXByLogin', 'login', login)
+            const localVarPath = `/api/user-xes-login/{login}`
+                .replace(`{${"login"}}`, encodeURIComponent(String(login)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -13829,9 +13862,7 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
          */
         async getAllUserXES(page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserXDTO>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAllUserXES(page, size, sort, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getAllUserXES']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
          * 
@@ -13839,11 +13870,9 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getNumberOfUserXByRole(role: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+        async getNumberOfUserXByRole(role: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getNumberOfUserXByRole(role, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getNumberOfUserXByRole']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
          * 
@@ -13853,9 +13882,17 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
          */
         async getUserX(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserXDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getUserX(id, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getUserX']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserXByLogin(login: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserXDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserXByLogin(login, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
          * 
@@ -13957,6 +13994,15 @@ export const UserXResourceApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserXByLogin(login: string, options?: any): AxiosPromise<UserXDTO> {
+            return localVarFp.getUserXByLogin(login, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {string} role 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
@@ -14039,7 +14085,7 @@ export class UserXResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof UserXResourceApi
      */
-    public getNumberOfUserXByRole(role: string, options?: RawAxiosRequestConfig) {
+    public getNumberOfUserXByRole(role: string, options?: AxiosRequestConfig) {
         return UserXResourceApiFp(this.configuration).getNumberOfUserXByRole(role, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -14052,6 +14098,17 @@ export class UserXResourceApi extends BaseAPI {
      */
     public getUserX(id: number, options?: RawAxiosRequestConfig) {
         return UserXResourceApiFp(this.configuration).getUserX(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} login 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getUserXByLogin(login: string, options?: AxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getUserXByLogin(login, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14806,7 +14863,7 @@ export const VehicleResourceApiAxiosParamCreator = function (configuration?: Con
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchVehicles: async (example: VehicleDTO, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        searchVehicles: async (example: VehicleDTO, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'example' is not null or undefined
             assertParamExists('searchVehicles', 'example', example)
             // verify required parameter 'pageable' is not null or undefined
@@ -14824,15 +14881,11 @@ export const VehicleResourceApiAxiosParamCreator = function (configuration?: Con
             const localVarQueryParameter = {} as any;
 
             if (example !== undefined) {
-                for (const [key, value] of Object.entries(example)) {
-                    localVarQueryParameter[key] = value;
-                }
+                localVarQueryParameter['example'] = example;
             }
 
             if (pageable !== undefined) {
-                for (const [key, value] of Object.entries(pageable)) {
-                    localVarQueryParameter[key] = value;
-                }
+                localVarQueryParameter['pageable'] = pageable;
             }
 
 
@@ -14969,9 +15022,7 @@ export const VehicleResourceApiFp = function(configuration?: Configuration) {
          */
         async partialUpdateVehicle(id: number, vehicleDTO: VehicleDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VehicleDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateVehicle(id, vehicleDTO, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['VehicleResourceApi.partialUpdateVehicle']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
          * 
@@ -14980,11 +15031,9 @@ export const VehicleResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async searchVehicles(example: VehicleDTO, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<VehicleDTO>>> {
+        async searchVehicles(example: VehicleDTO, pageable: Pageable, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<VehicleDTO>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.searchVehicles(example, pageable, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['VehicleResourceApi.searchVehicles']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
          * 
@@ -15179,7 +15228,7 @@ export class VehicleResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof VehicleResourceApi
      */
-    public searchVehicles(example: VehicleDTO, pageable: Pageable, options?: RawAxiosRequestConfig) {
+    public searchVehicles(example: VehicleDTO, pageable: Pageable, options?: AxiosRequestConfig) {
         return VehicleResourceApiFp(this.configuration).searchVehicles(example, pageable, options).then((request) => request(this.axios, this.basePath));
     }
 

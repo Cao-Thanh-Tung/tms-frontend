@@ -1,25 +1,21 @@
-FROM node:lts-alpine
 
+FROM node:16.10.0-alpine3.13 as build-stage
 
-RUN npm install -g http-server
-
-
+# Set working directory
 WORKDIR /app
-
 
 COPY package*.json ./
 
-
 RUN npm install
-
 
 COPY . .
 
+RUN npm run build
 
-RUN npm run dev
+FROM nginx:stable-alpine as production-stage
 
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-EXPOSE 3000
+EXPOSE 80
 
-
-CMD [ "http-server", "dist" ]
+CMD ["nginx", "-g", "daemon off;"]

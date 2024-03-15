@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { onMounted, reactive, ref, UnwrapRef } from 'vue';
+import { reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
@@ -18,19 +18,6 @@ const config = new Configuration({
     }
 })
 const userxApi = new UserXResourceApi(config);
-const numOfUserX = ref(0);
-async function getNumberOfUsers() {
-    let num = 0;
-    try {
-        num += (await userxApi.getNumberOfUserXByRole("none")).data!;
-        num += (await userxApi.getNumberOfUserXByRole("driver")).data!;
-        num += (await userxApi.getNumberOfUserXByRole("driver")).data!;
-    } catch (e: any) {
-        console.log(e);
-    }
-    console.log(num);
-    numOfUserX.value = num;
-}
 
 // helper function
 function createDefaultUserDTO(): UserDTO {
@@ -50,12 +37,9 @@ function createDefaultUserXDTO() {
     return {
         id: 0,
         phoneNumber: '',
-        role: "driver",
+        role: 'none',
         user: createDefaultUserDTO(),
-        address: {
-            id: -1,
-            fullName: '',
-        }
+        addressId: -1,
     };
 }
 
@@ -84,6 +68,27 @@ const columns = [
         customFilterDropdown: true,
         onFilter: (value: string, record: UserXDTO) =>
             record.phoneNumber!.toLowerCase().includes(value.toLowerCase()),
+    },
+    {
+        title: 'Chức vụ',
+        dataIndex: 'role',
+        key: 'role',
+        width: '4%',
+        filters: [
+            {
+                text: 'Nhân viên điều phối',
+                value: 'employee',
+            },
+            {
+                text: 'Tài xế',
+                value: 'driver',
+            },
+            {
+                text: 'Chờ phân công',
+                value: 'none'
+            }
+        ],
+        onFilter: (value: string, record: UserXDTO) => record.role === value,
     }, {
         title: 'Email',
         dataIndex: ['user', 'email'],
@@ -92,13 +97,6 @@ const columns = [
         customFilterDropdown: true,
         onFilter: (value: string, record: UserXDTO) =>
             record.user!.email!.toLowerCase().includes(value.toLowerCase()),
-    }, {
-        title: 'Địa chỉ',
-        dataIndex: ['address', 'fullName'],
-        key: 'fullName',
-        width: '6%',
-        customFilterDropdown: true,
-        onFilter: (value: string, record: UserXDTO) => record.address?.fullName?.toLocaleLowerCase().includes(value.toLowerCase()),
     }, {
         title: 'Kích hoạt',
         key: 'activated',
@@ -136,7 +134,9 @@ type APIParams = {
     pageSize?: number;
 };
 const queryData = async (params: APIParams) => {
-    return (await userxApi.getUserXByRole('driver', params.page! - 1, 6)).data;
+    return (await userxApi.getAllUserXES(params.page! - 1, 6)).data.filter((userx: UserXDTO) => {
+        return userx.role === "employee" || userx.role === "driver" || userx.role === "none"
+    });
 };
 
 const {
@@ -151,7 +151,7 @@ const {
 });
 
 const pagination = computed(() => ({
-    total: numOfUserX.value,
+    total: 9,
     current: current.value,
     pageSize: 6,
 }));
@@ -161,8 +161,8 @@ const tableCondition = reactive<{
     sorter: any,
 }>({
     pag: { pageSize: 6, current: 1 },
-    filters: {},
-    sorter: {},
+    filters: null,
+    sorter: null,
 })
 const updateTable = (
     pag: { pageSize: number; current: number },
@@ -189,16 +189,16 @@ const handleTableChange = (
 
 };
 // Delete user and update to table content
-const deletedriver = async (driver?: UserXDTO) => {
+const deleteEmployee = async (employee?: UserXDTO) => {
     try {
-        await userxApi.deleteUserX(driver?.id!)
-        await userApi.deleteUser(driver!.user!.login!);
-        await addressApi.deleteAddress(driver!.addressId!);
-        message.success('Đã xóa thông tin tài xế thành công!');
+        await userxApi.deleteUserX(employee?.id!)
+        await userApi.deleteUser(employee!.user!.login!);
+        await addressApi.deleteAddress(employee!.addressId!);
+        message.success('Đã xóa thông tin nhân viên thành công!');
         updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
     } catch (err) {
         console.log(err);
-        message.error('Xóa thông tin tài xế thất bại!');
+        message.error('Xóa thông tin nhân viên thất bại!');
     }
 };
 
@@ -208,23 +208,22 @@ const openEditForm = ref<boolean>(false);
 const formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>(createDefaultUserXDTO());
 const showEditForm = (v: UserXDTO) => {
     Object.assign(formEditState, JSON.parse(JSON.stringify(v)));
-    formEditState.address!.id = v.addressId;
-    console.log(v);
     openEditForm.value = true;
 };
 
 const editLoading = ref<boolean>(false);
 const edit = () => {
     editLoading.value = true;
-    console.log(formEditState);
+    console.log(JSON.parse(JSON.stringify(formEditState)));
+    console.log(formEditState.id);
     userxApi.partialUpdateUserX(formEditState.id!, formEditState).then((res) => {
         console.log(res);
-        message.success("Đã thay đổi thông tin tài xế thành công!");
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
+        message.success("Đã thay đổi thông tin nhân viên thành công!");
     }).catch((err) => {
         console.log(err);
-        message.success("Thay đổi thông tin tài xế thất bại!");
+        message.success("Thay đổi thông tin nhân viên thất bại!");
     }).finally(() => {
-        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
         editLoading.value = false;
         openEditForm.value = false;
     })
@@ -243,8 +242,8 @@ const formAddState = reactive({
     phone: "",
     email: "",
     imageUrl: "",
-    address: { id: -1, fullName: '' },
-    role: "driver",
+    addressId: -1,
+    role: "none",
 })
 function reset() {
     formAddState.login = "";
@@ -254,8 +253,8 @@ function reset() {
     formAddState.phone = "";
     formAddState.email = "";
     formAddState.imageUrl = "";
-    formAddState.address.id = -1;
-    formAddState.address.fullName = "";
+    formAddState.addressId = -1;
+    formAddState.role = "none";
 }
 
 const showAddForm = () => {
@@ -278,14 +277,11 @@ const add = async () => {
             user: {
                 id: userId,
             },
-            address: {
-                id: formAddState.address.id,
-                fullName: formAddState.address.fullName,
-            }
+            addressId: formAddState.addressId,
         });
-        message.success("Tạo tài khoản tài xế thành công!");
+        message.success("Tạo tài khoản nhân viên thành công!");
     } catch (err) {
-        message.error("Tạo tài khoản tài xế thất bại!");
+        message.error("Tạo tài khoản nhân viên thất bại!");
     } finally {
         updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
         addLoading.value = false;
@@ -312,11 +308,10 @@ const handleReset = (clearFilters: any) => {
     state.searchText = '';
 };
 const chooseAddressAddForm = (addressId: number) => {
-    formAddState.address.id = addressId;
+    formAddState.addressId = addressId;
 }
 const chooseAddressEditForm = (addressId: number) => {
-    formEditState.address!.id = addressId;
-    console.log(addressId);
+    formEditState.addressId = addressId;
 }
 
 
@@ -324,13 +319,13 @@ const chooseAddressEditForm = (addressId: number) => {
 </script>
 
 <template>
-    <!-- -->
+
     <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>Nhân viên</a-breadcrumb-item>
-        <a-breadcrumb-item>Tài xế</a-breadcrumb-item>
+        <a-breadcrumb-item>Khách hàng</a-breadcrumb-item>
+        <a-breadcrumb-item>Danh sách khách hàng</a-breadcrumb-item>
     </a-breadcrumb>
 
-    <!-- driver list table -->
+    Employee list table
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
         <a-table :dataSource="users" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination"
             :loading="loading" @change="handleTableChange">
@@ -345,12 +340,18 @@ const chooseAddressEditForm = (addressId: number) => {
                     </a-avatar>
                 </template>
 
+                <template v-if="column.key === 'role'">
+                    {{ record.role === "employee" ? "Điều phối viên" : "" }}
+                    {{ record.role === "driver" ? "Tài xế" : "" }}
+                    {{ record.role === "none" ? "Chờ phân công" : "" }}
+                </template>
+
                 <template v-if="column.key === 'operation'">
                     <a href="#" @click="() => showEditForm(record)">
                         <EditOutlined />
                     </a>
-                    <a-popconfirm title="Xóa tài xế?" ok-text="Yes" cancel-text="No"
-                        @confirm="() => deletedriver((<UserXDTO>record))">
+                    <a-popconfirm title="Xóa nhân viên?" ok-text="Yes" cancel-text="No"
+                        @confirm="() => deleteEmployee((<UserXDTO>record))">
                         <a href="#">
                             <DeleteFilled style="margin-left: 12px" />
                         </a>
@@ -391,17 +392,17 @@ const chooseAddressEditForm = (addressId: number) => {
 
     </a-layout-content>
 
-    <!-- Float button create new driver-->
-    <a-float-button type="primary" @click="showAddForm" tooltip="Tạo tài xế mới">
+    <!-- Float button create new employee-->
+    <a-float-button type="primary" @click="showAddForm" tooltip="Tạo nhân viên mới">
 
         <template #icon>
             <plus-outlined />
         </template>
     </a-float-button>
 
-    <!-- Popup edit driver form -->
-    <a-modal width="700px" v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin tài xế"
-        :confirm-loading="editLoading" @ok="edit">
+    <!-- Popup edit employee form -->
+    <a-modal v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên" :confirm-loading="editLoading"
+        @ok="edit">
         <a-form :model="formEditState">
             <a-form-item ref="firstName" label="Họ" name="firstName">
                 <a-input v-model:value="formEditState.user!.firstName" />
@@ -425,12 +426,20 @@ const chooseAddressEditForm = (addressId: number) => {
             <a-form-item label="Đường dẫn ảnh" name="imageUrl">
                 <a-input v-model:value="formEditState.user!.imageUrl" />
             </a-form-item>
+
+            <a-form-item label="Chức vụ" name="resource">
+                <a-radio-group v-model:value="formEditState.role">
+                    <a-radio value="employee">Nhân viên điều phối</a-radio>
+                    <a-radio value="driver">Tài xế</a-radio>
+                    <a-radio value="none">Chờ phân công</a-radio>
+                </a-radio-group>
+            </a-form-item>
         </a-form>
     </a-modal>
 
-    <!-- Popup create driver form -->
-    <a-modal width="700px" v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới tài xế"
-        :confirm-loading="addLoading" @ok="add" @cancel="reset">
+    <!-- Popup create employee form -->
+    <a-modal v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading" @ok="add"
+        @cancel="reset">
         <a-form>
             <a-form-item label="Tài khoản" name="username">
                 <a-input v-model:value="formAddState.login" />
@@ -453,6 +462,15 @@ const chooseAddressEditForm = (addressId: number) => {
             <a-form-item label="Ảnh" name="imageUrl">
                 <a-input v-model:value="formAddState.imageUrl" />
             </a-form-item>
+            <a-form-item label="Chức vụ" name="resource">
+                <a-radio-group v-model:value="formAddState.role">
+                    <a-radio value="employee">Nhân viên điều phối</a-radio>
+                    <a-radio value="driver">Tài xế</a-radio>
+                    <a-radio value="none">Chờ phân công</a-radio>
+                </a-radio-group>
+            </a-form-item>
         </a-form>
     </a-modal>
 </template>
+
+<style scoped></style>
