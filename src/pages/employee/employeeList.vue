@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { reactive, ref, UnwrapRef } from 'vue';
+import { onMounted, reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
@@ -18,6 +18,19 @@ const config = new Configuration({
     }
 })
 const userxApi = new UserXResourceApi(config);
+const numOfUserX = ref(0);
+async function getNumberOfUsers() {
+    let num = 0;
+    try {
+        num += (await userxApi.getNumberOfUserXByRole("none")).data!;
+        num += (await userxApi.getNumberOfUserXByRole("employee")).data!;
+        num += (await userxApi.getNumberOfUserXByRole("driver")).data!;
+    } catch (e: any) {
+        console.log(e);
+    }
+    console.log(num);
+    numOfUserX.value = num;
+}
 
 // helper function
 function createDefaultUserDTO(): UserDTO {
@@ -37,9 +50,12 @@ function createDefaultUserXDTO() {
     return {
         id: 0,
         phoneNumber: '',
-        role: 'none',
+        role: "employee",
         user: createDefaultUserDTO(),
-        addressId: -1,
+        address: {
+            id: -1,
+            fullName: '',
+        }
     };
 }
 
@@ -76,6 +92,13 @@ const columns = [
         customFilterDropdown: true,
         onFilter: (value: string, record: UserXDTO) =>
             record.user!.email!.toLowerCase().includes(value.toLowerCase()),
+    }, {
+        title: 'Địa chỉ',
+        dataIndex: ['address', 'fullName'],
+        key: 'fullName',
+        width: '6%',
+        customFilterDropdown: true,
+        onFilter: (value: string, record: UserXDTO) => record.address?.fullName?.toLocaleLowerCase().includes(value.toLowerCase()),
     }, {
         title: 'Kích hoạt',
         key: 'activated',
@@ -128,7 +151,7 @@ const {
 });
 
 const pagination = computed(() => ({
-    total: 9,
+    total: numOfUserX.value,
     current: current.value,
     pageSize: 6,
 }));
@@ -185,7 +208,7 @@ const openEditForm = ref<boolean>(false);
 const formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>(createDefaultUserXDTO());
 const showEditForm = (v: UserXDTO) => {
     Object.assign(formEditState, JSON.parse(JSON.stringify(v)));
-    formEditState.addressId = v.addressId;
+    formEditState.address!.id = v.addressId;
     console.log(v);
     openEditForm.value = true;
 };
@@ -220,8 +243,8 @@ const formAddState = reactive({
     phone: "",
     email: "",
     imageUrl: "",
-    addressId: -1,
-    role: "none",
+    address: { id: -1, fullName: '' },
+    role: "employee",
 })
 function reset() {
     formAddState.login = "";
@@ -231,8 +254,8 @@ function reset() {
     formAddState.phone = "";
     formAddState.email = "";
     formAddState.imageUrl = "";
-    formAddState.addressId = -1;
-    formAddState.role = "none";
+    formAddState.address.id = -1;
+    formAddState.address.fullName = "";
 }
 
 const showAddForm = () => {
@@ -255,7 +278,10 @@ const add = async () => {
             user: {
                 id: userId,
             },
-            addressId: formAddState.addressId,
+            address: {
+                id: formAddState.address.id,
+                fullName: formAddState.address.fullName,
+            }
         });
         message.success("Tạo tài khoản nhân viên thành công!");
     } catch (err) {
@@ -286,10 +312,10 @@ const handleReset = (clearFilters: any) => {
     state.searchText = '';
 };
 const chooseAddressAddForm = (addressId: number) => {
-    formAddState.addressId = addressId;
+    formAddState.address.id = addressId;
 }
 const chooseAddressEditForm = (addressId: number) => {
-    formEditState.addressId = addressId;
+    formEditState.address!.id = addressId;
     console.log(addressId);
 }
 
@@ -301,7 +327,7 @@ const chooseAddressEditForm = (addressId: number) => {
     <!-- -->
     <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item>Nhân viên</a-breadcrumb-item>
-        <a-breadcrumb-item>Danh sách nhân viên</a-breadcrumb-item>
+        <a-breadcrumb-item>Nhân viên điều phối</a-breadcrumb-item>
     </a-breadcrumb>
 
     <!-- Employee list table -->
@@ -317,12 +343,6 @@ const chooseAddressEditForm = (addressId: number) => {
                     <a-avatar :src="(<UserXDTO>record).user?.imageUrl">
                         <template #icon><user-outlined /></template>
                     </a-avatar>
-                </template>
-
-                <template v-if="column.key === 'role'">
-                    {{ record.role === "employee" ? "Điều phối viên" : "" }}
-                    {{ record.role === "driver" ? "Tài xế" : "" }}
-                    {{ record.role === "none" ? "Chờ phân công" : "" }}
                 </template>
 
                 <template v-if="column.key === 'operation'">
@@ -380,7 +400,7 @@ const chooseAddressEditForm = (addressId: number) => {
     </a-float-button>
 
     <!-- Popup edit employee form -->
-    <a-modal v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên"
+    <a-modal width="700px" v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên"
         :confirm-loading="editLoading" @ok="edit">
         <a-form :model="formEditState">
             <a-form-item ref="firstName" label="Họ" name="firstName">
@@ -405,20 +425,12 @@ const chooseAddressEditForm = (addressId: number) => {
             <a-form-item label="Đường dẫn ảnh" name="imageUrl">
                 <a-input v-model:value="formEditState.user!.imageUrl" />
             </a-form-item>
-
-            <a-form-item label="Chức vụ" name="resource">
-                <a-radio-group v-model:value="formEditState.role">
-                    <a-radio value="employee">Nhân viên điều phối</a-radio>
-                    <a-radio value="driver">Tài xế</a-radio>
-                    <a-radio value="none">Chờ phân công</a-radio>
-                </a-radio-group>
-            </a-form-item>
         </a-form>
     </a-modal>
 
     <!-- Popup create employee form -->
-    <a-modal v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading"
-        @ok="add" @cancel="reset">
+    <a-modal width="700px" v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới nhân viên"
+        :confirm-loading="addLoading" @ok="add" @cancel="reset">
         <a-form>
             <a-form-item label="Tài khoản" name="username">
                 <a-input v-model:value="formAddState.login" />
@@ -441,15 +453,6 @@ const chooseAddressEditForm = (addressId: number) => {
             <a-form-item label="Ảnh" name="imageUrl">
                 <a-input v-model:value="formAddState.imageUrl" />
             </a-form-item>
-            <a-form-item label="Chức vụ" name="resource">
-                <a-radio-group v-model:value="formAddState.role">
-                    <a-radio value="employee">Nhân viên điều phối</a-radio>
-                    <a-radio value="driver">Tài xế</a-radio>
-                    <a-radio value="none">Chờ phân công</a-radio>
-                </a-radio-group>
-            </a-form-item>
         </a-form>
     </a-modal>
 </template>
-
-<style scoped></style>

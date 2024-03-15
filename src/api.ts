@@ -236,10 +236,10 @@ export interface ContractorDTO {
     'expirationDate'?: string;
     /**
      * 
-     * @type {number}
+     * @type {AddressDTO}
      * @memberof ContractorDTO
      */
-    'addressId'?: number;
+    'address'?: AddressDTO;
 }
 /**
  * 
@@ -651,6 +651,31 @@ export interface OrderItemDTO {
      * @memberof OrderItemDTO
      */
     'addressId'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface Pageable
+ */
+export interface Pageable {
+    /**
+     * 
+     * @type {number}
+     * @memberof Pageable
+     */
+    'page'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Pageable
+     */
+    'size'?: number;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof Pageable
+     */
+    'sort'?: Array<string>;
 }
 /**
  * 
@@ -1307,6 +1332,12 @@ export interface UserXDTO {
     'user'?: UserDTO;
     /**
      * 
+     * @type {AddressDTO}
+     * @memberof UserXDTO
+     */
+    'address'?: AddressDTO;
+    /**
+     * 
      * @type {number}
      * @memberof UserXDTO
      */
@@ -1416,16 +1447,16 @@ export interface VehicleDTO {
     'maxStopPoints'?: number;
     /**
      * 
-     * @type {number}
+     * @type {UserXDTO}
      * @memberof VehicleDTO
      */
-    'ownerUserXId'?: number;
+    'ownerUserX'?: UserXDTO;
     /**
      * 
-     * @type {number}
+     * @type {AddressDTO}
      * @memberof VehicleDTO
      */
-    'currentAddressId'?: number;
+    'currentAddress'?: AddressDTO;
 }
 /**
  * 
@@ -13141,6 +13172,39 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfUserXByRole: async (role: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'role' is not null or undefined
+            assertParamExists('getNumberOfUserXByRole', 'role', role)
+            const localVarPath = `/api/user-xes-num/{role}`
+                .replace(`{${"role"}}`, encodeURIComponent(String(role)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -13150,6 +13214,39 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
             assertParamExists('getUserX', 'id', id)
             const localVarPath = `/api/user-xes/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserXByLogin: async (login: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'login' is not null or undefined
+            assertParamExists('getUserXByLogin', 'login', login)
+            const localVarPath = `/api/user-xes-login/{login}`
+                .replace(`{${"login"}}`, encodeURIComponent(String(login)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -13342,12 +13439,32 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumberOfUserXByRole(role: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumberOfUserXByRole(role, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         async getUserX(id: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserXDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getUserX(id, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserXByLogin(login: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserXDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserXByLogin(login, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -13426,12 +13543,30 @@ export const UserXResourceApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfUserXByRole(role: string, options?: any): AxiosPromise<number> {
+            return localVarFp.getNumberOfUserXByRole(role, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         getUserX(id: number, options?: any): AxiosPromise<UserXDTO> {
             return localVarFp.getUserX(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserXByLogin(login: string, options?: any): AxiosPromise<UserXDTO> {
+            return localVarFp.getUserXByLogin(login, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -13512,6 +13647,17 @@ export class UserXResourceApi extends BaseAPI {
 
     /**
      * 
+     * @param {string} role 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getNumberOfUserXByRole(role: string, options?: AxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getNumberOfUserXByRole(role, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -13519,6 +13665,17 @@ export class UserXResourceApi extends BaseAPI {
      */
     public getUserX(id: number, options?: AxiosRequestConfig) {
         return UserXResourceApiFp(this.configuration).getUserX(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} login 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getUserXByLogin(login: string, options?: AxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getUserXByLogin(login, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14254,6 +14411,49 @@ export const VehicleResourceApiAxiosParamCreator = function (configuration?: Con
         },
         /**
          * 
+         * @param {VehicleDTO} example 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchVehicles: async (example: VehicleDTO, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'example' is not null or undefined
+            assertParamExists('searchVehicles', 'example', example)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchVehicles', 'pageable', pageable)
+            const localVarPath = `/api/vehicles/search`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (example !== undefined) {
+                localVarQueryParameter['example'] = example;
+            }
+
+            if (pageable !== undefined) {
+                localVarQueryParameter['pageable'] = pageable;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {VehicleDTO} vehicleDTO 
          * @param {*} [options] Override http request option.
@@ -14369,6 +14569,17 @@ export const VehicleResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {VehicleDTO} example 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchVehicles(example: VehicleDTO, pageable: Pageable, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<VehicleDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchVehicles(example, pageable, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {VehicleDTO} vehicleDTO 
          * @param {*} [options] Override http request option.
@@ -14447,6 +14658,16 @@ export const VehicleResourceApiFactory = function (configuration?: Configuration
          */
         partialUpdateVehicle(id: number, vehicleDTO: VehicleDTO, options?: any): AxiosPromise<VehicleDTO> {
             return localVarFp.partialUpdateVehicle(id, vehicleDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {VehicleDTO} example 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchVehicles(example: VehicleDTO, pageable: Pageable, options?: any): AxiosPromise<Array<VehicleDTO>> {
+            return localVarFp.searchVehicles(example, pageable, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -14538,6 +14759,18 @@ export class VehicleResourceApi extends BaseAPI {
      */
     public partialUpdateVehicle(id: number, vehicleDTO: VehicleDTO, options?: AxiosRequestConfig) {
         return VehicleResourceApiFp(this.configuration).partialUpdateVehicle(id, vehicleDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {VehicleDTO} example 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof VehicleResourceApi
+     */
+    public searchVehicles(example: VehicleDTO, pageable: Pageable, options?: AxiosRequestConfig) {
+        return VehicleResourceApiFp(this.configuration).searchVehicles(example, pageable, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

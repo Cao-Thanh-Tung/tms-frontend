@@ -319,13 +319,13 @@ const chooseAddressEditForm = (addressId: number) => {
 </script>
 
 <template>
-  <!-- -->
+
   <a-breadcrumb style="margin: 16px 0">
     <a-breadcrumb-item>Khách hàng</a-breadcrumb-item>
     <a-breadcrumb-item>Danh sách khách hàng</a-breadcrumb-item>
   </a-breadcrumb>
 
-  <!-- Employee list table -->
+  Employee list table
   <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
     <a-table :dataSource="users" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination" :loading="loading"
       @change="handleTableChange">

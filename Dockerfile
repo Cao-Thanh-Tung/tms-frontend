@@ -1,6 +1,7 @@
 
 FROM node:16.10.0-alpine3.13 as build-stage
 
+# Set working directory
 WORKDIR /app
 
 COPY package*.json ./

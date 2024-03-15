@@ -1,35 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { KJUR } from "jsrsasign";
 import store from "@/store";
 import Navbar from "@/components/Navbar.vue";
 import Authorization from "@/pages/auth/Authorization.vue";
-
-let isTokenExpired = ref(false);
-
-onMounted(() => {
-  const jwt = store.getters.jwt;
-  if (jwt) {
-    const decodedToken = KJUR.jws.JWS.parse(jwt);
-    if (decodedToken.payloadObj) {
-      const payloadObj = decodedToken.payloadObj as { exp: number };
-      const now = Math.floor(Date.now() / 1000);
-      if (now > payloadObj.exp) {
-        isTokenExpired.value = true;
-      }
-    } else {
-      isTokenExpired.value = true;
-    }
-  }
-});
-
 </script>
 
 <template>
   <div>
-    <Authorization v-if="store.getters.jwt == '' || isTokenExpired" />
-    <Navbar v-else>
+    <Authorization v-if="!store.getters.isLogin" />
+    <Navbar :role="store.getters.user?.role" :avatar="store.getters.user.user?.imageUrl"
+      :name="store.getters.user.user?.lastName" v-else>
       <router-view />
     </Navbar>
   </div>
 </template>
+<style>
+* {
+  font-size: 16px;
+}
+</style>
