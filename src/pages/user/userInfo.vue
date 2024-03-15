@@ -15,7 +15,6 @@ onMounted(() => {
     .getAccount()
     .then((res) => {
       userInfor.value = res.data;
-      console.log(userInfor.value);
     })
     .catch((e) => {
       console.error(e);

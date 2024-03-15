@@ -13238,6 +13238,39 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserXByLogin: async (login: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'login' is not null or undefined
+            assertParamExists('getUserXByLogin', 'login', login)
+            const localVarPath = `/api/user-xes-login/{login}`
+                .replace(`{${"login"}}`, encodeURIComponent(String(login)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {string} role 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
@@ -13426,6 +13459,16 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserXByLogin(login: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserXDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserXByLogin(login, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @param {string} role 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
@@ -13515,6 +13558,15 @@ export const UserXResourceApiFactory = function (configuration?: Configuration, 
          */
         getUserX(id: number, options?: any): AxiosPromise<UserXDTO> {
             return localVarFp.getUserX(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserXByLogin(login: string, options?: any): AxiosPromise<UserXDTO> {
+            return localVarFp.getUserXByLogin(login, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -13613,6 +13665,17 @@ export class UserXResourceApi extends BaseAPI {
      */
     public getUserX(id: number, options?: AxiosRequestConfig) {
         return UserXResourceApiFp(this.configuration).getUserX(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} login 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getUserXByLogin(login: string, options?: AxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getUserXByLogin(login, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

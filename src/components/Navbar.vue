@@ -7,6 +7,11 @@ import {
   CarOutlined,
   ReconciliationOutlined,
 } from "@ant-design/icons-vue";
+const props = defineProps({
+  avatar: String,
+  name: String,
+  role: String,
+});
 const selectedKeys2 = ref<string[]>(["1"]);
 const openKeys = ref<string[]>(["sub1"]);
 function logout() {
@@ -16,40 +21,23 @@ function logout() {
 <template>
   <a-layout>
     <a-layout>
-      <a-layout-sider width="200" style="background: #fff">
-        <a-menu
-          v-model:selectedKeys="selectedKeys2"
-          v-model:openKeys="openKeys"
-          mode="inline"
-          :style="{ height: '100%', borderRight: 0 }"
-        >
+      <a-layout-sider width="240" style="background: #fff">
+        <a-menu v-model:selectedKeys="selectedKeys2" v-model:openKeys="openKeys" mode="inline"
+          :style="{ height: '100%', borderRight: 0 }">
           <a-sub-menu key="sub1">
             <template #title>
               <span>
-                <a-avatar size="small" shape="square">
+                <a-avatar :src="props.avatar" size="small" shape="circle">
                   <template #icon>
                     <user-outlined />
                   </template>
                 </a-avatar>
-                Tài khoản
+                {{ name }}
               </span>
             </template>
-            <a-menu-item key="1"
-              ><router-link :to="{ name: 'user-info' }"
-                >Thông tin cá nhân</router-link
-              ></a-menu-item
-            >
-            <a-menu-item key="2"
-              ><router-link :to="{ name: 'change-password' }"
-                >Đổi mật khẩu</router-link
-              ></a-menu-item
-            >
-            <a-menu-item
-              key="3"
-              @click="logout"
-              style="background-color: orange; color: #fff"
-              >Đăng xuất</a-menu-item
-            >
+            <a-menu-item key="1"><router-link :to="{ name: 'user-info' }">Thông tin cá nhân</router-link></a-menu-item>
+            <a-menu-item key="2"><router-link :to="{ name: 'change-password' }">Đổi mật khẩu</router-link></a-menu-item>
+            <a-menu-item key="3" @click="logout" style="background-color: orange; color: #fff">Đăng xuất</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub2">
             <template #title>
@@ -58,16 +46,12 @@ function logout() {
                 Nhân viên
               </span>
             </template>
-            <a-menu-item key="21"
-              ><router-link :to="{ name: 'employee-list' }"
-                >Danh sách nhân viên</router-link
-              ></a-menu-item
-            >
-            <a-menu-item key="22"
-              ><router-link :to="{ name: 'employee-driver' }"
-                >Tài xế</router-link
-              ></a-menu-item
-            >
+            <a-menu-item key="21" v-if="props.role == 'admin'"><router-link :to="{ name: 'employee-list' }">Nhân
+                viên điều phối</router-link></a-menu-item>
+            <a-menu-item key="22" v-if="props.role == 'admin'"><router-link :to="{ name: 'employee-driver' }">Tài
+                xế</router-link></a-menu-item>
+            <a-menu-item key="23" v-if="props.role == 'employee'"><router-link :to="{ name: 'driver-for-employee' }">Tài
+                xế</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub3">
             <template #title>
@@ -76,16 +60,14 @@ function logout() {
                 Quản lý xe
               </span>
             </template>
-            <a-menu-item key="31"
-              ><router-link :to="{ name: 'vehicle-list' }"
-                >Danh sách xe</router-link
-              ></a-menu-item
-            >
-            <a-menu-item key="32"
-              ><router-link :to="{ name: 'vehicle-status' }"
-                >Trạng thái xe</router-link
-              ></a-menu-item
-            >
+            <a-menu-item key="31" v-if="props.role == 'admin'"><router-link :to="{ name: 'vehicle-list' }">Danh sách
+                xe</router-link></a-menu-item>
+            <a-menu-item key="32" v-if="props.role == 'employee'"><router-link
+                :to="{ name: 'vehicle-for-employee' }">Danh sách
+                xe</router-link></a-menu-item>
+            <a-menu-item key="33" v-if="props.role == 'employee'"><router-link :to="{ name: 'vehicle-status' }">Trạng
+                thái
+                xe</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub6">
             <template #title>
@@ -94,24 +76,21 @@ function logout() {
                 Khách hàng
               </span>
             </template>
-            <a-menu-item key="61"
-              ><router-link :to="{ name: 'client-list' }"
-                >Khách hàng</router-link
-              ></a-menu-item
-            >
+            <a-menu-item key="61" v-if="props.role == 'admin'"><router-link :to="{ name: 'client-list' }">Khách
+                hàng</router-link></a-menu-item>
+            <a-menu-item key="62" v-if="props.role == 'employee'"><router-link
+                :to="{ name: 'client-for-employee' }">Khách
+                hàng</router-link></a-menu-item>
           </a-sub-menu>
-          <a-sub-menu key="sub9">
+          <a-sub-menu key="sub9" v-if="props.role == 'admin'">
             <template #title>
               <span>
                 <user-outlined />
                 Nhà Thầu
               </span>
             </template>
-            <a-menu-item key="91"
-              ><router-link :to="{ name: 'contractor-list' }"
-                >Danh sách nhà thầu</router-link
-              ></a-menu-item
-            >
+            <a-menu-item key="91"><router-link :to="{ name: 'contractor-list' }">Danh sách nhà
+                thầu</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub4">
             <template #title>
@@ -120,11 +99,11 @@ function logout() {
                 Đơn vận chuyển
               </span>
             </template>
-            <a-menu-item key="41"
-              ><router-link :to="{ name: 'order-list' }"
-                >Danh sách đơn</router-link
-              ></a-menu-item
-            >
+            <a-menu-item key="41" v-if="props.role == 'admin'"><router-link :to="{ name: 'order-list' }">Danh sách
+                đơn</router-link></a-menu-item>
+            <a-menu-item key="42" v-if="props.role == 'employee'"><router-link :to="{ name: 'order-for-employee' }">Danh
+                sách
+                đơn</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub5">
             <template #title>
@@ -133,37 +112,11 @@ function logout() {
                 Phân tuyến
               </span>
             </template>
-            <a-menu-item key="51"
-              ><router-link :to="{ name: 'auto-routing' }"
-                >Phân tuyến</router-link
-              ></a-menu-item
-            >
-          </a-sub-menu>
-          <a-sub-menu key="sub7">
-            <template #title>
-              <span>
-                <user-outlined />
-                Bản đồ
-              </span>
-            </template>
-            <a-menu-item key="71"
-              ><router-link :to="{ name: 'map' }"
-                >Bản đồ</router-link
-              ></a-menu-item
-            >
-          </a-sub-menu>
-          <a-sub-menu key="sub8">
-            <template #title>
-              <span>
-                <user-outlined />
-                Quản lý điểm
-              </span>
-            </template>
-            <a-menu-item key="81"
-              ><router-link :to="{ name: 'district-list' }"
-                >Danh sách Tỉnh/Huyện/X</router-link
-              ></a-menu-item
-            >
+            <a-menu-item key="51" v-if="props.role == 'admin'"><router-link :to="{ name: 'auto-routing' }">Phân
+                tuyến</router-link></a-menu-item>
+            <a-menu-item key="52" v-if="props.role == 'employee'"><router-link :to="{ name: 'routing-report' }">Báo cáo
+                phân
+                tuyến</router-link></a-menu-item>
           </a-sub-menu>
         </a-menu>
       </a-layout-sider>
@@ -176,7 +129,6 @@ function logout() {
 <style scoped>
 #components-layout-demo-top-side-2 .logo {
   float: left;
-  width: 120px;
   height: 31px;
   margin: 16px 24px 16px 0;
   background: rgba(255, 255, 255, 0.3);

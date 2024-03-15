@@ -190,7 +190,7 @@ const edit = () => {
   console.log(JSON.parse(JSON.stringify(formEditState)));
   console.log(formEditState.id);
   vehicleApi
-    .partialUpdateVehicle(formEditState.id, formEditState)
+    .partialUpdateVehicle(formEditState.id!, formEditState)
     .then((res) => {
       console.log(res);
       const index = vehicles.findIndex((user: VehicleDTO) => {
@@ -285,33 +285,33 @@ const add = async () => {
         fullName: formAddState.currentAddress.fullName,
       })
     ).data.id;
-      await vehicleApi.createVehicle(<VehicleDTO>{
-        type: formAddState.type,
-        licensePlatesNumber: formAddState.licensePlatesNumber,
-        maxLoadKg: formAddState.maxLoadKg,
-        minLoadKg: formAddState.minLoadKg,
-        height: formAddState.height,
-        width: formAddState.width,
-        length: formAddState.length,
-        minPallets: formAddState.minPallets,
-        maxPallets: formAddState.maxPallets,
-        registrationDate: formAddState.registrationDate,
-        registrationExpireDate: formAddState.registrationExpireDate,
-        fuelType: formAddState.fuelType,
-        averageVelocity: formAddState.averageVelocity,
-        maxStopPoints: formAddState.maxStopPoints,
-        // ownerUserX: {
-        //   id: ,
-        //   user: {
-        //     id: -1,
-        //     firstName: "",
-        //     lastName: "",
-        //   },
-        // },
-        currentAddress: {
-          id: addressId,
-        },
-      })
+    await vehicleApi.createVehicle(<VehicleDTO>{
+      type: formAddState.type,
+      licensePlatesNumber: formAddState.licensePlatesNumber,
+      maxLoadKg: formAddState.maxLoadKg,
+      minLoadKg: formAddState.minLoadKg,
+      height: formAddState.height,
+      width: formAddState.width,
+      length: formAddState.length,
+      minPallets: formAddState.minPallets,
+      maxPallets: formAddState.maxPallets,
+      registrationDate: formAddState.registrationDate,
+      registrationExpireDate: formAddState.registrationExpireDate,
+      fuelType: formAddState.fuelType,
+      averageVelocity: formAddState.averageVelocity,
+      maxStopPoints: formAddState.maxStopPoints,
+      // ownerUserX: {
+      //   id: ,
+      //   user: {
+      //     id: -1,
+      //     firstName: "",
+      //     lastName: "",
+      //   },
+      // },
+      currentAddress: {
+        id: addressId,
+      },
+    })
     console.log(formAddState)
     message.success("Tạo tài khoản xe thành công!");
   } catch (err) {
@@ -353,20 +353,13 @@ const handleReset = (clearFilters: any) => {
   </a-breadcrumb>
 
   <!-- vehicle list table -->
-  <a-layout-content
-    :style="{
-      background: '#fff',
-      padding: '24px',
-      margin: 0,
-      minHeight: '280px',
-    }"
-  >
-    <a-table
-      :dataSource="vehicles"
-      :columns="columns"
-      :scroll="{ x: 1300 }"
-      :pagination="pagination"
-    >
+  <a-layout-content :style="{
+    background: '#fff',
+    padding: '24px',
+    margin: 0,
+    minHeight: '280px',
+  }">
+    <a-table :dataSource="vehicles" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'type'">
           <a>
@@ -377,18 +370,14 @@ const handleReset = (clearFilters: any) => {
           <a href="#" @click="() => showEditForm(record)">
             <EditOutlined />
           </a>
-          <a-popconfirm
-            title="Xóa Xe?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="() => deleteVehicle((<VehicleDTO>record))"
-          >
+          <a-popconfirm title="Xóa Xe?" ok-text="Yes" cancel-text="No"
+            @confirm="() => deleteVehicle((<VehicleDTO>record))">
             <a href="#">
               <DeleteFilled style="margin-left: 6px" />
             </a>
           </a-popconfirm>
           <a href="#" @click="() => showMoreInfo(record)">
-            <InfoCircleOutlined style="margin-left: 6px;"/>
+            <InfoCircleOutlined style="margin-left: 6px;" />
           </a>
         </template>
       </template>
@@ -396,40 +385,26 @@ const handleReset = (clearFilters: any) => {
       <template #customFilterIcon="{ filtered }">
         <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
       </template>
-      <template
-        #customFilterDropdown="{
-          setSelectedKeys,
-          selectedKeys,
-          confirm,
-          clearFilters,
-          column,
-        }"
-      >
+      <template #customFilterDropdown="{
+    setSelectedKeys,
+    selectedKeys,
+    confirm,
+    clearFilters,
+    column,
+  }">
         <div style="padding: 8px">
-          <a-input
-            ref="searchInput"
-            :placeholder="`Search`"
-            :value="selectedKeys[0]"
+          <a-input ref="searchInput" :placeholder="`Search`" :value="selectedKeys[0]"
             style="width: 188px; margin-bottom: 8px; display: block"
             @change="(e: any) => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-            @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
-          />
-          <a-button
-            type="primary"
-            size="small"
-            style="width: 90px; margin-right: 8px"
-            @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
-          >
+            @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)" />
+          <a-button type="primary" size="small" style="width: 90px; margin-right: 8px"
+            @click="handleSearch(selectedKeys, confirm, column.dataIndex)">
             <template #icon>
               <SearchOutlined />
             </template>
             Search
           </a-button>
-          <a-button
-            size="small"
-            style="width: 90px"
-            @click="handleReset(clearFilters)"
-          >
+          <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
             Reset
           </a-button>
         </div>
@@ -439,21 +414,13 @@ const handleReset = (clearFilters: any) => {
   </a-layout-content>
 
   <!-- Float button create new vehicle-->
-  <a-float-button
-    type="primary"
-    @click="showAddForm"
-    tooltip="Tạo Xe mới"
-  >
+  <a-float-button type="primary" @click="showAddForm" tooltip="Tạo Xe mới">
     <template #icon>
       <plus-outlined />
     </template>
   </a-float-button>
-  <a-modal
-    v-model:visible="infoModalVisible"
-    title="Thông tin chi tiết xe"
-    :footer="null"
-    @cancel="infoModalVisible = false"
-  >
+  <a-modal v-model:visible="infoModalVisible" title="Thông tin chi tiết xe" :footer="null"
+    @cancel="infoModalVisible = false">
     <a-descriptions :column="1">
       <a-descriptions-item label="Kiểu xe">{{ formEditState?.type }}</a-descriptions-item>
       <a-descriptions-item label="Biển số xe">{{ formEditState?.licensePlatesNumber }}</a-descriptions-item>
@@ -469,26 +436,18 @@ const handleReset = (clearFilters: any) => {
       <a-descriptions-item label="Vận tốc trung bình">{{ formEditState?.averageVelocity }}</a-descriptions-item>
       <a-descriptions-item label="Số điểm dừng tối đa">{{ formEditState?.maxStopPoints }}</a-descriptions-item>
       <a-descriptions-item label="Kiểu dầu">{{ formEditState?.fuelType }}</a-descriptions-item>
-      <a-descriptions-item label="Tên người sở hữu">{{ formEditState?.ownerUserX?.user?.lastName }}</a-descriptions-item>
+      <a-descriptions-item label="Tên người sở hữu">{{ formEditState?.ownerUserX?.user?.lastName
+        }}</a-descriptions-item>
       <a-descriptions-item label="Địa chỉ">{{ formEditState?.currentAddress?.fullName }}</a-descriptions-item>
     </a-descriptions>
   </a-modal>
   <!-- Popup edit vehicle form  -->
-  <a-modal
-    v-model:open="openEditForm"
-    title="Chỉnh sửa thông tin Xe"
-    :confirm-loading="editLoading"
-    @ok="edit"
-  >
+  <a-modal v-model:open="openEditForm" title="Chỉnh sửa thông tin Xe" :confirm-loading="editLoading" @ok="edit">
     <a-form :model="formEditState">
       <a-form-item ref="type" label="Kiểu xe" name="type">
         <a-input v-model:value="formEditState.type" />
       </a-form-item>
-      <a-form-item
-        ref="licensePlatesNumber"
-        label="Biển số xe"
-        name="licensePlatesNumber"
-      >
+      <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber">
         <a-input v-model:value="formEditState.licensePlatesNumber" />
       </a-form-item>
       <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg">
@@ -512,18 +471,10 @@ const handleReset = (clearFilters: any) => {
       <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets">
         <a-input-number v-model:value="formEditState.maxPallets" />
       </a-form-item>
-      <a-form-item
-        ref="registrationDate"
-        label="Ngày đăng ký"
-        name="registrationDate"
-      >
+      <a-form-item ref="registrationDate" label="Ngày đăng ký" name="registrationDate">
         <a-date-picker v-model:value="formEditState.registrationDate" />
       </a-form-item>
-      <a-form-item
-        ref="registrationExpireDate"
-        label="Ngày hết hạn"
-        name="registrationExpireDate"
-      >
+      <a-form-item ref="registrationExpireDate" label="Ngày hết hạn" name="registrationExpireDate">
         <a-date-picker v-model:value="formEditState.registrationExpireDate" />
       </a-form-item>
       <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity">
@@ -531,7 +482,7 @@ const handleReset = (clearFilters: any) => {
       </a-form-item>
       <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints">
         <a-input-number v-model:value="formEditState.maxStopPoints" />
-      </a-form-item>     
+      </a-form-item>
       <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType">
         <a-input v-model:value="formEditState.fuelType" />
       </a-form-item>
@@ -549,22 +500,12 @@ const handleReset = (clearFilters: any) => {
   </a-modal>
 
   <!-- Popup create vehicle form -->
-  <a-modal
-    v-model:open="openAddForm"
-    title="Tạo mới Xe"
-    :confirm-loading="addLoading"
-    @ok="add"
-    @cancel="reset"
-  >
+  <a-modal v-model:open="openAddForm" title="Tạo mới Xe" :confirm-loading="addLoading" @ok="add" @cancel="reset">
     <a-form>
       <a-form-item ref="type" label="Kiểu xe" name="type">
         <a-input v-model:value="formAddState.type" />
       </a-form-item>
-      <a-form-item
-        ref="licensePlatesNumber"
-        label="Biển số xe"
-        name="licensePlatesNumber"
-      >
+      <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber">
         <a-input v-model:value="formAddState.licensePlatesNumber" />
       </a-form-item>
       <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg">
@@ -588,18 +529,10 @@ const handleReset = (clearFilters: any) => {
       <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets">
         <a-input-number v-model:value="formAddState.maxPallets" />
       </a-form-item>
-      <a-form-item
-        ref="registrationDate"
-        label="Ngày đăng ký"
-        name="registrationDate"
-      >
+      <a-form-item ref="registrationDate" label="Ngày đăng ký" name="registrationDate">
         <a-date-picker v-model:value="formAddState.registrationDate" />
       </a-form-item>
-      <a-form-item
-        ref="registrationExpireDate"
-        label="Ngày hết hạn"
-        name="registrationExpireDate"
-      >
+      <a-form-item ref="registrationExpireDate" label="Ngày hết hạn" name="registrationExpireDate">
         <a-date-picker v-model:value="formAddState.registrationExpireDate" />
       </a-form-item>
       <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity">
@@ -607,7 +540,7 @@ const handleReset = (clearFilters: any) => {
       </a-form-item>
       <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints">
         <a-input-number v-model:value="formAddState.maxStopPoints" />
-      </a-form-item>     
+      </a-form-item>
       <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType">
         <a-input v-model:value="formAddState.fuelType" />
       </a-form-item>

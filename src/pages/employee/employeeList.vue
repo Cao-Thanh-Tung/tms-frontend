@@ -50,7 +50,7 @@ function createDefaultUserXDTO() {
     return {
         id: 0,
         phoneNumber: '',
-        role: 'none',
+        role: "employee",
         user: createDefaultUserDTO(),
         address: {
             id: -1,
@@ -244,7 +244,7 @@ const formAddState = reactive({
     email: "",
     imageUrl: "",
     address: { id: -1, fullName: '' },
-    role: "none",
+    role: "employee",
 })
 function reset() {
     formAddState.login = "";
@@ -256,7 +256,6 @@ function reset() {
     formAddState.imageUrl = "";
     formAddState.address.id = -1;
     formAddState.address.fullName = "";
-    formAddState.role = "none";
 }
 
 const showAddForm = () => {
@@ -328,7 +327,7 @@ const chooseAddressEditForm = (addressId: number) => {
     <!-- -->
     <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item>Nhân viên</a-breadcrumb-item>
-        <a-breadcrumb-item>Danh sách nhân viên</a-breadcrumb-item>
+        <a-breadcrumb-item>Nhân viên điều phối</a-breadcrumb-item>
     </a-breadcrumb>
 
     <!-- Employee list table -->
@@ -344,12 +343,6 @@ const chooseAddressEditForm = (addressId: number) => {
                     <a-avatar :src="(<UserXDTO>record).user?.imageUrl">
                         <template #icon><user-outlined /></template>
                     </a-avatar>
-                </template>
-
-                <template v-if="column.key === 'role'">
-                    {{ record.role === "employee" ? "Điều phối viên" : "" }}
-                    {{ record.role === "driver" ? "Tài xế" : "" }}
-                    {{ record.role === "none" ? "Chờ phân công" : "" }}
                 </template>
 
                 <template v-if="column.key === 'operation'">
@@ -407,7 +400,7 @@ const chooseAddressEditForm = (addressId: number) => {
     </a-float-button>
 
     <!-- Popup edit employee form -->
-    <a-modal v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên"
+    <a-modal width="700px" v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên"
         :confirm-loading="editLoading" @ok="edit">
         <a-form :model="formEditState">
             <a-form-item ref="firstName" label="Họ" name="firstName">
@@ -432,20 +425,12 @@ const chooseAddressEditForm = (addressId: number) => {
             <a-form-item label="Đường dẫn ảnh" name="imageUrl">
                 <a-input v-model:value="formEditState.user!.imageUrl" />
             </a-form-item>
-
-            <a-form-item label="Chức vụ" name="resource">
-                <a-radio-group v-model:value="formEditState.role">
-                    <a-radio value="employee">Nhân viên điều phối</a-radio>
-                    <a-radio value="driver">Tài xế</a-radio>
-                    <a-radio value="none">Chờ phân công</a-radio>
-                </a-radio-group>
-            </a-form-item>
         </a-form>
     </a-modal>
 
     <!-- Popup create employee form -->
-    <a-modal v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading"
-        @ok="add" @cancel="reset">
+    <a-modal width="700px" v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới nhân viên"
+        :confirm-loading="addLoading" @ok="add" @cancel="reset">
         <a-form>
             <a-form-item label="Tài khoản" name="username">
                 <a-input v-model:value="formAddState.login" />
@@ -468,15 +453,6 @@ const chooseAddressEditForm = (addressId: number) => {
             <a-form-item label="Ảnh" name="imageUrl">
                 <a-input v-model:value="formAddState.imageUrl" />
             </a-form-item>
-            <a-form-item label="Chức vụ" name="resource">
-                <a-radio-group v-model:value="formAddState.role">
-                    <a-radio value="employee">Nhân viên điều phối</a-radio>
-                    <a-radio value="driver">Tài xế</a-radio>
-                    <a-radio value="none">Chờ phân công</a-radio>
-                </a-radio-group>
-            </a-form-item>
         </a-form>
     </a-modal>
 </template>
-
-<style scoped></style>
