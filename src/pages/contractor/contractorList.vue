@@ -12,6 +12,7 @@ import { AddressResourceApi } from "@/api";
 import store from "@/store";
 import { Configuration } from "@/configuration";
 import { ContractorResourceApi, ContractorDTO } from "../../api";
+import moment from "moment";
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -54,6 +55,7 @@ const columns = [
     title: "Ngày đăng kí",
     key: "signingDate",
     dataIndex: "signingDate",
+
   },
   {
     title: "Ngày hết hạn",
@@ -113,14 +115,15 @@ const formEditState: UnwrapRef<ContractorDTO> = reactive<ContractorDTO>(
 );
 const showEditForm = (v: ContractorDTO) => {
   // Deep copy the object
+  console.log(v);
   const copy = JSON.parse(JSON.stringify(v));
 
   // Convert string dates to Date objects
   if (copy.signingDate) {
-    copy.signingDate = "";
+    copy.signingDate = moment(new Date(copy.signingDate));
   }
   if (copy.expirationDate) {
-    copy.expirationDate = "";
+    copy.expirationDate = moment(new Date(copy.expirationDate));
   }
 
   // Assign the modified object to formEditState
@@ -264,6 +267,11 @@ const handleReset = (clearFilters: any) => {
           <a>
             {{ record.name }}
           </a>
+        </template>
+        <template v-if="column.key === 'expirationDate'">
+          <span>
+            {{ moment(record.expirationDate).format("DD/MM/YYYY") }}
+          </span>
         </template>
         <template v-if="column.key === 'operation'">
           <a href="#" @click="() => showEditForm(record)">
