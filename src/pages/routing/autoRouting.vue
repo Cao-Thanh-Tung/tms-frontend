@@ -118,7 +118,7 @@
         </div>
       </div>
     </a-drawer>
-    <map-app />
+    <map-app :vehiclePositonList="positionList" />
   </div>
 </template>
 
@@ -129,10 +129,12 @@ import { ref, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";
 import { Configuration } from "../../configuration";
 import store from "../../store";
-import { VehicleDTO, OrderDTO } from "../../api";
+import { VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi } from '../../api';
 
 let vehicleList = ref([] as VehicleDTO[]);
 let orderList = ref([] as OrderDTO[]);
+let vehicle2Position = ref(new Map<number, PositionDTO>());
+let positionList = ref([] as PositionDTO[]);
 let vehicleResourceApi = new VehicleResourceApi(
   new Configuration({
     accessToken: () => store.getters.jwt,
@@ -143,21 +145,41 @@ let orderResourceApi = new OrderResourceApi(
     accessToken: () => store.getters.jwt,
   })
 );
+let positionResourceApi = new PositionResourceApi(
+  new Configuration({
+    accessToken: () => store.getters.jwt,
+  })
+);
 let setupStep = ref(1);
 let isModalVisible = ref(false);
 let originalVehicleList = ref([] as VehicleDTO[]); // Store the original list
 let originalOrderList = ref([] as OrderDTO[]); // Store the original list
-const clickSetup = async () => {
-  isModalVisible.value = true;
+
+const fetchVehicles = async () => {
   vehicleResourceApi
     .getAllVehicles()
     .then((res) => {
       vehicleList.value = res.data;
       originalVehicleList.value = res.data;
+      const positionPromises = res.data.map((vehicle) => {
+        if (vehicle.id === undefined) return Promise.resolve();
+        return positionResourceApi
+          .getAllPositionsByVehicle(vehicle.id)
+          .then((res) => {
+            if (vehicle.id === undefined) return;
+            vehicle2Position.value.set(vehicle.id, res.data);
+          });
+      });
+      return Promise.all(positionPromises);
+    })
+    .then(() => {
+      console.log(vehicleList.value);
     })
     .catch((err) => {
       console.log(err);
     });
+};
+const fetchOrders = async () => {
   orderResourceApi
     .getAllOrders()
     .then((res) => {
@@ -167,6 +189,18 @@ const clickSetup = async () => {
     .catch((err) => {
       console.log(err);
     });
+};
+const clickSetup = async () => {
+  isModalVisible.value = true;
+  // check if vehicle list is not empty
+  if (vehicleList.value.length === 0) {
+    await fetchVehicles();
+  }
+  // check if order list is not empty
+  if (orderList.value.length === 0) {
+    await fetchOrders();
+  }
+
 };
 
 const handleVehicleSearch = (value: string, property: keyof VehicleDTO) => {
@@ -231,6 +265,8 @@ const state = reactive<{
 });
 const onVehicleSelectChange = (selectedRowKeys: (string | number)[]) => {
   state.selectedRowKeys = selectedRowKeys;
+  positionList.value = selectedRowKeys.map((key) => vehicle2Position.value.get(Number(key))).filter(Boolean) as PositionDTO[];
+  console.log(positionList.value);
   state.selectedVehicleCount = selectedRowKeys.length;
 };
 

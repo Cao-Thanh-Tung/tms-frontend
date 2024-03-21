@@ -9,16 +9,16 @@
 
 <script setup lang="ts">
 // using ant-design-vue
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from "vue";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet.control.layers.tree/L.Control.Layers.Tree.css"
+import "leaflet.control.layers.tree/L.Control.Layers.Tree.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 // import concaveman from "concaveman";
 import "leaflet.control.layers.tree";
-
+import { PositionDTO } from '../api';
 // interface SearchResults {
 //   name: string;
 //   country: string;
@@ -27,6 +27,34 @@ import "leaflet.control.layers.tree";
 //   lat: number;
 //   lon: number;
 // }
+const props = defineProps<{
+  vehiclePositonList: PositionDTO[];
+}>();
+
+watch(() => props.vehiclePositonList, (newVal) => {
+  // make marker
+  if (map.value) {
+    map.value.eachLayer((layer: L.Layer) => {
+      if (layer instanceof L.Marker) {
+        map.value?.removeLayer(layer);
+      }
+    });
+    newVal.forEach((position) => {
+      if (map.value && position.lat && position.lng)
+        createVehicleMarker(position.lat, position.lng).addTo(map.value as L.Map);
+    });
+  }
+});
+function createVehicleMarker(lat: number, lng: number) {
+  const icon = L.icon({
+    iconUrl: 'src/assets/car-placeholder.png', // Path to your image file
+    iconSize: [38, 38], // Size of the icon
+    iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
+    popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+  });
+
+  return L.marker([lat, lng], { icon });
+}
 const lat = ref(0);
 const lng = ref(0);
 
@@ -46,7 +74,7 @@ const createMarker = (lat: number, lng: number, draggable = false) => {
   const marker = L.marker([lat, lng], { draggable });
   if (draggable) {
     marker.on("dragend", (event: L.DragEndEvent) => {
-      const { lat, lng } = event.target.getLatLng();
+      const { lat = 0, lng = 0 } = event.target.getLatLng();
       displayCoordinates(lat, lng);
     });
   }
@@ -161,12 +189,14 @@ onMounted(() => {
     }
   });
 
+
   map.value.on("dblclick", function (e: L.LeafletMouseEvent) {
     if (map.value) {
       createMarker(e.latlng.lat, e.latlng.lng).addTo(map.value as L.Map);
     }
   });
 });
+
 // const handleSearchInput = async () => {
 //   const searchText = searchInput.value.value;
 //   if (searchText) {
