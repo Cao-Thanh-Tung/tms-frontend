@@ -88,6 +88,9 @@
             <a-form-item label="Số điện thoại" name="phoneNumber">
                 <a-input v-model:value="formState.phoneNumber" />
             </a-form-item>
+            <a-form-item label="Địa chỉ" name="address">
+                <address-form @save="chooseAddressAddForm"></address-form>
+            </a-form-item>
             <a-form-item label="Email" name="email">
                 <a-input v-model:value="formState.email" />
             </a-form-item>
@@ -254,6 +257,15 @@ const columns = [
         customFilterDropdown: true,
         onFilter: (value: string, record: UserXDTO) =>
             (record.user!.firstName! + record.user!.lastName!).toLowerCase().includes(value.toLowerCase()),
+    },
+    {
+        title: 'Địa chỉ',
+        dataIndex: ['user', 'address'],
+        key: 'address',
+        width: '6%',
+        customFilterDropdown: true,
+        onFilter: (value: string, record: UserXDTO) =>
+            record.address!.fullName!.toLowerCase().includes(value.toLowerCase()),
     },
     {
         title: 'Số điện thoại',
@@ -514,7 +526,17 @@ const handleOk = () => {
                 });
             })
             .catch((err) => {
-                console.log(err);
+                // that mean customerAssignment not exist, so we create new one
+                customerAssignmentApi
+                    .createCustomerAssignment({
+                        employeeUserXId: formState.value.employee,
+                        customerUserXId: formState.value.id,
+                    })
+                    .then(() => {
+                        customerAssignmentApi.getAllCustomerAssignments().then((res) => {
+                            customerAssignmentList.value = res.data;
+                        });
+                    });
             });
     }
     message.success("Chỉnh sửa thông tin khách hàng thành công");

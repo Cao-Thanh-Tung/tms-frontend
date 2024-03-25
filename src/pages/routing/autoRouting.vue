@@ -13,7 +13,7 @@
         <a-step title="Cài đặt xe" @click="setupVehiclesHandler" />
         <a-step title="Cài đặt đơn hàng" @click="setupOrdersHandler" />
         <a-step title="Cấu hình thuật toán" @click="configureAlgorithmHandler" />
-        <a-step title="Xem kết quả" @click="viewResultsHandler" />
+        <a-step title="Tổng quan" @click="viewResultsHandler" />
       </a-steps>
       <ul v-if="setupStep === 1">
         <a-table :dataSource="vehicleList" :row-selection="{
@@ -99,10 +99,27 @@
         </a-table>
       </ul>
       <ul v-if="setupStep === 3">
-        Cài đặt thuật toán
+        <a-form :model="solverConfig" class="solver-config-form">
+          <a-form-item label="Thời gian bắt đầu">
+            <a-time-picker v-model="solverConfig.startTime" />
+          </a-form-item>
+          <a-form-item label="Thời gian kết thúc">
+            <a-time-picker v-model="solverConfig.endTime" />
+          </a-form-item>
+          <a-form-item label="Thời gian giới hạn(h)">
+            <a-input-number v-model="solverConfig.solveTimeLimitSec" />
+          </a-form-item>
+          <a-form-item label="Chiến lược">
+            <a-select v-model="solverConfig.strategy">
+              <a-select-option value="1">Chiến lược 1</a-select-option>
+              <a-select-option value="2">Chiến lược 2</a-select-option>
+              <a-select-option value="3">Chiến lược 3</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-form>
       </ul>
       <ul v-if="setupStep === 4">
-        Kết quả
+        Tổng quan
       </ul>
       <div class="next-button-container">
         <a-button type="primary" @click="nextStep">Tiếp theo</a-button>
@@ -129,8 +146,17 @@ import { ref, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";
 import { Configuration } from "../../configuration";
 import store from "../../store";
-import { VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi } from '../../api';
+import { SolverConfigDTO, VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi } from '../../api';
 
+
+let solverConfig = ref({} as SolverConfigDTO);
+solverConfig.value = {
+  startTime: "",
+  endTime: "",
+  solveTimeLimitSec: 0,
+  strategy: "",
+
+};
 let vehicleList = ref([] as VehicleDTO[]);
 let orderList = ref([] as OrderDTO[]);
 let vehicle2Position = ref(new Map<number, PositionDTO>());
@@ -266,7 +292,6 @@ const state = reactive<{
 const onVehicleSelectChange = (selectedRowKeys: (string | number)[]) => {
   state.selectedRowKeys = selectedRowKeys;
   positionList.value = selectedRowKeys.map((key) => vehicle2Position.value.get(Number(key))).filter(Boolean) as PositionDTO[];
-  console.log(positionList.value);
   state.selectedVehicleCount = selectedRowKeys.length;
 };
 
@@ -342,5 +367,17 @@ const viewResultsHandler = () => {
   /* Increase the font size */
   font-weight: bold;
   /* Make the font bold */
+}
+
+.solver-config-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.solver-config-form .ant-form-item {
+  margin-bottom: 20px;
 }
 </style>

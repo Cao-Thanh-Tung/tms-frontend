@@ -41,7 +41,7 @@ watch(() => props.vehiclePositonList, (newVal) => {
     });
     newVal.forEach((position) => {
       if (map.value && position.lat && position.lng)
-        createVehicleMarker(position.lat, position.lng).addTo(map.value as L.Map);
+      createMarker(position.lat, position.lng).addTo(map.value as L.Map);
     });
   }
 });
