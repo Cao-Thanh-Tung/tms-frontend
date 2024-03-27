@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled } from '@ant-design/icons-vue';
-// import { Configuration } from '@/configuration';
-// import store from '@/store';
+import { Configuration } from '@/configuration';
+import store from '@/store';
+import { OrderResourceApi } from '@/api';
 
 const columns = [
     { title: 'Mã', dataIndex: 'code', key: 'code' },
@@ -11,13 +12,20 @@ const columns = [
     { title: 'Người đặt', dataIndex: 'owner', key: 'owner' },
     { title: 'Thao tác', key: 'operation' },
 ];
-// const config = new Configuration({
-//     accessToken: () => store.getters.jwt,
-//     baseOptions: {
-//         headers: { 'Content-Type': 'application/json' }
-//     }
-// })
-
+const config = new Configuration({
+    accessToken: () => store.getters.jwt,
+    baseOptions: {
+        headers: { 'Content-Type': 'application/json' }
+    }
+})
+const orderApi = new OrderResourceApi(config);
+const onClick = () => {
+    orderApi.getOrdersAssignToEmployee(557).then((res) => {
+        console.log(res.data);
+    }).catch((err) => {
+        console.log(err);
+    })
+}
 
 interface DataItem {
     key: number;
@@ -179,6 +187,7 @@ onBeforeMount(() => {
         <a-breadcrumb-item>Danh sách đơn</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
+        <a-button @click="onClick">Click me</a-button>
         <a-table :columns="columns" :data-source="data" class="components-table-demo-nested">
             <template #bodyCell="{ column }">
                 <template v-if="column.key === 'operation'">

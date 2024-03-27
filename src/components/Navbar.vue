@@ -46,11 +46,11 @@ function logout() {
                 Nhân viên
               </span>
             </template>
-            <a-menu-item key="21" v-if="props.role == 'admin'"><router-link :to="{ name: 'employee-list' }">Nhân
+            <a-menu-item key="21" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-employees' }">Nhân
                 viên điều phối</router-link></a-menu-item>
-            <a-menu-item key="22" v-if="props.role == 'admin'"><router-link :to="{ name: 'employee-driver' }">Tài
+            <a-menu-item key="22" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-driver' }">Tài
                 xế</router-link></a-menu-item>
-            <a-menu-item key="23" v-if="props.role == 'employee'"><router-link :to="{ name: 'driver-for-employee' }">Tài
+            <a-menu-item key="23" v-if="props.role == 'employee'"><router-link :to="{ name: 'drivers' }">Tài
                 xế</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub3">
@@ -60,12 +60,14 @@ function logout() {
                 Quản lý xe
               </span>
             </template>
-            <a-menu-item key="31" v-if="props.role == 'admin'"><router-link :to="{ name: 'vehicle-list' }">Danh sách
+            <a-menu-item key="31" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-vehicles' }">Danh sách
                 xe</router-link></a-menu-item>
-            <a-menu-item key="32" v-if="props.role == 'employee'"><router-link
-                :to="{ name: 'vehicle-for-employee' }">Danh sách
+            <a-menu-item key="32" v-if="props.role == 'employee'"><router-link :to="{ name: 'vehicles' }">Danh sách
                 xe</router-link></a-menu-item>
-            <a-menu-item key="33" v-if="props.role == 'employee'"><router-link :to="{ name: 'vehicle-status' }">Trạng
+            <a-menu-item key="33" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-vehicle-status' }">Trạng
+                thái
+                xe</router-link></a-menu-item>
+            <a-menu-item key="34" v-if="props.role == 'employee'"><router-link :to="{ name: 'vehicle-status' }">Trạng
                 thái
                 xe</router-link></a-menu-item>
           </a-sub-menu>
@@ -76,10 +78,9 @@ function logout() {
                 Khách hàng
               </span>
             </template>
-            <a-menu-item key="61" v-if="props.role == 'admin'"><router-link :to="{ name: 'client-list' }">Khách
+            <a-menu-item key="61" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-clients' }">Khách
                 hàng</router-link></a-menu-item>
-            <a-menu-item key="62" v-if="props.role == 'employee'"><router-link
-                :to="{ name: 'client-for-employee' }">Khách
+            <a-menu-item key="62" v-if="props.role == 'employee'"><router-link :to="{ name: 'clients' }">Khách
                 hàng</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub9" v-if="props.role == 'admin'">
@@ -89,7 +90,7 @@ function logout() {
                 Nhà Thầu
               </span>
             </template>
-            <a-menu-item key="91"><router-link :to="{ name: 'contractor-list' }">Danh sách nhà
+            <a-menu-item key="91"><router-link :to="{ name: 'admin-contractors' }">Danh sách nhà
                 thầu</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub4">
@@ -99,9 +100,9 @@ function logout() {
                 Đơn vận chuyển
               </span>
             </template>
-            <a-menu-item key="41" v-if="props.role == 'admin'"><router-link :to="{ name: 'order-list' }">Danh sách
+            <a-menu-item key="41" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-orders' }">Danh sách
                 đơn</router-link></a-menu-item>
-            <a-menu-item key="42" v-if="props.role == 'employee'"><router-link :to="{ name: 'order-for-employee' }">Danh
+            <a-menu-item key="42" v-if="props.role == 'employee'"><router-link :to="{ name: 'orders' }">Danh
                 sách
                 đơn</router-link></a-menu-item>
           </a-sub-menu>
@@ -112,9 +113,9 @@ function logout() {
                 Phân tuyến
               </span>
             </template>
-            <a-menu-item key="51" v-if="props.role == 'admin'"><router-link :to="{ name: 'auto-routing' }">Phân
+            <a-menu-item key="51" v-if="props.role == 'admin'"><router-link :to="{ name: 'routing-report' }">Phân
                 tuyến</router-link></a-menu-item>
-            <a-menu-item key="52" v-if="props.role == 'employee'"><router-link :to="{ name: 'routing-report' }">Báo cáo
+            <a-menu-item key="52" v-if="props.role == 'employee'"><router-link :to="{ name: 'auto-routing' }">Báo cáo
                 phân
                 tuyến</router-link></a-menu-item>
           </a-sub-menu>
