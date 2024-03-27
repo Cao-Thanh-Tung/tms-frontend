@@ -39,7 +39,6 @@
             "TRANS/2023/05/05/000006"
           ]
         },
-        //weight >0 or <0 -> pick up or delivery
         {
           "location_id": "hub-donganh",
           "previus_location_id": "hn5",

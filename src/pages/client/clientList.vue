@@ -347,6 +347,7 @@ const {
     pagination: {
         currentKey: 'page',
     },
+
 });
 // Watch for changes in data and update customerList
 watch(data, (newData: any) => {
@@ -381,11 +382,11 @@ const handleReset = (clearFilters: any) => {
         sortOrder: 'ascend',
     });
 };
-const pagination = computed(() => ({
-    total: 9,
-    current: current.value,
-    pageSize: 6,
-}));
+// const pagination = computed(() => ({
+//     total: 9,
+//     current: current.value,
+//     pageSize: 6,
+// }));
 const tableCondition = reactive<{
     pag: { pageSize: number; current: number },
     filters: any,
@@ -448,18 +449,18 @@ const getEmployeeName = (customerId: any) => {
         );
         return employeeName?.user?.firstName + " " + employeeName?.user?.lastName;
     }
-    return "";
+    return "Chưa phân công";
 };
-const editCustomer = (record: UserXDTO) => {
-    openEditForm.value = true;
-    formState.value.id = record.id || 0;
-    formState.value.customerName =
-        record.user?.firstName + " " + record.user?.lastName;
-    formState.value.phoneNumber = record.phoneNumber || "";
-    formState.value.email = record.user?.email || "";
-    formState.value.employee = getEmployeeIdByCustomerId(record.id) || 0;
-    formState.value.assignmentId = getAssignmentIdByCustomerId(record.id) || 0;
-};
+// const editCustomer = (record: UserXDTO) => {
+//     openEditForm.value = true;
+//     formState.value.id = record.id || 0;
+//     formState.value.customerName =
+//         record.user?.firstName + " " + record.user?.lastName;
+//     formState.value.phoneNumber = record.phoneNumber || "";
+//     formState.value.email = record.user?.email || "";
+//     formState.value.employee = getEmployeeIdByCustomerId(record.id) || 0;
+//     formState.value.assignmentId = getAssignmentIdByCustomerId(record.id) || 0;
+// };
 const deleteCustomer = (user: UserXDTO) => {
     const user_id = user.id || 0;
     const assignmentId = getAssignmentIdByCustomerId(user_id) || 0;
@@ -527,6 +528,7 @@ const handleOk = () => {
             })
             .catch((err) => {
                 // that mean customerAssignment not exist, so we create new one
+                console.log(err);
                 customerAssignmentApi
                     .createCustomerAssignment({
                         employeeUserXId: formState.value.employee,

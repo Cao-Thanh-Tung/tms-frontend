@@ -48,6 +48,11 @@ onMounted(() => {
       <a-col :span="8"><strong>Activated:</strong></a-col>
       <a-col :span="16">{{ userInfor?.activated }}</a-col>
     </a-row>
+    <a-row>
+      <a-col :span="8"><strong>Authorities:</strong></a-col>
+      <a-col :span="16">{{ userInfor?.authorities }}</a-col>
+    </a-row>
+    
   </a-card>
 </template>
 
