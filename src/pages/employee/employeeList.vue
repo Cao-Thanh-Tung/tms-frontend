@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { onMounted, reactive, ref, UnwrapRef } from 'vue';
+import { reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
@@ -24,7 +24,6 @@ async function getNumberOfUsers() {
     try {
         num += (await userxApi.getNumberOfUserXByRole("none")).data!;
         num += (await userxApi.getNumberOfUserXByRole("employee")).data!;
-        num += (await userxApi.getNumberOfUserXByRole("driver")).data!;
     } catch (e: any) {
         console.log(e);
     }
@@ -136,6 +135,7 @@ type APIParams = {
     pageSize?: number;
 };
 const queryData = async (params: APIParams) => {
+    await getNumberOfUsers();
     return (await userxApi.getUserXByRole('employee', params.page! - 1, 6)).data;
 };
 
@@ -423,6 +423,15 @@ const chooseAddressEditForm = (addressId: number) => {
                 <a-switch v-model:checked="formEditState.user!.activated" />
             </a-form-item>
             <a-form-item label="Đường dẫn ảnh" name="imageUrl">
+                <a-input v-model:value="formEditState.user!.imageUrl" />
+            </a-form-item>
+            <a-form-item label="Ghi chú" name="imageUrl">
+                <a-input v-model:value="formEditState.user!.imageUrl" />
+            </a-form-item>
+            <a-form-item label="Trạng thái" name="imageUrl">
+                <a-input v-model:value="formEditState.user!.imageUrl" />
+            </a-form-item>
+            <a-form-item label="Thời gian bốc dỡ" name="imageUrl">
                 <a-input v-model:value="formEditState.user!.imageUrl" />
             </a-form-item>
         </a-form>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { onMounted, reactive, ref, UnwrapRef } from 'vue';
+import { reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
@@ -22,13 +22,10 @@ const numOfUserX = ref(0);
 async function getNumberOfUsers() {
     let num = 0;
     try {
-        num += (await userxApi.getNumberOfUserXByRole("none")).data!;
-        num += (await userxApi.getNumberOfUserXByRole("driver")).data!;
         num += (await userxApi.getNumberOfUserXByRole("driver")).data!;
     } catch (e: any) {
         console.log(e);
     }
-    console.log(num);
     numOfUserX.value = num;
 }
 
@@ -135,8 +132,10 @@ type APIParams = {
     page?: number;
     pageSize?: number;
 };
+
 const queryData = async (params: APIParams) => {
-    return (await userxApi.getUserXByRole('driver', params.page! - 1, 6)).data;
+    await getNumberOfUsers();
+    return (await userxApi.getDrivers(params.page! - 1, 6)).data;
 };
 
 const {

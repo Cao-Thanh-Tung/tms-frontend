@@ -296,7 +296,7 @@ function search(detail: string) {
                 </a-tab-pane>
                 <a-tab-pane key="detail" tab="Chi tiết"
                     :disabled="(address.commune.id == -1 && address.district.name != 'Huyện Côn Đảo')">
-                    <a-select v-model:value="value" show-search placeholder="Địa chỉ chi tiết" style="width: 392px"
+                    <a-select v-model:value="value" show-search placeholder="Địa chỉ chi tiết" style="width: 100%"
                         :options="options" :filter-option="filterOption" @change="handleChange" @search="search"
                         :open="openSelect2" @click="() => { openSelect2 = !openSelect2 }"
                         @blur="() => { openSelect2 = false }" ref="detailSelectRef">
@@ -314,7 +314,7 @@ function search(detail: string) {
                             </a-space>
                         </template>
                     </a-select>
-                    <map-choose-address style="width:400px; height: 100px" :lat="coord.lat" :lng="coord.lng"
+                    <map-choose-address style="width:100%; height: 200px" :lat="coord.lat" :lng="coord.lng"
                         @choose="choosePosition"></map-choose-address>
                     <a-button :onClick="save" :loading="addressLoading">Lưu</a-button>
                 </a-tab-pane>

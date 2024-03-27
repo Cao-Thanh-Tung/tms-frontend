@@ -1,215 +1,338 @@
 <script setup lang="ts">
-import { EditOutlined, DeleteFilled } from '@ant-design/icons-vue';
-// import { Configuration } from '@/configuration';
-// import store from '@/store';
+import { EyeOutlined, PlusOutlined, DeleteFilled } from '@ant-design/icons-vue';
+import { reactive, ref } from 'vue';
+import OrderDetail from '@/components/OrderDetail.vue';
+import { OrderDTO, OrderResourceApi } from '@/api';
+import store from '@/store';
+import { Configuration } from '@/configuration';
+import { computed } from 'vue';
+import { usePagination } from 'vue-request';
+// config request object
+const config = new Configuration({
+    accessToken: () => store.getters.jwt,
+    baseOptions: {
+        headers: { 'Content-Type': 'application/json' }
+    }
+})
+const orderApi = new OrderResourceApi(config);
+const numOfOrder = ref(0);
+async function getNumberOfOrders() {
+    let num = 0;
+    try {
+        num = (await orderApi.getNumberOfOrder()).data!;
+    } catch (e: any) {
+        console.log(e);
+    }
+    numOfOrder.value = num;
+}
 
+// table config
 const columns = [
-    { title: 'Mã', dataIndex: 'code', key: 'code' },
-    { title: 'Chi phí', dataIndex: 'cost', key: 'cost' },
-    { title: 'Loại hàng', dataIndex: 'goodType', key: 'goodType' },
-    { title: 'Số lượng', dataIndex: 'weight', key: 'weight' },
-    { title: 'Người đặt', dataIndex: 'owner', key: 'owner' },
-    { title: 'Thao tác', key: 'operation' },
-];
-// const config = new Configuration({
-//     accessToken: () => store.getters.jwt,
-//     baseOptions: {
-//         headers: { 'Content-Type': 'application/json' }
-//     }
-// })
-
-
-interface DataItem {
-    key: number;
-    code: string;
-    cost: number;
-    goodType: string;
-    immediateDelivery: boolean;
-    weight: number;
-    volume: number;
-    owner: string;
-    createdAt: string;
-}
-
-const data: DataItem[] = [];
-for (let i = 0; i < 3; ++i) {
-    data.push({
-        key: i,
-        code: "037ALPHA",
-        cost: 10000,
-        goodType: "Đông lạnh",
-        immediateDelivery: true,
-        weight: 10,
-        volume: 100,
-        owner: "ABC plate",
-        createdAt: '2014-12-24 23:12:00',
-    });
-}
-
-const innerColumns = [
     {
-        title: 'Tên',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'Mã đơn hàng',
+        dataIndex: 'code',
+        key: 'Code',
+        width: '6%',
     },
     {
-        title: 'Loại hàng',
-        dataIndex: 'goodType',
+        title: 'Giá trị',
+        key: 'cost',
+        dataIndex: 'cost',
+        width: '6%',
+    },
+    {
+        title: 'Phân loại',
         key: 'goodType',
+        dataIndex: 'goodType',
+        width: '6%',
+    },
+    {
+        title: 'Phân tuyến',
+        key: 'immediate-delivery',
+        width: '6%',
+    },
+    {
+        title: 'Trạng thái',
+        key: 'status',
+        dataIndex: 'status',
+        width: '6%',
     },
     {
         title: 'Khối lượng',
-        dataIndex: 'weight',
         key: 'weight',
+        dataIndex: 'weight',
+        width: '6%',
     },
     {
         title: 'Số lượng',
+        key: 'volume',
         dataIndex: 'volume',
-        key: 'name',
+        width: '6%',
     },
     {
-        title: 'Số pallet',
-        dataIndex: 'numPallets',
-        key: 'numPallets',
+        title: 'Khách hàng',
+        key: 'customer',
+        width: '6%',
     },
     {
-        title: 'Rộng',
-        dataIndex: 'width',
-        key: 'width',
-    },
-    {
-        title: 'Dài',
-        dataIndex: 'length',
-        key: 'length',
-    },
-    {
-        title: 'Cao',
-        dataIndex: 'height',
-        key: 'height',
-    },
-    {
-        title: 'Bắt đầu',
-        dataIndex: 'earliest_time',
-        key: 'earliest_time',
-    },
-    {
-        title: 'Kết thúc',
-        dataIndex: 'latest_time',
-        key: 'latest_time',
-    },
-    {
-        title: 'Địa chỉ nhận',
-        dataIndex: 'address',
-        key: 'name',
-    },
-    {
-        title: 'Địa chỉ giao',
-        dataIndex: 'address',
-        key: 'name',
+        title: '',
+        key: 'operation',
+        width: '3%',
+        fixed: 'right',
     },
 ];
+type APIParams = {
+    page?: number;
+    pageSize?: number;
+};
+const queryData = async (params: APIParams) => {
+    await getNumberOfOrders();
+    return (await orderApi.getAllOrders(params.page! - 1, 8)).data;
+};
 
-interface innerDataItem {
-    key: string;
-    type: string;
-    goodType: string;
-    weight: number;
-    volume: number;
-    numPallets: number;
-    width: number;
-    height: number;
-    length: number;
-    earliest_time: number;
-    latest_time: number;
-    note: string;
-    status: string;
-    name: string;
-    address: string;
-}
+const {
+    data: orders,
+    run,
+    loading,
+    current,
+} = usePagination(queryData, {
+    pagination: {
+        currentKey: 'page',
+    },
+});
 
-const innerData: innerDataItem[] = [];
-for (let i = 0; i < 3; ++i) {
-    innerData.push({
-        key: i.toString(),
-        type: "Đông lạnh",
-        goodType: "Đông lạnh",
-        weight: 12,
-        volume: 15,
-        numPallets: 3,
-        width: 19,
-        height: 20,
-        length: 30,
-        earliest_time: 12,
-        latest_time: 15,
-        note: "",
-        status: "Đang vận chuyển",
-        name: "Thịt cừu",
-        address: `London Park no. ${i}`,
+const pagination = computed(() => ({
+    total: numOfOrder.value,
+    current: current.value,
+    pageSize: 6,
+}));
+const tableCondition = reactive<{
+    pag: { pageSize: number; current: number },
+    filters: any,
+    sorter: any,
+}>({
+    pag: { pageSize: 8, current: 1 },
+    filters: {},
+    sorter: {},
+})
+const updateTable = (
+    pag: { pageSize: number; current: number },
+    filters: any,
+    sorter: any
+) => {
+    run({
+        results: pag.pageSize,
+        page: pag?.current,
+        sortField: sorter.field,
+        sortOrder: sorter.order,
+        ...filters,
     });
 }
-import { ref, onBeforeMount } from 'vue';
-const open = ref<boolean>(false);
+const handleTableChange = (
+    pag: { pageSize: number; current: number },
+    filters: any,
+    sorter: any,
+) => {
+    tableCondition.pag = pag;
+    tableCondition.filters = filters;
+    tableCondition.sorter = sorter;
+    updateTable(pag, filters, sorter);
 
-const showModal = () => {
-    open.value = true;
 };
 
-const handleOk = (e: MouseEvent) => {
-    console.log(e);
-    open.value = false;
-};
-import { message } from 'ant-design-vue';
-const confirm = (e: MouseEvent) => {
-    console.log(e);
-    message.success('Click on Yes');
+// Detail modal logic
+const openDetail = ref(false);
+const orderId = ref<number | null>(null);
+const openDetailModal = (id: number) => {
+    orderId.value = id;
+    console.log(id);
+    openDetail.value = true;
+
+}
+const closeDetailModal = () => {
+    openDetail.value = false;
+}
+
+const deleteOrder = (orderId) => {
+    orderApi.deleteOrder(orderId!).then((res) => {
+        console.log("Delete Order: {} ", res.data);
+    }).catch((err) => {
+        console.log("Delete Order: ", err);
+    }).finally(() => {
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
+    })
+    openDetail.value = false;
+}
+
+const openAddForm = ref(false);
+const addOrderLoading = ref(false);
+const showAddForm = () => {
+    openAddForm.value = true;
+}
+
+const createOrder = () => {
+    addOrderLoading.value = true;
+    orderApi.createOrder({
+        code: orderAddContent.value.code,
+        cost: orderAddContent.value.cost,
+        immediateDelivery: false,
+        status: "no-trans",
+        goodType: orderAddContent.value.goodType,
+        customer: {
+            id: orderAddContent.value.customerId!
+        }
+    }).then((res) => {
+        console.log("Create Order: {} ", res.data);
+        openAddForm.value = false;
+        openDetailModal(res.data.id!);
+    }).catch((err) => {
+        console.log("Create Order: ", err);
+        openAddForm.value = false;
+    }).finally(() => {
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
+    })
+}
+
+// Select customer
+import type { SelectProps } from 'ant-design-vue';
+import { onMounted } from 'vue';
+import { UserXResourceApi } from '@/api';
+const options = ref<SelectProps['options']>([]);
+const optionGoodTypes = ref<SelectProps['options']>([
+    { value: 'normal', label: 'Thường' },
+    { value: 'cold', label: 'Đông lạnh' },
+]);
+const userXApi = new UserXResourceApi(config);
+onMounted(() => {
+    userXApi.getUserXByRole("customer", 0, 1000).then((res) => {
+        options.value = res.data.map((customer) => {
+            return {
+                value: customer.id,
+                label: customer.user?.firstName + " " + customer.user?.lastName!
+            }
+        })
+    }).catch((err) => {
+        console.log(err);
+    })
+});
+
+const handleChangeCustomer = (value: string) => {
+    orderAddContent.value.customerId = parseInt(value);
 };
 
-const cancel = (e: MouseEvent) => {
-    console.log(e);
-    message.error('Click on No');
+const filterOption = (input: string, option: any) => {
+    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 };
-onBeforeMount(() => {
+const handleChangeGoodType = (value: string) => {
+    orderAddContent.value.goodType = value;
+};
 
+// Create Order Form
+const orderAddContent = ref({
+    code: "",
+    cost: 0,
+    goodType: "normal",
+    customerId: 1,
 })
+
 </script>
 
 <template>
+    <!-- -->
     <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item>Đơn vận chuyển</a-breadcrumb-item>
         <a-breadcrumb-item>Danh sách đơn</a-breadcrumb-item>
     </a-breadcrumb>
+
+    <!-- Order list table -->
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        <a-table :columns="columns" :data-source="data" class="components-table-demo-nested">
-            <template #bodyCell="{ column }">
-                <template v-if="column.key === 'operation'">
-                    <a href="#" @click="showModal">
-                        <EditOutlined />
-                    </a>
-
-                    <a-modal v-model:open="open" title="Chi tiết đơn hàng" @ok="handleOk">
-                        <!-- Ngày bắt đầu phục vụ, Mã KH, mã đơn hàng, mã vận đơn -->
-                        <!--<cost, goodtype, weight, volume>, (immediate_delivery, status)-->
-                        <!-- type, goodtype, weight, volume, num_pallets, width, height, length, earliest_time, latest_time,carry_in_time_sec, carry_out_time_sec, note, address(cho chọn địa điểm thoải mái ha, đây là điểm đến), (status), <waiting_time_sec> -->
-                    </a-modal>
-                    <a-popconfirm title="Are you sure delete this task?" ok-text="Yes" cancel-text="No"
-                        @confirm="confirm" @cancel="cancel">
-                        <a href="#">
-                            <DeleteFilled style="margin-left: 12px" />
-                        </a>
-                    </a-popconfirm>
+        <a-table :dataSource="orders" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination"
+            :loading="loading" @change="handleTableChange">
+            <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'customer'">
+                    {{ `${(<OrderDTO>record).customer?.user?.firstName} ${(<OrderDTO>record).customer?.user?.lastName} `
+                            }}
                 </template>
-            </template>
+                <template v-if="column.key === 'operation'">
+                    <a href="#" @click="() => { openDetailModal((<OrderDTO>record).id!) }">
+                        <EyeOutlined />
+                    </a>
+                </template>
+                <template v-if="column.key === 'immediate-delivery'">
+                    {{ (<OrderDTO>record).immediateDelivery ? "Đã định tuyến" : "Chưa định tuyến" }}
+                </template>
+                <template v-if="column.key === 'status'">
+                    {{ (<OrderDTO>record).status == 'no-trans' ? "Chưa vận chuyển" : "" }}
+                        {{ (<OrderDTO>record).status == 'transing' ? "Đang vận chuyển" : "" }}
+                            {{ (<OrderDTO>record).status == 'stopping' ? "Đã hủy" : "" }}
+                                {{ (<OrderDTO>record).status == 'success' ? "Đã chuyển thành công" : "" }}
 
-            <template #expandedRowRender>
-                <a-table :columns="innerColumns" :data-source="innerData" :pagination="false">
-                </a-table>
+                </template>
+                <template v-if="column.key === 'goodType'">
+                    {{ (<OrderDTO>record).goodType == 'cold' ? "Đông lạnh" : "" }}
+                        {{ (<OrderDTO>record).goodType == 'normal' ? "Thường" : "" }}
+                </template>
             </template>
         </a-table>
     </a-layout-content>
+
+    <!-- Popup  order detail -->
+    <a-modal wrap-class-name="order-detail" width="100%" v-if="openDetail" v-model:open="openDetail"
+        title="Yêu cầu vận chuyển - Thông tin chi tiết">
+        <OrderDetail :order-id="orderId" />
+        <template #footer>
+            <a-popconfirm title="Xóa?" ok-text="Yes" cancel-text="No" @confirm="() => deleteOrder(orderId)">
+                <a-button danger>
+                    Xóa
+                </a-button>
+            </a-popconfirm>
+            <a-button type="primary" @click="closeDetailModal">Đóng</a-button>
+        </template>
+    </a-modal>
+
+    <!-- Float button create new employee -->
+    <a-float-button type="primary" @click="showAddForm" tooltip="Tạo yêu cầu vận chuyển mới">
+
+        <template #icon>
+            <plus-outlined />
+        </template>
+    </a-float-button>
+
+    <!-- Popup add Order form -->
+    <a-modal title="Tạo yêu cầu vận chuyển" v-if="openAddForm" v-model:open="openAddForm">
+        <a-form>
+            <a-form-item label="Khách hàng">
+                <a-select show-search placeholder="Chọn khách hàng" :options="options" :filter-option="filterOption"
+                    @change="handleChangeCustomer">
+                </a-select>
+            </a-form-item>
+            <a-form-item label="Loại hàng">
+                <a-select @change="handleChangeGoodType" :options="optionGoodTypes">
+                </a-select>
+            </a-form-item>
+            <a-form-item label="Mã">
+                <a-input v-model:value="orderAddContent.code" />
+            </a-form-item>
+            <a-form-item label="Giá">
+                <a-input v-model:value="orderAddContent.cost" type="number" />
+            </a-form-item>
+        </a-form>
+        <template #footer>
+            <a-button type="primary" @click="createOrder">Tạo</a-button>
+        </template>
+    </a-modal>
 </template>
 
-<style scoped>
-.editable-row-operations a {
-    margin-right: 8px;
+<style lang="less">
+.order-detail {
+    .ant-modal {
+        top: 10px;
+        max-width: 95%;
+        margin: auto;
+    }
+
+    padding: 20px;
+
+
 }
 </style>
