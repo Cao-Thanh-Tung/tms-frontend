@@ -55,8 +55,8 @@ const disabled = computed(() => {
     </a-form-item>
 
     <a-form-item>
-      <a-form-item name="remember" no-style>
-        <a-checkbox v-model:checked="formState.rememberMe">Remember me</a-checkbox>
+      <a-form-item name="rememberMe" no-style>
+        <a-checkbox v-model:checked="formState.rememberMe" v-model:value="formState.rememberMe">Remember me</a-checkbox>
       </a-form-item>
       <a class="login-form-forgot" href="">Forgot password</a>
     </a-form-item>
