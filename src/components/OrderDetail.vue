@@ -50,7 +50,10 @@
             <template v-if="column.key == 'goodType'">
                 <span> {{ (<OrderItemDTO>record).goodType == 'normal' ? "Thường" : "" }} </span>
                 <span> {{ (<OrderItemDTO>record).goodType == 'cold' ? "Đông lạnh" : "" }} </span>
-
+            </template>
+            <template v-if="column.key == 'type'">
+                <span> {{ (<OrderItemDTO>record).type == 'from' ? "Điểm lấy" : "" }} </span>
+                <span> {{ (<OrderItemDTO>record).type == 'to' ? "Điểm trả" : "" }} </span>
             </template>
             <template v-if="column.key === 'operation'">
                 <a href="#" @click="() => showEditForm(record)" v-if="!order?.immediateDelivery">
@@ -65,10 +68,10 @@
             </template>
         </template>
     </a-table>
-    <a-button type="primary" shape="round" size="large" @click="showAddForm"> Thêm đơn hàng</a-button>
+    <a-button type="primary" shape="round" size="large" @click="showAddForm"> Thêm điểm</a-button>
 
     <!-- Popup edit order item form -->
-    <a-modal width="900px" v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin đơn hàng"
+    <a-modal width="900px" v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa điểm"
         :confirm-loading="editLoading" @ok="edit" wrap-class-name="order-detail" okText="Lưu" cancelText="Hủy">
         <a-form>
 
@@ -136,11 +139,23 @@
     <a-modal width="900px" v-if="openAddForm" v-model:open="openAddForm" title="Thêm mới thông tin đơn hàng"
         :confirm-loading="addLoading" @ok="add" wrap-class-name="order-detail" okText="Lưu" cancelText="Hủy">
         <a-form>
+            <a-row :gutter="16">
+                <a-col :span="18">
+                    <a-form-item label="Khung thời gian">
+                        <a-range-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
+                            :placeholder="['Start Time', 'End Time']" @change="onChange" @ok="onOk" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                    <a-form-item label="Loại điểm">
+                        <a-select>
+                            <a-select-option value="from">Điểm lấy</a-select-option>
+                            <a-select-option value="to">Điểm trả</a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
 
-            <a-form-item label="Khung thời gian">
-                <a-range-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
-                    :placeholder="['Start Time', 'End Time']" @change="onChange" @ok="onOk" />
-            </a-form-item>
             <a-row :gutter="16">
                 <a-col :span="6">
                     <a-form-item label="Loại hàng">
@@ -199,17 +214,20 @@
 
     <!-- Popup add order item form -->
     <a-modal width="500px" v-if="openEditInfoForm" v-model:open="openEditInfoForm"
-        title="Chỉnh sửa thông tin yêu cầu vận chuyển" :confirm-loading="addLoading" @ok="editInfo"
+        title="Chỉnh sửa thông tin yêu cầu vận chuyển" :confirm-loading="editBasicInfoLoading" @ok="editInfo"
         wrap-class-name="order-detail" okText="Lưu" cancelText="Hủy">
         <a-form>
             <a-form-item label="Mã">
-                <a-input />
+                <a-input v-model:value="orderEdit.code" />
             </a-form-item>
             <a-form-item label="Chi phí">
-                <a-input type="number" />
+                <a-input type="number" v-model:value="orderEdit.cost" />
             </a-form-item>
-            <a-form-item label="Khách hàng">
-                <a-select />
+            <a-form-item label="Loại hàng">
+                <a-select v-model:value="orderEdit.goodType">
+                    <a-select-option value="normal">Thường</a-select-option>
+                    <a-select-option value="cold">Đông lạnh</a-select-option>
+                </a-select>
             </a-form-item>
         </a-form>
     </a-modal>
@@ -226,20 +244,39 @@ import { computed } from 'vue';
 import { usePagination } from 'vue-request';
 import { OrderDTO, OrderItemDTO } from '../api';
 import moment from 'moment';
+import { message } from 'ant-design-vue';
 
 const openEditInfoForm = ref(false);
+const editBasicInfoLoading = ref(false);
 const editInfoLoading = ref(false);
 const showEditInfoForm = () => {
+    orderEdit.value.code = order.value?.code;
+    orderEdit.value.cost = order.value?.cost!;
+    orderEdit.value.goodType = order.value?.goodType!;
     openEditInfoForm.value = true;
+
 }
 const editInfo = () => {
-
+    editBasicInfoLoading.value = true;
+    console.log("Call update Order {}: ", props.orderId);
+    orderApi.partialUpdateOrder(props.orderId!, orderEdit.value).then(() => {
+        message.success('Cập nhật thông tin thành công');
+        updateInfo();
+        editBasicInfoLoading.value = false;
+        openEditInfoForm.value = false;
+    }).catch((e: any) => {
+        console.log(e);
+        message.error('Cập nhật thông tin thất bại');
+        editBasicInfoLoading.value = false;
+        openEditInfoForm.value = false;
+    })
 }
 
 const openEditForm = ref(false);
 const editLoading = ref(false);
 const showEditForm = (record: OrderItemDTO) => {
     openEditForm.value = true;
+
 }
 const deleteOrderItem = (record: OrderItemDTO) => {
 
@@ -247,6 +284,22 @@ const deleteOrderItem = (record: OrderItemDTO) => {
 const edit = () => {
 
 }
+
+const addInfo = ref<OrderItemDTO>({
+    earliestTime: new Date().toISOString(),
+    latestTime: new Date().toISOString(),
+    goodType: 'normal',
+    type: 'from',
+    length: 0,
+    width: 0,
+    height: 0,
+    volume: 0,
+    numPallets: 0,
+    weight: 0,
+    note: '',
+    status: 'no-trans'
+})
+
 
 const openAddForm = ref(false);
 const addLoading = ref(false);
@@ -269,12 +322,25 @@ const config = new Configuration({
 const orderItemApi = new OrderItemResourceApi(config);
 const orderApi = new OrderResourceApi(config);
 
+const orderEdit = ref<OrderDTO>({
+    id: props.orderId!,
+    code: '',
+    cost: 0,
+    goodType: 'normal',
+});
 const order = ref<OrderDTO>();
 onMounted(() => {
     orderApi.getOrder(props.orderId!).then((res) => {
         order.value = res.data;
     })
 })
+
+const updateInfo = () => {
+    orderApi.getOrder(props.orderId!).then((res) => {
+        order.value = res.data;
+    })
+}
+
 
 const numOfOrderItem = ref(0);
 async function getNumberOfOrders() {

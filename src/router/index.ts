@@ -8,7 +8,6 @@ import vehicleListForEmployee from "@/pages/vehicle/vehicleListForEmployee.vue";
 import vehicleStatus from "@/pages/vehicle/vehicleStatus.vue";
 import vehicleStatusForEmployee from "@/pages/vehicle/vehicleStatusForEmployee.vue";
 import orderList from "@/pages/order/orderList.vue";
-import orderListForEmployee from "@/pages/order/orderListForEmployee.vue";
 import autoRouting from "@/pages/routing/autoRouting.vue";
 import routingReport from "@/pages/routing/routingReport.vue";
 import userInfo from "@/pages/user/userInfo.vue";
@@ -20,13 +19,11 @@ const routes = [
     //common router
     {name:"user-info", path:'/account/info', component: userInfo},
     {name:"change-password", path:"/account/change-password", component: changePassword},
-    {name:"/", path:"/account/change-password", component: changePassword},
-
+    {name:"orders",path: '/orders', component:  orderList},
 
     //admin router
     {name:"admin-employees",path: '/admin/employees', component:  employeeList},
     {name:"admin-driver",path: '/admin/drivers', component:  employeeDriver},
-    {name:"admin-orders",path: '/admin/orders', component:  orderList},
     {name:"admin-vehicle-status",path: '/admin/vehicle-status', component:  vehicleStatus},
     {name:"admin-vehicles",path: '/admin/vehicle-list', component:  vehicleList},
     {name:"admin-clients", path: "/admin/clients", component: clientList},
@@ -35,7 +32,6 @@ const routes = [
     
     //employee router
     {name:"drivers",path: '/employee/drivers', component:  employeeDriverForEmployee},
-    {name:"orders",path: '/employee/orders', component:  orderListForEmployee},
     {name:"vehicles",path: '/employee/vehicles', component:  vehicleListForEmployee},
     {name: "vehicle-status", path: '/employee/vehicle-status', component: vehicleStatusForEmployee},
     {name:"clients", path: '/employee/clients', component: clientListForEmployee},

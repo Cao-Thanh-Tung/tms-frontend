@@ -13509,6 +13509,54 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 
+         * @param {number} employeeId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCustomerForEmployee: async (employeeId: number, page?: number, size?: number, sort?: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'employeeId' is not null or undefined
+            assertParamExists('getCustomerForEmployee', 'employeeId', employeeId)
+            const localVarPath = `/api/{employeeId}/customers`
+                .replace(`{${"employeeId"}}`, encodeURIComponent(String(employeeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
          * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
@@ -13539,6 +13587,39 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
             if (sort) {
                 localVarQueryParameter['sort'] = sort;
             }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} employeeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfCustomerForEmployee: async (employeeId: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'employeeId' is not null or undefined
+            assertParamExists('getNumberOfCustomerForEmployee', 'employeeId', employeeId)
+            const localVarPath = `/api/{employeeId}/customers-num`
+                .replace(`{${"employeeId"}}`, encodeURIComponent(String(employeeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
 
 
     
@@ -13820,6 +13901,19 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} employeeId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCustomerForEmployee(employeeId: number, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserXDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCustomerForEmployee(employeeId, page, size, sort, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
          * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
@@ -13828,6 +13922,16 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
          */
         async getDrivers(page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserXDTO>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getDrivers(page, size, sort, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {number} employeeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumberOfCustomerForEmployee(employeeId: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumberOfCustomerForEmployee(employeeId, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -13936,6 +14040,18 @@ export const UserXResourceApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 
+         * @param {number} employeeId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCustomerForEmployee(employeeId: number, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<UserXDTO>> {
+            return localVarFp.getCustomerForEmployee(employeeId, page, size, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
          * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
@@ -13944,6 +14060,15 @@ export const UserXResourceApiFactory = function (configuration?: Configuration, 
          */
         getDrivers(page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<UserXDTO>> {
             return localVarFp.getDrivers(page, size, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} employeeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfCustomerForEmployee(employeeId: number, options?: any): AxiosPromise<number> {
+            return localVarFp.getNumberOfCustomerForEmployee(employeeId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -14051,6 +14176,20 @@ export class UserXResourceApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} employeeId 
+     * @param {number} [page] Zero-based page index (0..N)
+     * @param {number} [size] The size of the page to be returned
+     * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getCustomerForEmployee(employeeId: number, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getCustomerForEmployee(employeeId, page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {number} [page] Zero-based page index (0..N)
      * @param {number} [size] The size of the page to be returned
      * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
@@ -14060,6 +14199,17 @@ export class UserXResourceApi extends BaseAPI {
      */
     public getDrivers(page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
         return UserXResourceApiFp(this.configuration).getDrivers(page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} employeeId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getNumberOfCustomerForEmployee(employeeId: number, options?: AxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getNumberOfCustomerForEmployee(employeeId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

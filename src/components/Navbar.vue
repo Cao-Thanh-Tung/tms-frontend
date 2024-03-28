@@ -6,14 +6,16 @@ import {
   ControlOutlined,
   CarOutlined,
   ReconciliationOutlined,
+  TeamOutlined,
+  ContactsOutlined
 } from "@ant-design/icons-vue";
 const props = defineProps({
   avatar: String,
   name: String,
   role: String,
 });
-const selectedKeys2 = ref<string[]>(["1"]);
-const openKeys = ref<string[]>(["sub1"]);
+const selectedKeys2 = ref<string[]>(["42"]);
+const openKeys = ref<string[]>(["sub4"]);
 function logout() {
   store.dispatch("logout");
 }
@@ -21,7 +23,7 @@ function logout() {
 <template>
   <a-layout>
     <a-layout>
-      <a-layout-sider width="240" style="background: #fff">
+      <a-layout-sider width="240" style="background: #fff; min-height: 100vh">
         <a-menu v-model:selectedKeys="selectedKeys2" v-model:openKeys="openKeys" mode="inline"
           :style="{ height: '100%', borderRight: 0 }">
           <a-sub-menu key="sub1">
@@ -37,9 +39,9 @@ function logout() {
             </template>
             <a-menu-item key="1"><router-link :to="{ name: 'user-info' }">Thông tin cá nhân</router-link></a-menu-item>
             <a-menu-item key="2"><router-link :to="{ name: 'change-password' }">Đổi mật khẩu</router-link></a-menu-item>
-            <a-menu-item key="3" @click="logout" style="background-color: orange; color: #fff">Đăng xuất</a-menu-item>
+            <a-menu-item key="3" @click="logout" style="">Đăng xuất</a-menu-item>
           </a-sub-menu>
-          <a-sub-menu key="sub2">
+          <a-sub-menu key="sub2" v-if="props.role == 'admin'">
             <template #title>
               <span>
                 <user-outlined />
@@ -50,8 +52,7 @@ function logout() {
                 viên điều phối</router-link></a-menu-item>
             <a-menu-item key="22" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-driver' }">Tài
                 xế</router-link></a-menu-item>
-            <a-menu-item key="23" v-if="props.role == 'employee'"><router-link :to="{ name: 'drivers' }">Tài
-                xế</router-link></a-menu-item>
+
           </a-sub-menu>
           <a-sub-menu key="sub3">
             <template #title>
@@ -74,7 +75,7 @@ function logout() {
           <a-sub-menu key="sub6">
             <template #title>
               <span>
-                <user-outlined />
+                <team-outlined />
                 Khách hàng
               </span>
             </template>
@@ -86,7 +87,7 @@ function logout() {
           <a-sub-menu key="sub9" v-if="props.role == 'admin'">
             <template #title>
               <span>
-                <user-outlined />
+                <contacts-outlined />
                 Nhà Thầu
               </span>
             </template>
@@ -100,9 +101,8 @@ function logout() {
                 Đơn vận chuyển
               </span>
             </template>
-            <a-menu-item key="41" v-if="props.role == 'admin'"><router-link :to="{ name: 'admin-orders' }">Danh sách
-                đơn</router-link></a-menu-item>
-            <a-menu-item key="42" v-if="props.role == 'employee'"><router-link :to="{ name: 'orders' }">Danh
+            <a-menu-item key="42" v-if="props.role == 'employee' || props.role == 'admin'"><router-link
+                :to="{ name: 'orders' }">Danh
                 sách
                 đơn</router-link></a-menu-item>
           </a-sub-menu>
@@ -113,10 +113,11 @@ function logout() {
                 Phân tuyến
               </span>
             </template>
-            <a-menu-item key="51" v-if="props.role == 'admin'"><router-link :to="{ name: 'routing-report' }">Phân
-                tuyến</router-link></a-menu-item>
-            <a-menu-item key="52" v-if="props.role == 'employee'"><router-link :to="{ name: 'auto-routing' }">Báo cáo
+            <a-menu-item key="51" v-if="props.role == 'admin'"><router-link :to="{ name: 'routing-report' }">Báo cáo
                 phân
+                tuyến</router-link></a-menu-item>
+            <a-menu-item key="52" v-if="props.role == 'employee'"><router-link :to="{ name: 'auto-routing' }">
+                Phân
                 tuyến</router-link></a-menu-item>
           </a-sub-menu>
         </a-menu>
@@ -141,6 +142,6 @@ function logout() {
 }
 
 .site-layout-background {
-  background: #fff;
+  background: white;
 }
 </style>

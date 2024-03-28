@@ -53,21 +53,20 @@ const addressLoading = ref(false);
 const positionLoading = ref(false);
 
 onMounted(async () => {
-    provinceApi.getAllProvinces(0, 100).then((res) => {
-        provinceOptions.value = res.data;
-    });
+    provinceOptions.value = (await provinceApi.getAllProvinces(0, 100)).data;
     if (props.initialAddressId) {
+        console.log(props.initialAddressId);
         try {
             const { provinceId, districtId, communeId, street, positionId } = (await addressApi.getAddress(props.initialAddressId)).data;
             address.detail = street || '';
             searchValue.value = street || '';
             if (provinceId) {
-                districtOptions.value = (await districtApi.getDistrictsByProvince(provinceId!)).data;
                 address.province = provinceOptions.value.find((item) => item.id === provinceId)!;
+                districtOptions.value = (await districtApi.getDistrictsByProvince(provinceId!)).data;
             }
             if (districtId) {
-                communeOptions.value = (await communeApi.getCommunesByDistrict(districtId!)).data;
                 address.district = districtOptions.value.find((item) => item.id === districtId)!;
+                communeOptions.value = (await communeApi.getCommunesByDistrict(districtId!)).data;
             }
             if (communeId) {
                 address.commune = communeOptions.value.find((item) => item.id === communeId)!;
@@ -298,7 +297,7 @@ function search(detail: string) {
                     :disabled="(address.commune.id == -1 && address.district.name != 'Huyện Côn Đảo')">
                     <a-select v-model:value="value" show-search placeholder="Địa chỉ chi tiết" style="width: 100%"
                         :options="options" :filter-option="filterOption" @change="handleChange" @search="search"
-                        :open="openSelect2" @click="() => { openSelect2 = !openSelect2 }"
+                        :open="openSelect2" @click="() => { openSelect2 = !openSelect2; search(''); }"
                         @blur="() => { openSelect2 = false }" ref="detailSelectRef">
 
                         <template #dropdownRender="{ menuNode: menu }">

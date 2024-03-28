@@ -6,11 +6,9 @@
         <a-breadcrumb-item>Tình trạng xe</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        Tình trạng xe (nhan vien phan tuyen)
+        Tình trạng xe
         <modal open="Add New" title="Add New Employee">
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
+            Comming soon
         </modal>
     </a-layout-content>
 </template>

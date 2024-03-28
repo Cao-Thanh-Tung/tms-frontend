@@ -80,7 +80,7 @@
 
     <!-- Popup edit employee form -->
     <a-modal v-model:open="openEditForm" title="Chỉnh sửa thông tin khách hàng" :confirm-loading="confirmLoading"
-        @ok="handleOk">
+        @ok="handleOk" width="700px">
         <a-form>
             <a-form-item label="Tên" name="customerName">
                 <a-input v-model:value="formState.customerName" />
@@ -109,7 +109,7 @@
 
     <!-- Popup create employee form -->
     <a-modal v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading" @ok="addCustomer"
-        @cancel="reset">
+        @cancel="reset" width="700px">
         <a-form>
             <a-form-item label="Tài khoản" name="username">
                 <a-input v-model:value="formAddState.login" />
@@ -342,7 +342,6 @@ const {
     data,
     run,
     loading,
-    current,
 } = usePagination(fetchCustomer, {
     pagination: {
         currentKey: 'page',
@@ -382,11 +381,6 @@ const handleReset = (clearFilters: any) => {
         sortOrder: 'ascend',
     });
 };
-// const pagination = computed(() => ({
-//     total: 9,
-//     current: current.value,
-//     pageSize: 6,
-// }));
 const tableCondition = reactive<{
     pag: { pageSize: number; current: number },
     filters: any,
@@ -525,6 +519,8 @@ const handleOk = () => {
                 customerAssignmentApi.getAllCustomerAssignments().then((res) => {
                     customerAssignmentList.value = res.data;
                 });
+                message.success("Chỉnh sửa thông tin khách hàng thành công");
+
             })
             .catch((err) => {
                 // that mean customerAssignment not exist, so we create new one
@@ -539,9 +535,9 @@ const handleOk = () => {
                             customerAssignmentList.value = res.data;
                         });
                     });
+                message.error("Chỉnh sửa thông tin khách hàng thất bại");
             });
     }
-    message.success("Chỉnh sửa thông tin khách hàng thành công");
 };
 </script>
 <style scoped></style>
