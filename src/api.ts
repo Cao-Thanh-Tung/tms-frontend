@@ -346,6 +346,12 @@ export interface JWTToken {
      * @memberof JWTToken
      */
     'id_token'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof JWTToken
+     */
+    'refresh_token'?: string;
 }
 /**
  * 
@@ -6517,6 +6523,54 @@ export const PositionResourceApiAxiosParamCreator = function (configuration?: Co
         /**
          * 
          * @param {number} id 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllPositionsByVehicle: async (id: number, page?: number, size?: number, sort?: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getAllPositionsByVehicle', 'id', id)
+            const localVarPath = `/api/positions/vehicle/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6670,6 +6724,19 @@ export const PositionResourceApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} id 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllPositionsByVehicle(id: number, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PositionDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllPositionsByVehicle(id, page, size, sort, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6737,6 +6804,18 @@ export const PositionResourceApiFactory = function (configuration?: Configuratio
          */
         getAllPositions(page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<PositionDTO>> {
             return localVarFp.getAllPositions(page, size, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllPositionsByVehicle(id: number, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<PositionDTO> {
+            return localVarFp.getAllPositionsByVehicle(id, page, size, sort, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6810,6 +6889,20 @@ export class PositionResourceApi extends BaseAPI {
      */
     public getAllPositions(page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
         return PositionResourceApiFp(this.configuration).getAllPositions(page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} id 
+     * @param {number} [page] Zero-based page index (0..N)
+     * @param {number} [size] The size of the page to be returned
+     * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PositionResourceApi
+     */
+    public getAllPositionsByVehicle(id: number, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
+        return PositionResourceApiFp(this.configuration).getAllPositionsByVehicle(id, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13791,7 +13884,7 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
             assertParamExists('partialUpdateUserX', 'id', id)
             // verify required parameter 'userXDTO' is not null or undefined
             assertParamExists('partialUpdateUserX', 'userXDTO', userXDTO)
-            const localVarPath = `/api/admin/user-xes/{id}`
+            const localVarPath = `/api/user-xes/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);

@@ -45,16 +45,16 @@ watch(() => props.vehiclePositonList, (newVal) => {
     });
   }
 });
-function createVehicleMarker(lat: number, lng: number) {
-  const icon = L.icon({
-    iconUrl: 'src/assets/car-placeholder.png', // Path to your image file
-    iconSize: [38, 38], // Size of the icon
-    iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
-    popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
-  });
+// function createVehicleMarker(lat: number, lng: number) {
+//   const icon = L.icon({
+//     iconUrl: 'src/assets/car-placeholder.png', // Path to your image file
+//     iconSize: [38, 38], // Size of the icon
+//     iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
+//     popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+//   });
 
-  return L.marker([lat, lng], { icon });
-}
+//   return L.marker([lat, lng], { icon });
+// }
 const lat = ref(0);
 const lng = ref(0);
 

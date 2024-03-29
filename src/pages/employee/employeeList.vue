@@ -136,7 +136,9 @@ type APIParams = {
 };
 const queryData = async (params: APIParams) => {
     await getNumberOfUsers();
-    return (await userxApi.getUserXByRole('employee', params.page! - 1, 6)).data;
+    const a = (await userxApi.getUserXByRole('employee', params.page! - 1, 6)).data;
+    console.log(a);
+    return a;
 };
 
 const {
