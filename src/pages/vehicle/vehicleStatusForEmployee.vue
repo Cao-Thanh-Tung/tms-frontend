@@ -6,7 +6,10 @@
         <a-breadcrumb-item>Tình trạng xe</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        Comming soon
+        Tình trạng xe
+        <modal open="Add New" title="Add New Employee">
+            Comming soon
+        </modal>
     </a-layout-content>
 </template>
 <script lang="ts" setup>
