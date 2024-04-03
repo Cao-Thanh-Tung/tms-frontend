@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons-vue";
 import { reactive, ref, UnwrapRef, onMounted } from "vue";
 import { message } from "ant-design-vue";
-import { AddressDTO, UserDTO, UserXDTO, Vehicle } from "@/api";
+import { AddressDTO, Pageable, UserDTO, UserXDTO, Vehicle } from "@/api";
 import { AddressResourceApi } from "@/api";
 import store from "@/store";
 import { Configuration } from "@/configuration";
@@ -346,19 +346,12 @@ const handleReset = (clearFilters: any) => {
   state.searchText = "";
 };
 
-const searchFields = ref([
-  { name: 'type', label: 'Type' },
-  { name: 'licensePlatesNumber', label: 'License Plates Number' },
-  { name: 'maxLoadKg', label: 'Max Load (kg)' }
-]);
+const searchFields = ref(Object.keys(formAddState).map(key => ({ name: key, label: key })));
 
-async function searchVehicles(criteria: Vehicle) {
-  console.log(criteria)
+async function searchVehicles(criteria: any) {
   try {
-    if(criteria.type === "" && criteria.licensePlatesNumber === "" && criteria.maxLoadKg === 0) {
-      fetchData();
-    }
-    const response = await vehicleApi.searchVehicles(criteria);
+    const pageable: Pageable = { page: 0, size: 10 }; 
+    const response = await vehicleApi.searchVehicles(criteria, pageable);
     vehicles.splice(0, vehicles.length, ...response.data);
   } catch (error) {
     console.error('Error searching vehicles:', error);
