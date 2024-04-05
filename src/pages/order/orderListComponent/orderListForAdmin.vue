@@ -135,6 +135,19 @@ const status = (status: string) => {
     return '';
 };
 
+//Chờ xác nhận
+//Chờ phân tuyến | Từ chối | Chuyển nhà thầu 
+//Đã phân tuyến 
+//Đang vận chuyển
+//Đã hoanf thành | đã hủy (tài xế)
+
+//Trip
+//Chưa chốt
+//Chốt
+
+//Xe
+//
+
 // Delete Order Logic
 const deleteOrder = async (order: OrderDTO) => {
     try {
