@@ -158,7 +158,8 @@ onMounted(() => {
 // Delete user and update to table content
 const deleteEmployee = async (employee?: UserXDTO) => {
     try {
-        await userxApi.deleteUserX(employee!.id)
+        let employeeParams : any = employee!.id
+        await userxApi.deleteUserX(employeeParams)
         await userApi.deleteUser(employee!.user!.login!);
         await addressApi.deleteAddress(employee!.address!.id!);
         const index = users.indexOf(<UserXDTO>employee);
@@ -185,7 +186,8 @@ const edit = () => {
     editLoading.value = true;
     console.log(JSON.parse(JSON.stringify(formEditState)));
     console.log(formEditState.id);
-    userxApi.partialUpdateUserX(formEditState.id, formEditState).then((res) => {
+    let formEditStateParmams : any= formEditState.id
+    userxApi.partialUpdateUserX(formEditStateParmams, formEditState).then((res) => {
         console.log(res);
         const index = users.findIndex((user: UserXDTO) => { return user.id === formEditState.id });
         console.log(index);

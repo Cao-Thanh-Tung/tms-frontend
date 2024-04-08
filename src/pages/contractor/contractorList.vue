@@ -91,7 +91,7 @@ const fetchData = () => {
 onMounted(fetchData);
 
 // Delete user and update to table content
-const deleteContractor = async (Contractor?: ContractorDTO) => {
+const deleteContractor = async (Contractor?: any ) => {
   try {
     await contractorApi.deleteContractor(Contractor!.id);
     await addressApi.deleteAddress(Contractor!.address!.id!);
@@ -135,8 +135,9 @@ const edit = () => {
   editLoading.value = true;
   console.log(JSON.parse(JSON.stringify(formEditState)));
   console.log(formEditState.id);
+  let formEditStateParams : any = formEditState.id
   contractorApi
-    .partialUpdateContractor(formEditState.id, formEditState)
+    .partialUpdateContractor(formEditStateParams, formEditState)
     .then((res) => {
       console.log(res);
       const index = contractors.findIndex((user: ContractorDTO) => {
