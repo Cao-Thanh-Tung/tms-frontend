@@ -1,19 +1,20 @@
-# Base image
-FROM node:20 as build
+FROM node:20 as build-stage
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the app's code
 COPY . .
 
-# Build the app
 RUN npm run build
 
+FROM nginx:stable-alpine as production-stage
 
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
