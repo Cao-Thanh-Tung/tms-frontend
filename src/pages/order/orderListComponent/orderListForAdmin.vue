@@ -389,9 +389,17 @@ const addOrder = async () => {
         addFormOpen.value = false;
         addOrderLoading.value = false;
         updateTable();
-    } catch (error) {
-        console.log(error);
-        message.error('Tạo đơn hàng thất bại');
+    } catch (err: any) {
+        console.log(err);
+        if (err.code === "ERR_BAD_REQUEST") {
+            if (err.response.data.errorKey === "ordercodeexists") {
+                message.error("Mã đơn hàng đã tồn tại!");
+            } else {
+                message.error("Tạo đơn hàng thất bại");
+            }
+        } else {
+            message.error('Tạo đơn hàng thất bại');
+        }
         addOrderLoading.value = false;
     }
 };
@@ -643,11 +651,20 @@ const editOrder = async () => {
         });
         message.success('Chỉnh sửa đơn hàng thành công');
         editFormOpen.value = false;
-        updateTable();
-    } catch (err) {
-        console.log(err);
         editOrderLoading.value = false;
-        message.error('Chỉnh sửa đơn hàng thất bại');
+        updateTable();
+    } catch (err: any) {
+        console.log(err);
+        if (err.code === "ERR_BAD_REQUEST") {
+            if (err.response.data.errorKey === "ordercodeexists") {
+                message.error("Mã đơn hàng đã tồn tại!");
+            } else {
+                message.error("Chỉnh sửa đơn hàng thất bại");
+            }
+        } else {
+            message.error('Chỉnh sửa đơn hàng thất bại');
+        }
+        editOrderLoading.value = false;
         return;
     }
 }
