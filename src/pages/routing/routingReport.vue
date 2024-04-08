@@ -6,12 +6,7 @@
         <a-breadcrumb-item>Báo cáo phân tuyến</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        Báo cáo phân tuyến
-        <modal open="Add New" title="Add New Employee">
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-        </modal>
+        Comming soon
     </a-layout-content>
 </template>
 <script lang="ts" setup>

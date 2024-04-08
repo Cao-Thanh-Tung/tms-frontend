@@ -94,6 +94,8 @@ watch(() => props.positionList, (newVal) => {
 
 //   return L.marker([lat, lng], { icon });
 // }
+//   return L.marker([lat, lng], { icon });
+// }
 const lat = ref(0);
 const lng = ref(0);
 

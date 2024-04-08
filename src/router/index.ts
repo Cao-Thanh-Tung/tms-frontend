@@ -21,6 +21,7 @@ const routes = [
     {name:"user-info", path:'/account/info', component: userInfo},
     {name:"change-password", path:"/account/change-password", component: changePassword},
     {name:"orders",path: '/orders', component:  orderList},
+    {path: '/', component:  orderList},
 
     //admin router
     {name:"admin-employees",path: '/admin/employees', component:  employeeList},

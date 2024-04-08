@@ -8,7 +8,6 @@ const initialState = ():{
   user: UserXDTO | null,
   isLogin: Boolean,
 } => {
-  let isTokenExpired = false;
   const jwt = localStorage.getItem('jwt') || null;
   let payloadObj = null;
   console.log("jwt: "+ jwt);
@@ -18,7 +17,6 @@ const initialState = ():{
       payloadObj = decodedToken.payloadObj as { exp: number, sub: string };
       const now = Math.floor(Date.now() / 1000);
       if (now > payloadObj.exp) {
-        isTokenExpired = true;
         localStorage.removeItem('jwt');
         localStorage.removeItem('user');
         return {
@@ -35,7 +33,6 @@ const initialState = ():{
         }
       }
     } else {
-      isTokenExpired = true;
       localStorage.removeItem('jwt');
       localStorage.removeItem('user');
       return {
