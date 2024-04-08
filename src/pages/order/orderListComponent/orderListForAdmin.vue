@@ -202,26 +202,8 @@ const fetchUser = debounce(value => {
 //Add From Logic
 const addFormOpen = ref(false);
 const addOrderLoading = ref(false);
-const addFormContent = reactive<
-    {
-        code: string | undefined;
-        customerId: number | undefined;
-        cost: number | undefined;
-        goodType: string | undefined;
-        weight: number | undefined;
-        volume: number | undefined;
-        note: string | undefined;
-        pickupAddressId: number | undefined;
-        deliveryAddressId: number | undefined;
-        numPallets: number | undefined;
-        length: number | undefined;
-        width: number | undefined;
-        height: number | undefined;
-        waitingTimeSec: number | undefined;
-        carryTimeSec: number | undefined;
-        rangeFrom: [moment.Moment, moment.Moment] | any;
-        rangeTo: [moment.Moment, moment.Moment] | any;
-    }>({
+const createAddFormModel = () => {
+    return {
         code: undefined,
         customerId: undefined,
         cost: undefined,
@@ -239,8 +221,32 @@ const addFormContent = reactive<
         carryTimeSec: undefined,
         rangeFrom: undefined,
         rangeTo: undefined,
-    });
+    }
+};
+
+type addFormType = {
+    code: string | undefined;
+    customerId: number | undefined;
+    cost: number | undefined;
+    goodType: string | undefined;
+    weight: number | undefined;
+    volume: number | undefined;
+    note: string | undefined;
+    pickupAddressId: number | undefined;
+    deliveryAddressId: number | undefined;
+    numPallets: number | undefined;
+    length: number | undefined;
+    width: number | undefined;
+    height: number | undefined;
+    waitingTimeSec: number | undefined;
+    carryTimeSec: number | undefined;
+    rangeFrom: [moment.Moment, moment.Moment] | any;
+    rangeTo: [moment.Moment, moment.Moment] | any;
+
+}
+let addFormContent = reactive<addFormType>(createAddFormModel());
 const showAddForm = () => {
+    addFormContent = reactive<addFormType>(createAddFormModel());
     addFormOpen.value = true;
 };
 const validateAddform = () => {
@@ -386,6 +392,7 @@ const addOrder = async () => {
     } catch (error) {
         console.log(error);
         message.error('Tạo đơn hàng thất bại');
+        addOrderLoading.value = false;
     }
 };
 

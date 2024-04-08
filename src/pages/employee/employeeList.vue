@@ -3,7 +3,7 @@ import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined 
 import { reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
-import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
+import { UserXResourceApi, UserResourceApi, AddressResourceApi, ScheduleResourceApi, CustomerAssignmentResourceApi, VehicleResourceApi } from '@/api';
 import store from '@/store';
 import { Configuration } from '@/configuration';
 import { AdminUserDTO } from '../../api';
@@ -190,13 +190,19 @@ const handleTableChange = (
     updateTable(pag, filters, sorter);
 
 };
+
+const scheduleApi = new ScheduleResourceApi(config);
+const customerAssignmentApi = new CustomerAssignmentResourceApi(config);
+const vehicleApi = new VehicleResourceApi(config);
 // Delete user and update to table content
 const deleteEmployee = async (employee?: UserXDTO) => {
     try {
-
+        await vehicleApi.updateOwnerUserXIdToNull(employee?.id!);
+        await customerAssignmentApi.deleteCustomerAssignmentByEmployeeUserXId(employee?.id!);
+        await scheduleApi.updateScheduleCoordinateToNull(employee?.id!);
         await userxApi.deleteUserX(employee?.id!)
         await userApi.deleteUser(employee!.user!.login!);
-        await addressApi.deleteAddress(employee!.addressId!);
+        // await addressApi.deleteAddress(employee!.addressId!);
         message.success('Đã xóa thông tin nhân viên thành công!');
         updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
     } catch (err) {
@@ -226,6 +232,13 @@ const edit = () => {
         message.error("Vui lòng nhập email!");
         return;
     }
+
+    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formEditState.user!.email!)) {
+        message.error("Email không đúng định dạng!");
+        return;
+    }
+
     if (formEditState.user!.firstName === "") {
         message.error("Vui lòng nhập họ!");
         return;
@@ -240,13 +253,13 @@ const edit = () => {
     userxApi.partialUpdateUserX(formEditState.id!, formEditState).then((res) => {
         console.log(res);
         message.success("Đã thay đổi thông tin nhân viên thành công!");
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
+        openEditForm.value = false;
     }).catch((err) => {
         console.log(err);
-        message.error("Thay đổi thông tin nhân viên thất bại!");
+        message.error("Email đã được sử dụng!");
     }).finally(() => {
-        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
         editLoading.value = false;
-        openEditForm.value = false;
     })
 };
 
@@ -289,6 +302,11 @@ const add = async () => {
     }
     if (formAddState.email === "") {
         message.error("Vui lòng nhập email!");
+        return;
+    }
+    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formEditState.user!.email!)) {
+        message.error("Email không đúng định dạng!");
         return;
     }
     if (formAddState.firstName === "") {
