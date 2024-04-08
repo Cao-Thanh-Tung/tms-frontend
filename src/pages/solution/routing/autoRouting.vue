@@ -135,7 +135,7 @@
         </div>
       </div>
     </a-drawer>
-    <map-app :vehiclePositonList="positionList"  />
+    <map-app :vehiclePositonList="positionList" />
   </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="map-app" style="display: flex; width: 100%; height: 850%">
+  <div class="map-app" style="display: flex; width: 100%; height: 100%">
     <div ref="mapContainer" class="map-container">
       <div id="coordinatesDisplay" class="coordinates-display"></div>
     </div>
@@ -29,8 +29,8 @@ import { PositionDTO } from '../api';
 // }
 const props = defineProps<{
   vehiclePositonList: PositionDTO[];
+  positionList: PositionDTO[];
 }>();
-
 watch(() => props.vehiclePositonList, (newVal) => {
   // make marker
   if (map.value) {
@@ -45,16 +45,55 @@ watch(() => props.vehiclePositonList, (newVal) => {
     });
   }
 });
-function createVehicleMarker(lat: number, lng: number) {
-  const icon = L.icon({
-    iconUrl: 'src/assets/car-placeholder.png', // Path to your image file
-    iconSize: [38, 38], // Size of the icon
-    iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
-    popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
-  });
+const getMarkerInfo = (position: PositionDTO, index: number) => {
+  return `<b>Lat:</b> ${position.lat} <br> <b>Lng:</b> ${position.lng} <br> <b>Index:</b> ${index}`;
+};
+// hiển thị route từ positionList
+let markers = [] as L.Marker[]; // Array to store the markers
+watch(() => props.positionList, (newVal) => {
+  console.log("newVal", newVal)
+  if (map.value) {
+  
+    markers.forEach(marker => {
+    if(map.value)
+    map.value.removeLayer(marker)
+    });
+    markers = []; // Clear the markers array
+    map.value.eachLayer((layer: L.Layer) => {
+      if (layer instanceof L.Polyline || layer instanceof L.Marker) {
+        map.value?.removeLayer(layer);
+      }
+    });
+    if (newVal.length > 1) {
+      const latlngs = newVal.map((position, index) => {
+        if (!position.lat || !position.lng) return;
+        const latlng = L.latLng(position.lat, position.lng);
+        const marker = createMarker(position.lat, position.lng, true);
+        marker.bindPopup(getMarkerInfo(position, index));
+        marker.addTo(map.value as L.Map);
+        markers.push(marker); // Add the marker to the array
+        return latlng;
+      });
+      const control = L.Routing.control({
+        waypoints: latlngs,
+        routeWhileDragging: false,
+        showInstructions: false,
+        show: false,
+      }).addTo(map.value as L.Map);
+      map.value.fitBounds(control.getWaypoints());
+    }
+  }
+});
+// function createVehicleMarker(lat: number, lng: number) {
+//   const icon = L.icon({
+//     iconUrl: 'src/assets/car-placeholder.png', // Path to your image file
+//     iconSize: [38, 38], // Size of the icon
+//     iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
+//     popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+//   });
 
-  return L.marker([lat, lng], { icon });
-}
+//   return L.marker([lat, lng], { icon });
+// }
 const lat = ref(0);
 const lng = ref(0);
 
@@ -70,18 +109,54 @@ const mapContainer = ref();
 // const coordinatesDisplay = ref(""); // initialize with empty string or whatever default value you want
 // const reversedCoordinates = ref<L.LatLngExpression[]>([]);
 // const showSearchResults = ref(true);
-const createMarker = (lat: number, lng: number, draggable = false) => {
+const createMarker = (lat: number, lng: number, draggable = true) => {
   const marker = L.marker([lat, lng], { draggable });
+  let initialLatLng: L.LatLng;
   if (draggable) {
+    marker.on("dragstart", () => {
+      console.log("dragstart");
+      initialLatLng = marker.getLatLng();
+    });
     marker.on("dragend", (event: L.DragEndEvent) => {
+      console.log("dragend");
       const { lat = 0, lng = 0 } = event.target.getLatLng();
       displayCoordinates(lat, lng);
+      if (map && map.value) {
+        map.value.eachLayer((layer) => {
+          if (layer instanceof L.Marker && layer.getLatLng().equals(initialLatLng)) {
+            if (map.value)
+              map.value.removeLayer(layer);
+          }
+        });
+      }
+      createMarker(lat, lng).addTo(map.value as L.Map);
     });
+    marker.on("drag", () => {
+      console.log("drag")
+    })
   }
+
   marker.on("dblclick", () => {
     if (map && map.value) {
       map.value.removeLayer(marker);
     }
+  });
+  marker.on("mouseover", () => {
+    if (marker.isPopupOpen()) {
+      marker.closePopup();
+    }
+    console.log("open popup");
+    marker.bindPopup(`<b>Lat:</b> ${lat} <br> <b>Lng:</b> ${lng}`);
+    marker.openPopup();
+  });
+  marker.on("mouseout", () => {
+    if (marker.isPopupOpen()) {
+      marker.closePopup();
+    }
+  });
+  // open when click
+  marker.on("click", () => {
+    marker.openPopup();
   });
   marker.bindPopup(`<b>Lat:</b> ${lat} <br> <b>Lng:</b> ${lng}`);
   return marker;
@@ -186,18 +261,6 @@ onMounted(() => {
   map.value.on("mousemove", (event: L.LeafletMouseEvent) => {
     const { lat, lng } = event.latlng;
     displayCoordinates(lat, lng);
-    if (map.value) {
-      map.value.eachLayer((layer: L.Layer) => {
-        if (layer instanceof L.Marker) {
-          if (layer.isPopupOpen()) {
-            layer.closePopup();
-          }
-          if (layer.getLatLng().lat === lat && layer.getLatLng().lng === lng) {
-            layer.openPopup();
-          }
-        }
-      });
-    }
   });
 
 

@@ -1,0 +1,220 @@
+{
+  "request_id": "simulation_5_5_MORNING",
+  "solution_summary": {
+    "error_code": 0,
+    "error_message": "Successful",
+    "total_scheduled_vehicles": 4,
+    "total_travel_distance": 148,
+    "nb_unscheduled_orders": 16
+  },
+  "trips": [
+    {
+      "vehicle_id": "51D-498.60",
+      "estimated_start_time": 1683243959000,
+      "estimated_end_time": 1683249364264,
+      "max_load_rate": 6.378,
+      "load_rate_per_km": 6.378,
+      "locations": [
+        {
+          "location_id": "hn5",
+          "next_location_id": "hub-donganh",
+          "estimated_start_time": 1683243959000,
+          "estimated_end_time": 1683248459000,
+          "load_rate": 6.378,
+          "orders": [
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006"
+          ]
+        },
+        {
+          "location_id": "hub-donganh",
+          "previus_location_id": "hn5",
+          "estimated_start_time": 1683249364264,
+          "estimated_end_time": 1683253864264,
+          "load_rate": 0.0,
+          "orders": [
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006",
+            "TRANS/2023/05/05/000006"
+          ]
+        }
+      ]
+    },
+    {
+      "vehicle_id": "50H-005.12",
+      "estimated_start_time": 1683243983000,
+      "estimated_end_time": 1683255681383,
+      "max_load_rate": 6.873333333333333,
+      "load_rate_per_km": 5.145383514833402,
+      "locations": [
+        {
+          "location_id": "hn5",
+          "next_location_id": "lm-hub-socson",
+          "estimated_start_time": 1683243983000,
+          "estimated_end_time": 1683248183000,
+          "load_rate": 6.873333333333333,
+          "orders": [
+            "TRANS/2023/05/05/000007",
+            "TRANS/2023/05/05/000007",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000014",
+            "TRANS/2023/05/05/000014",
+            "TRANS/2023/05/05/000011",
+            "TRANS/2023/05/05/000011",
+            "TRANS/2023/05/05/000011",
+            "TRANS/2023/05/05/000011"
+          ]
+        },
+        {
+          "location_id": "lm-hub-socson",
+          "previus_location_id": "hn5",
+          "next_location_id": "hub-hoaiduc",
+          "estimated_start_time": 1683249833120,
+          "estimated_end_time": 1683250433120,
+          "load_rate": 6.155999999999999,
+          "orders": [
+            "TRANS/2023/05/05/000007",
+            "TRANS/2023/05/05/000007"
+          ]
+        },
+        {
+          "location_id": "hub-hoaiduc",
+          "previus_location_id": "lm-hub-socson",
+          "next_location_id": "hub-quocoai",
+          "estimated_start_time": 1683252261057,
+          "estimated_end_time": 1683253461057,
+          "load_rate": 2.906666666666666,
+          "orders": [
+            "TRANS/2023/05/05/000011",
+            "TRANS/2023/05/05/000011",
+            "TRANS/2023/05/05/000011",
+            "TRANS/2023/05/05/000011"
+          ]
+        },
+        {
+          "location_id": "hub-quocoai",
+          "previus_location_id": "hub-hoaiduc",
+          "next_location_id": "lm-hub-chuongmy",
+          "estimated_start_time": 1683254312932,
+          "estimated_end_time": 1683254912932,
+          "load_rate": 1.5126666666666657,
+          "orders": [
+            "TRANS/2023/05/05/000014",
+            "TRANS/2023/05/05/000014"
+          ]
+        },
+        {
+          "location_id": "lm-hub-chuongmy",
+          "previus_location_id": "hub-quocoai",
+          "estimated_start_time": 1683255681383,
+          "estimated_end_time": 1683257481383,
+          "load_rate": -9.473903143468002E-16,
+          "orders": [
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015",
+            "TRANS/2023/05/05/000015"
+          ]
+        }
+      ]
+    }
+  ],
+  "unplanned_orders": [
+    {
+      "order_code": "TRANS/2023/05/05/000013",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/000013",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/000013",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/000013",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/000013",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/001259",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/000016",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/000016",
+      "reason_code": "OUT_OF_CAPACITY"
+    },
+    {
+      "order_code": "TRANS/2023/05/05/000016",
+      "reason_code": "OUT_OF_CAPACITY"
+    }
+  ]
+}

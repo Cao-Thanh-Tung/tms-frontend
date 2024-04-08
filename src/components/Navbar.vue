@@ -119,6 +119,8 @@ function logout() {
             <a-menu-item key="52" v-if="props.role == 'employee'"><router-link :to="{ name: 'auto-routing' }">
                 Phân
                 tuyến</router-link></a-menu-item>
+            <a-menu-item key="53" v-if="props.role == 'employee'"><router-link :to="{ name: 'solution' }">Kết quả phân
+                tuyến</router-link></a-menu-item>
           </a-sub-menu>
         </a-menu>
       </a-layout-sider>
