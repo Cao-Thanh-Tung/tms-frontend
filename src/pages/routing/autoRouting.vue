@@ -17,9 +17,9 @@
       </a-steps>
       <ul v-if="setupStep === 1">
         <a-table :dataSource="vehicleList" :row-selection="{
-      selectedRowKeys: state.selectedRowKeys,
-      onChange: onVehicleSelectChange,
-    }" :pagination="true" rowKey="id">
+          selectedRowKeys: state.selectedRowKeys,
+          onChange: onVehicleSelectChange,
+        }" :pagination="true" rowKey="id">
           <a-table-column dataIndex="type" key="type">
             <template #title>
               <div>
@@ -33,11 +33,11 @@
               <div>
                 Biển số xe
                 <a-input placeholder="Filter License Plates Number" @input="
-      handleVehicleSearch(
-        $event.target.value,
-        'licensePlatesNumber'
-      )
-      " />
+                  handleVehicleSearch(
+                    $event.target.value,
+                    'licensePlatesNumber'
+                  )
+                  " />
               </div>
             </template>
           </a-table-column>
@@ -61,9 +61,9 @@
       </ul>
       <ul v-if="setupStep === 2">
         <a-table :dataSource="orderList" :row-selection="{
-      selectedRowKeys: state.selectedOrderKeys,
-      onChange: onOrderSelectChange,
-    }" :pagination="true" rowKey="id">
+          selectedRowKeys: state.selectedOrderKeys,
+          onChange: onOrderSelectChange,
+        }" :pagination="true" rowKey="id">
           <a-table-column dataIndex="goodType" key="goodType">
             <template #title>
               <div>
@@ -101,30 +101,50 @@
       <ul v-if="setupStep === 3">
         <a-form :model="solverConfig" class="solver-config-form">
           <a-form-item label="Thời gian bắt đầu">
-            <a-time-picker v-model="solverConfig.startTime" />
+            <a-time-picker v-model:value="solverConfig.startTime" />
           </a-form-item>
           <a-form-item label="Thời gian kết thúc">
-            <a-time-picker v-model="solverConfig.endTime" />
+            <a-time-picker v-model:value="solverConfig.endTime" />
           </a-form-item>
           <a-form-item label="Thời gian giới hạn(h)">
-            <a-input-number v-model="solverConfig.solveTimeLimitSec" />
+            <a-input-number v-model:value="solverConfig.solveTimeLimitSec" />
           </a-form-item>
           <a-form-item label="Chiến lược">
-            <a-select v-model="solverConfig.strategy">
-              <a-select-option value="1">Chiến lược 1</a-select-option>
-              <a-select-option value="2">Chiến lược 2</a-select-option>
-              <a-select-option value="3">Chiến lược 3</a-select-option>
+            <a-select v-model:value="solverConfig.strategy">
+              <a-select-option value="Greddy">Tham Lam</a-select-option>
+              <a-select-option value="Local Search">Local Search</a-select-option>
+              <a-select-option value="Tabu Search">Tabu Search</a-select-option>
             </a-select>
           </a-form-item>
         </a-form>
       </ul>
-      <ul v-if="setupStep === 4">
-        Tổng quan
-      </ul>
+      <a-card v-if="setupStep === 4" title="Thông tin chi tiết">
+        <a-list>
+          <a-list-item>
+            <a-list-item-meta title="Số xe đã chọn" :description="state.selectedVehicleCount" />
+          </a-list-item>
+          <a-list-item>
+            <a-list-item-meta title="Số đơn hàng đã chọn" :description="state.selectedOrderCount" />
+          </a-list-item>
+          <a-list-item>
+            <a-list-item-meta title="Thời gian bắt đầu" :description="solverConfig.startTime" />
+          </a-list-item>
+          <a-list-item>
+            <a-list-item-meta title="Thời gian kết thúc" :description="solverConfig.endTime" />
+          </a-list-item>
+          <a-list-item>
+            <a-list-item-meta title="Thời gian giới hạn" :description="solverConfig.solveTimeLimitSec" />
+          </a-list-item>
+          <a-list-item>
+            <a-list-item-meta title="Chiến lược" :description="solverConfig.strategy" />
+          </a-list-item>
+        </a-list>
+      </a-card>
       <div class="next-button-container">
-        <a-button type="primary" @click="nextStep">Tiếp theo</a-button>
+        <a-button type="primary" :loading="isLoading" @click="nextStep">{{ setupStep === 4 ? 'Hoàn Thành' : 'Tiếp Theo'
+          }}</a-button>
       </div>
-      <div class="selection-counts">
+      <div v-if="setupStep != 4" class="selection-counts">
         <div class="count-item">
           <span class="count-label">Xe đã chọn:</span>
           <span class="count-value">{{ state.selectedVehicleCount }}</span>
@@ -135,7 +155,7 @@
         </div>
       </div>
     </a-drawer>
-    <map-app :vehiclePositonList="positionList"  />
+    <map-app :vehiclePositonList="positionList" style="height:600px" />
   </div>
 </template>
 
@@ -146,29 +166,56 @@ import { ref, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";
 import { Configuration } from "../../configuration";
 import store from "../../store";
-import { SolverConfigDTO, VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi } from '../../api';
+import { SolverConfigDTO, VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi, SolverConfigResourceApi, ScheduleResourceApi, ScheduleInputOrderResourceApi, ScheduleInputVehicleResourceApi, ScheduleDTO, ScheduleInputResourceApi } from '../../api';
+import { message } from "ant-design-vue";
 
 
-let solverConfig = ref({} as SolverConfigDTO);
-solverConfig.value = {
+let solverConfig = ref({
   startTime: "",
   endTime: "",
   solveTimeLimitSec: 0,
   strategy: "",
-
-};
+} as SolverConfigDTO);
+let isLoading = ref(false);
 let vehicleList = ref([] as VehicleDTO[]);
 let orderList = ref([] as OrderDTO[]);
 let vehicle2Position = ref(new Map<number, PositionDTO>());
 let positionList = ref([] as PositionDTO[]);
+const configWithBaseOptions = new Configuration({
+  accessToken: () => store.getters.jwt,
+  baseOptions: {
+    headers: { 'Content-Type': 'application/json' }
+  }
+});
+const configWithoutBaseOptions = new Configuration({
+  accessToken: () => store.getters.jwt,
+});
 let vehicleResourceApi = new VehicleResourceApi(
-  new Configuration({
-    accessToken: () => store.getters.jwt,
-  })
+  configWithoutBaseOptions
 );
+const currentEmployee = store.getters.user;
 let orderResourceApi = new OrderResourceApi(
+  configWithoutBaseOptions
+);
+let scheduleResourceApi = new ScheduleResourceApi(
+  configWithBaseOptions
+);
+let scheduleInputResourceApi = new ScheduleInputResourceApi(
+  configWithBaseOptions
+);
+let scheduleInputOrderResourceApi = new ScheduleInputOrderResourceApi(
+  configWithBaseOptions
+);
+let scheduleInputVehicleResourceApi = new ScheduleInputVehicleResourceApi(
+  configWithBaseOptions
+);
+
+let solverConfigResourceApi = new SolverConfigResourceApi(
   new Configuration({
     accessToken: () => store.getters.jwt,
+    baseOptions: {
+      headers: { 'Content-Type': 'application/json' }
+    }
   })
 );
 let positionResourceApi = new PositionResourceApi(
@@ -180,7 +227,6 @@ let setupStep = ref(1);
 let isModalVisible = ref(false);
 let originalVehicleList = ref([] as VehicleDTO[]); // Store the original list
 let originalOrderList = ref([] as OrderDTO[]); // Store the original list
-
 const fetchVehicles = async () => {
   vehicleResourceApi
     .getAllVehicles()
@@ -207,7 +253,7 @@ const fetchVehicles = async () => {
 };
 const fetchOrders = async () => {
   orderResourceApi
-    .getAllOrders()
+    .getOrdersAssignToEmployee(currentEmployee.id)
     .then((res) => {
       orderList.value = res.data;
       originalOrderList.value = res.data;
@@ -216,6 +262,108 @@ const fetchOrders = async () => {
       console.log(err);
     });
 };
+const validateInput = () => {
+  if (state.selectedVehicleList.length === 0) {
+    message.error("Chưa chọn xe");
+    isLoading.value = false;
+    return false;
+  }
+  if (state.selectedOrderList.length === 0) {
+    message.error("Chưa chọn đơn hàng");
+    isLoading.value = false;
+    return false;
+  }
+  if (!solverConfig.value.startTime || !solverConfig.value.endTime || !solverConfig.value.strategy) {
+    message.error("Vui lòng điền đầy đủ thông tin");
+    isLoading.value = false;
+    return false;
+  }
+  if (solverConfig.value.startTime >= solverConfig.value.endTime) {
+    message.error("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
+    isLoading.value = false;
+    return false;
+  }
+  return true;
+};
+
+const createSchedule = async () => {
+  return await scheduleResourceApi.createSchedule({
+    "name": "test",
+    "coordinatorUserXId": currentEmployee.id,
+  });
+};
+
+const createScheduleInput = async (scheduleId:number) => {
+  return await scheduleInputResourceApi.createScheduleInput({
+    "status": "CREATED",
+    "scheduleId": scheduleId,
+  });
+};
+
+const createScheduleInputOrders = async (scheduleInputId:number, scheduleId:number) => {
+  return await Promise.all(state.selectedOrderList.map((order) =>
+    scheduleInputOrderResourceApi.createScheduleInputOrder({
+      "orderId": order.id,
+      "scheduleInputId": scheduleInputId,
+      "scheduleId": scheduleId,
+    })
+  ));
+};
+
+const createScheduleInputVehicles = async (scheduleInputId:number, scheduleId:number) => {
+  return await Promise.all(state.selectedVehicleList.map((vehicle) =>
+    scheduleInputVehicleResourceApi.createScheduleInputVehicle({
+      "vehicleId": vehicle.id,
+      "scheduleInputId": scheduleInputId,
+      "scheduleId": scheduleId,
+    })
+  ));
+};
+
+const createSolverConfig = async (scheduleInputId:number) => {
+  return await solverConfigResourceApi.createSolverConfig({
+    "scheduleInputId": scheduleInputId,
+    "startTime": solverConfig.value.startTime,
+    "endTime": solverConfig.value.endTime,
+    "solveTimeLimitSec": (solverConfig.value.solveTimeLimitSec || 0) * 3600,
+    "strategy": solverConfig.value.strategy,
+  });
+};
+
+const scheduleHandle = async () => {
+  try {
+    if (!validateInput()) {
+      return;
+    }
+
+    const schedule = await createSchedule();
+    if(schedule.data.id === undefined) {
+      console.log('schedule.data.id is undefined');
+      return;
+    }
+    const scheduleInput = await createScheduleInput(schedule.data.id);
+
+    if (schedule.data.id === undefined || scheduleInput.data.id === undefined) {
+      console.log('schedule.data.id or scheduleInput.data.id is undefined');
+      return;
+    }
+
+    await createScheduleInputOrders(scheduleInput.data.id, schedule.data.id);
+    await createScheduleInputVehicles(scheduleInput.data.id, schedule.data.id);
+    const solverConfigRes = await createSolverConfig(scheduleInput.data.id);
+
+    console.log(solverConfigRes);
+    isLoading.value = false;
+    isModalVisible.value = false;
+    message.success("Tạo lịch thành công");
+
+  } catch (err) {
+    console.log(err);
+    message.error("Tạo lịch thất bại");
+    isLoading.value = false;
+  }
+};
+
 const clickSetup = async () => {
   isModalVisible.value = true;
   // check if vehicle list is not empty
@@ -273,31 +421,43 @@ const handleVehicleNumberSearch = (
 };
 const nextStep = () => {
   if (setupStep.value === 4) {
-    setupStep.value = 1;
+    isLoading.value = true;
+    handleComplete();
+
     return;
   }
   setupStep.value += 1;
 };
+const handleComplete = () => {
+  scheduleHandle();
+};
+
 const state = reactive<{
   selectedRowKeys: (string | number)[];
   selectedOrderKeys: (string | number)[];
   selectedVehicleCount: number;
   selectedOrderCount: number;
+  selectedVehicleList: VehicleDTO[];
+  selectedOrderList: OrderDTO[];
 }>({
   selectedRowKeys: [],
   selectedOrderKeys: [],
   selectedVehicleCount: 0,
   selectedOrderCount: 0,
+  selectedVehicleList: [],
+  selectedOrderList: [],
 });
 const onVehicleSelectChange = (selectedRowKeys: (string | number)[]) => {
   state.selectedRowKeys = selectedRowKeys;
   positionList.value = selectedRowKeys.map((key) => vehicle2Position.value.get(Number(key))).filter(Boolean) as PositionDTO[];
   state.selectedVehicleCount = selectedRowKeys.length;
+  state.selectedVehicleList = vehicleList.value.filter((vehicle) => vehicle.id !== undefined && selectedRowKeys.includes(vehicle.id));
 };
 
 const onOrderSelectChange = (selectedRowKeys: (string | number)[]) => {
   state.selectedOrderKeys = selectedRowKeys;
   state.selectedOrderCount = selectedRowKeys.length;
+  state.selectedOrderList = orderList.value.filter((order) => order.id != undefined && selectedRowKeys.includes(order.id));
 };
 
 const setupVehiclesHandler = () => {
@@ -315,6 +475,7 @@ const configureAlgorithmHandler = () => {
 const viewResultsHandler = () => {
   setupStep.value = 4;
 };
+
 </script>
 
 <style scoped>
