@@ -21,16 +21,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, defineProps } from 'vue';
+import store from "@/store";
+import { Entity, SearchParams } from "@/search.types"
+import { SearchResourceApi, Pageable } from "@/api";
+import { Configuration } from "@/configuration";
 
 interface Field {
   name: string;
   label: string;
 }
 
+// Define the props object
 const props = defineProps({
-  searchFields: Array as () => Field[],
-})
+  searchFields: {
+    type: Array as () => Field[],
+    default: () => [],
+  },
+  entityName: {
+    type: String,
+    required: true
+  }
+});
+
+const config = new Configuration({
+  accessToken: () => store.getters.jwt,
+  baseOptions: {
+    headers: { "Content-Type": "application/json" },
+  },
+});
+
+const searchResourceApi = new SearchResourceApi(config);
 
 const emits = defineEmits(['search']);
 const searchCriteria = ref<Array<{name: string, value: string}>>([]);
@@ -49,14 +70,28 @@ const removeCriterion = (index: number) => {
   searchCriteria.value.splice(index, 1);
 };
 
-const search = () => {  
-  // Emit the search event with the current search criteria
-  if (!selectedField.value && searchValue.value) {
-    emits('search', { keyword: searchValue.value });
-  } else {
-    emits('search', searchCriteria.value.reduce((obj, item) => Object.assign(obj, { [item.name]: item.value }), {}));
-  }
+const search = async () => {  
+  // Emit the search event with the current search criteria and keyword
+  const criteria = searchCriteria.value.reduce((obj, item) => Object.assign(obj, { [item.name]: item.value }), {});
+  const keyword = searchValue.value.trim() !== '' ? searchValue.value : undefined;
+  const params: SearchParams<Entity> = { criteria, keyword };
+  const response = await searchEntities(params, props.entityName);
+  emits('search', response?.data);
 };
+
+async function searchEntities<T extends Entity>({ criteria, keyword }: SearchParams<T>, entityName: string) {
+  try {
+    const pageable: Pageable = { page: 0, size: 10 }; 
+    let allParams = { ...criteria };
+    if (keyword) {
+      allParams = { ...allParams, keyword };
+    }
+    const stringParams = Object.fromEntries(Object.entries(allParams).map(([key, value]) => [key, String(value)]));
+    return await searchResourceApi.searchEntities(entityName, stringParams, pageable);
+  } catch (error) {
+    console.error('Error searching entities:', error);
+  }
+}
 </script>
 
 <style scoped>

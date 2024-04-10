@@ -13,6 +13,8 @@ import store from "@/store";
 import { Configuration } from "@/configuration";
 import { ContractorResourceApi, ContractorDTO } from "../../api";
 import moment from "moment";
+import DateSearch from "@/components/DateSearch.vue";
+import { Entity } from "@/search.types";
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -95,7 +97,7 @@ onMounted(fetchData);
 // Delete user and update to table content
 const deleteContractor = async (Contractor?: ContractorDTO) => {
   try {
-    await contractorApi.deleteContractor(Contractor!.id);
+    await contractorApi.deleteContractor(Contractor?.id ?? 0);
     await addressApi.deleteAddress(Contractor!.address!.id!);
     const index = contractors.indexOf(<ContractorDTO>Contractor);
     console.log(index);
@@ -139,7 +141,7 @@ const edit = () => {
   console.log(JSON.parse(JSON.stringify(formEditState)));
   console.log(formEditState.id);
   contractorApi
-    .partialUpdateContractor(formEditState.id, formEditState)
+    .partialUpdateContractor(formEditState.id!, formEditState)
     .then((res) => {
       console.log(res);
       const index = contractors.findIndex((user: ContractorDTO) => {
@@ -238,6 +240,14 @@ const handleReset = (clearFilters: any) => {
   clearFilters({ confirm: true });
   state.searchText = "";
 };
+
+async function handleSearchResults(results: Entity[]) {
+  try {
+    contractors.splice(0, contractors.length, ...results);
+  } catch (error) {
+    console.error('Error handling search results:', error);
+  }
+}
 </script>
 <template>
   <!-- -->
@@ -245,7 +255,7 @@ const handleReset = (clearFilters: any) => {
     <a-breadcrumb-item>Nhà thầu</a-breadcrumb-item>
     <a-breadcrumb-item>Danh sách Nhà thầu</a-breadcrumb-item>
   </a-breadcrumb>
-
+  <DateSearch entityName="Contractor" :attributes="['signingDate', 'expirationDate']" @search="handleSearchResults"/>
   <!-- Contractor list table -->
   <a-layout-content
     :style="{
@@ -270,6 +280,11 @@ const handleReset = (clearFilters: any) => {
         <template v-if="column.key === 'expirationDate'">
           <span>
             {{ moment(record.expirationDate).format("DD/MM/YYYY") }}
+          </span>
+        </template>
+        <template v-if="column.key === 'signingDate'">
+          <span>
+            {{ moment(record.signingDate).format("DD/MM/YYYY") }}
           </span>
         </template>
         <template v-if="column.key === 'operation'">
@@ -333,6 +348,71 @@ const handleReset = (clearFilters: any) => {
       <!-- Filter end -->
     </a-table>
   </a-layout-content>
+  <!-- Float button create new Contractor-->
+  <a-float-button
+    type="primary"
+    @click="showAddForm"
+    tooltip="Tạo Nhà thầu mới"
+  >
+    <template #icon>
+      <plus-outlined />
+    </template>
+  </a-float-button>
+
+  <!-- Popup edit Contractor form -->
+  <a-modal
+    v-model:open="openEditForm"
+    title="Chỉnh sửa thông tin Nhà thầu"
+    :confirm-loading="editLoading"
+    @ok="edit"
+  >
+    <a-form :model="formEditState">
+      <a-form-item ref="firstName" label="Tên nhà thầu" name="name">
+        <a-input v-model:value="formEditState.name" />
+      </a-form-item>
+      <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
+        <a-date-picker v-model:value="formEditState.signingDate" />
+      </a-form-item>
+      <a-form-item
+        ref="expirationDate"
+        label="Ngày hết hạn"
+        name="expirationDate"
+      >
+        <a-date-picker v-model:value="formEditState.expirationDate" />
+      </a-form-item>
+      <a-form-item ref="address" label="Địa chỉ" name="address">
+        <a-input v-model:value="formEditState.address!.fullName" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
+
+  <!-- Popup create Contractor form -->
+  <a-modal
+    v-model:open="openAddForm"
+    title="Tạo mới Nhà thầu"
+    :confirm-loading="addLoading"
+    @ok="add"
+    @cancel="reset"
+  >
+    <a-form>
+      <a-form-item ref="name" label="Tên nhà thầu" name="name">
+        <a-input v-model:value="formAddState.name" />
+      </a-form-item>
+      <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
+        <a-date-picker v-model:value="formAddState.signingDate" />
+      </a-form-item>
+      <a-form-item
+        ref="expirationDate"
+        label="Ngày hết hạn"
+        name="expirationDate"
+      >
+        <a-date-picker v-model:value="formAddState.expirationDate" />
+      </a-form-item>
+      <a-form-item ref="address" label="Địa chỉ" name="address">
+        <a-input v-model:value="formAddState.address!.fullName" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
 
 </template>
 
