@@ -173,21 +173,6 @@ const searchLocation = async () => {
       const response = await fetch(
         `${url}?q=${search.value}&format=json&addressdetails=1&limit=1&polygon_geojson=1&bounded=1`
       );
-<<<<<<< HEAD
-
-      const concaveHull = concaveman(points);
-
-      const latLngs = concaveHull.map(([lng, lat]: any) => [
-        lat,
-        lng,
-      ]);
-      if (polygonLayer.value) {
-        map.value!.removeLayer(polygonLayer.value);
-      }
-
-      polygonLayer.value = L.polygon(latLngs: , { color: "red" }).addTo(
-        map.value
-=======
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -213,7 +198,6 @@ const updateMapWithSearchResults = (data: any) => {
     if (map.value) {
       L.polygon(reversedCoordinates.value, { color: "red" }).addTo(
         map.value as L.Map
->>>>>>> 0034a40 (tung)
       );
     }
   } catch (e) {

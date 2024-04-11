@@ -8,20 +8,11 @@ import {
 } from "@ant-design/icons-vue";
 import { reactive, ref, UnwrapRef, onMounted } from "vue";
 import { message } from "ant-design-vue";
-<<<<<<< HEAD
 import { AddressDTO } from "@/api";
 import { AddressResourceApi } from "@/api";
 import store from "@/store";
 import { Configuration } from "@/configuration";
 import { VehicleDTO, VehicleResourceApi } from '../../api';
-=======
-import { AddressDTO, UserDTO, UserXDTO, Vehicle } from "@/api";
-import { AddressResourceApi } from "@/api";
-import store from "@/store";
-import { Configuration } from "@/configuration";
-import { VehicleDTO, VehicleResourceApi, UserXResourceApi, UserResourceApi } from '../../api';
-import MultipleSearch from "@/components/MultipleSearch.vue";
->>>>>>> 3516b28 (searchVehicle)
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,

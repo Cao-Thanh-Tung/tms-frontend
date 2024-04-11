@@ -1994,11 +1994,7 @@ export const AccountResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-<<<<<<< HEAD
-        async registerAccount(managedUserVM: ManagedUserVM, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
-=======
         async registerAccount(managedUserVM: ManagedUserVM, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
->>>>>>> 0034a40 (tung)
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerAccount(managedUserVM, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -2361,11 +2357,7 @@ export const AddressResourceApiAxiosParamCreator = function (configuration?: Con
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-<<<<<<< HEAD
         getAllAddressesByCommuneAndDistrict: async (communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-=======
-        getAllAddressesByCommuneAndDistrict: async (communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
->>>>>>> 0034a40 (tung)
             // verify required parameter 'communeId' is not null or undefined
             assertParamExists('getAllAddressesByCommuneAndDistrict', 'communeId', communeId)
             // verify required parameter 'districtId' is not null or undefined
@@ -2743,11 +2735,7 @@ export class AddressResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AddressResourceApi
      */
-<<<<<<< HEAD
     public getAllAddressesByCommuneAndDistrict(communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
-=======
-    public getAllAddressesByCommuneAndDistrict(communeId: number, districtId: number, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
->>>>>>> 0034a40 (tung)
         return AddressResourceApiFp(this.configuration).getAllAddressesByCommuneAndDistrict(communeId, districtId, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -13079,11 +13067,7 @@ export const UserResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-<<<<<<< HEAD
-        async deleteUser(login: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-=======
         async deleteUser(login: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
->>>>>>> 0034a40 (tung)
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteUser(login, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
