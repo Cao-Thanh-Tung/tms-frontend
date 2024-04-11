@@ -1,11 +1,74 @@
 <script setup lang="ts">
 import { Configuration } from '@/configuration';
 import store from '@/store';
-// import mapApp from '@/pages/map/map.vue';
-import { CommuneResourceApi, DistrictResourceApi, ProvinceResourceApi } from '@/api';
-import { ref, onBeforeMount } from 'vue';
-import type { SelectProps } from 'ant-design-vue';
+import MapChooseAddress from '@/components/MapChooseAddress.vue';
+import { CommuneResourceApi, DistrictResourceApi, ProvinceResourceApi, AddressResourceApi } from '@/api';
+import { onMounted, reactive, ref, computed } from 'vue';
+import { Coord } from './MapChooseAddress.vue';
 import axios from 'axios';
+import { ProvinceDTO, DistrictDTO, CommuneDTO } from '../api';
+const props = defineProps<{
+    initialAddressId?: number,
+}>();
+const provinceOptions = ref<ProvinceDTO[]>([]);
+const districtOptions = ref<DistrictDTO[]>([]);
+const communeOptions = ref<CommuneDTO[]>([]);
+const emit = defineEmits(['save']);
+const address = reactive<{
+    province: ProvinceDTO,
+    district: DistrictDTO,
+    commune: CommuneDTO,
+    detail: string,
+}>({
+    province: {
+        id: -1,
+        name: "",
+    },
+    district: {
+        id: -1,
+        name: "",
+    },
+    commune: {
+        id: -1,
+        name: "",
+    },
+    detail: '',
+});
+
+onMounted(async () => {
+    provinceApi.getAllProvinces(0, 100).then((res) => {
+        provinceOptions.value = res.data;
+    });
+    if (props.initialAddressId) {
+        try {
+            const { provinceId, districtId, communeId, street } = (await addressApi.getAddress(props.initialAddressId)).data;
+            address.detail = street || '';
+            if (provinceId) {
+                districtOptions.value = (await districtApi.getDistrictsByProvince(provinceId!)).data;
+                address.province = provinceOptions.value.find((item) => item.id === provinceId)!;
+            }
+            if (districtId) {
+                communeOptions.value = (await communeApi.getCommunesByDistrict(districtId!)).data;
+                address.district = districtOptions.value.find((item) => item.id === districtId)!;
+            }
+            if (communeId) {
+                address.commune = communeOptions.value.find((item) => item.id === communeId)!;
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+})
+function getAddressFullName() {
+    return `${address.province.name!}${address.district.name ? ", " + address.district.name : ""}${address.commune.name ? ", " + address.commune.name : ""}${address.detail ? ", " + address.detail : ""}`;
+}
+const addressFullName = computed(() => {
+    return getAddressFullName();
+})
+const coord = reactive<Coord>({
+    lat: 0,
+    lng: 0,
+});
 
 const config = new Configuration({
     accessToken: () => store.getters.jwt,
@@ -13,89 +76,118 @@ const config = new Configuration({
         headers: { 'Content-Type': 'application/json' }
     }
 })
+
 const communeApi = new CommuneResourceApi(config);
 const districtApi = new DistrictResourceApi(config);
 const provinceApi = new ProvinceResourceApi(config);
-const province = ref('');
-const district = ref('');
-const commune = ref('');
-const addressDetail = ref('');
-const provinceOptions = ref<SelectProps['options']>([]);
-const districtOptions = ref<SelectProps['options']>([]);
-const communeOptions = ref<SelectProps['options']>([]);
-const focus = () => {
-    console.log('focus');
-};
-
-const changeCommune = (value: number) => {
-    console.log(value);
-};
-const changeDistrict = (value: number) => {
-    communeApi.getCommunesByDistrict(value).then((res) => {
-        communeOptions.value = res.data.map((commune) => {
-            return {
-                value: commune.id,
-                label: commune.name,
-            }
-        });
-    })
-};
-const changeProvince = (value: number) => {
-    districtApi.getDistrictsByProvince(value).then((res) => {
-        districtOptions.value = res.data.map((district) => {
-            return {
-                value: district.id,
-                label: district.name,
-            }
-        });
-    });
-};
-function save() {
-    const a = provinceOptions.value?.find((item) => { return item.value = province.value })
-    const b = districtOptions.value?.find((item) => { return item.value = district.value })
-    const c = communeOptions.value?.find((item) => { return item.value = commune.value })
-    const p = `${addressDetail.value}, ${c?.label}, ${b?.label}, ${a?.label}`;
-    axios.get("https://nominatim.openstreetmap.org/search", {
-        params: {
-            q: p,
-        }
-    }).then((res) => {
-        console.log(res);
-    }).catch((err) => {
-        console.log(err);
-    })
+const addressApi = new AddressResourceApi(config);
+function chooseProvince(province: ProvinceDTO) {
+    console.log("ok");
+    address.province = province;
+    address.district = {
+        id: -1,
+        name: "",
+    }
+    address.commune = {
+        id: -1,
+        name: "",
+    }
+    address.detail = "";
+    districtApi.getDistrictsByProvince(province.id!).then((res) => {
+        districtOptions.value = res.data;
+    }).catch((err) => console.log(err));
 }
-onBeforeMount(() => {
-    provinceApi.getAllProvinces(0, 100).then((res) => {
-        provinceOptions.value = res.data.map((province) => {
-            return {
-                value: province.id,
-                label: province.name,
-            }
-        });
-    });
-})
+function chooseDistrict(district: DistrictDTO) {
+    address.district = district;
+    address.commune = {
+        id: -1,
+        name: "",
+    }
+    address.detail = "";
+    communeApi.getCommunesByDistrict(district.id!).then((res) => {
+        communeOptions.value = res.data;
+    }).catch((err) => console.log(err));
+}
+function chooseCommune(commune: CommuneDTO) {
+    address.commune = commune;
+    address.detail = "";
+}
+function save() {
+    // axios.get(`https://nominatim.openstreetmap.org/search`, {
+    //     params: {
+    //         q: p,
+    //         format: "json",
+    //     }
+    // }).then((res) => {
+    //     console.log(res.data);
+    //     const { lat, lon } = res.data[0];
+    //     coord.lat = lat;
+    //     coord.lng = lon;
+    // }).catch((err) => {
+    //     console.log(err);
+    // })
+    emit('save',)
+}
 </script>
+
 <template>
     <a-form style="width: 400px;">
         <h2 style="margin-top: 10px">Địa chỉ</h2>
-        <a-form-item label="Tỉnh/Thành phố">
-            <a-select ref="select" v-model:value="province" :options="provinceOptions" @focus="focus"
-                @change="changeProvince"></a-select>
-        </a-form-item>
-        <a-form-item label="Quận/Huyện">
-            <a-select v-model:value="district" :options="districtOptions" @change="changeDistrict"></a-select>
-        </a-form-item>
-        <a-form-item label="Phường/Xã">
-            <a-select defaultValue="null" v-model:value="commune" :options="communeOptions"
-                @change="changeCommune"></a-select>
-        </a-form-item>
-        <a-form-item label="Địa chỉ cụ thể">
-            <a-input v-model:value="addressDetail"></a-input>
-        </a-form-item>
-        <!-- <map-app style="width:400px; height:300px"></map-app> -->
-        <button :onClick="save"> Save</button>
+        <a-select style="width: 100%" showSearch="true" :value="addressFullName">
+            <template #dropdownRender>
+                <a-tabs animated="">
+                    <a-tab-pane key="province" tab="Tỉnh/Thành phố">
+                        <a-list class="scroll" :data-source="provinceOptions">
+                            <template #renderItem="{ item }">
+                                <a-list-item :class="{ warm: item.id == address.province.id }"
+                                    @click="() => chooseProvince(item)">{{ item.name }}</a-list-item>
+                            </template>
+                        </a-list>
+                    </a-tab-pane>
+                    <a-tab-pane key="district" tab="Quận/Huyện" :disabled="address.province.id == -1">
+                        <a-list class="scroll" :data-source="districtOptions">
+
+                            <template #renderItem="{ item }">
+                                <a-list-item :class="{ warm: item.id == address.district.id }"
+                                    @click="() => chooseDistrict(item)">{{ item.name }}</a-list-item>
+                            </template>
+                        </a-list>
+                    </a-tab-pane>
+                    <a-tab-pane key="commune" tab="Phường/Xã" :disabled="address.district.id == -1">
+                        <a-list class="scroll" :data-source="communeOptions">
+
+                            <template #renderItem="{ item }">
+                                <a-list-item :class="{ warm: item.id == address.commune.id }"
+                                    @click="() => chooseCommune(item)">{{ item.name }}</a-list-item>
+                            </template>
+                        </a-list>
+                    </a-tab-pane>
+                    <a-tab-pane key="detail" tab="Chi tiết"
+                        :disabled="(address.commune.id == -1 && address.district.name != 'Huyện Côn Đảo')">
+                        <a-select v-model:value="value" mode="tags" style="width: 100%" :token-separators="[',']"
+                            placeholder="Automatic tokenization" :options="options" @change="handleChange"></a-select>
+                        <a-list class="scroll" :data-source="communeOptions">
+
+                            <template #renderItem="{ item }">
+                                <a-list-item>{{ item.label }}</a-list-item>
+                            </template>
+                        </a-list>
+                    </a-tab-pane>
+                </a-tabs>
+            </template>
+        </a-select>
+        <map-choose-address style="width:400px; height: 100px" :lat="coord?.lat" :lng="coord?.lng"></map-choose-address>
+        <button :onClick="save">Save</button>
     </a-form>
 </template>
-  
-<style scoped></style>
+
+<style scoped>
+.scroll {
+    overflow: auto;
+    height: 200px;
+}
+
+.warm {
+    color: red;
+}
+</style>

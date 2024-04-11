@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import AddressForm from '@/components/AddressForm.vue';
+// import { ref } from 'vue';
+// const initialAddressId = ref(1);
+const id = 1;
 </script>
 <template>
     <a-breadcrumb style="margin: 16px 0">
@@ -7,7 +10,7 @@ import AddressForm from '@/components/AddressForm.vue';
         <a-breadcrumb-item>Tài xế</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-        <address-form></address-form>
+        <address-form :initial-address-id="id"></address-form>
     </a-layout-content>
 </template>
 <style scoped></style>
