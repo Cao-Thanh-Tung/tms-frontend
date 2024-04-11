@@ -1,7 +1,20 @@
 <script setup lang="ts">
-// import MapVue from "./components/Map.vue";
-// import LoginVue from "./components/Login.vue";
+import store from "@/store";
+import Navbar from "@/components/Navbar.vue";
+import Authorization from "@/pages/auth/Authorization.vue";
 </script>
+
 <template>
-  <!-- <MapVue/> -->
+  <div>
+    <Authorization v-if="!store.getters.isLogin" />
+    <Navbar :role="store.getters.user?.role" :avatar="store.getters.user.user?.imageUrl"
+      :name="store.getters.user.user?.lastName" v-else>
+      <router-view />
+    </Navbar>
+  </div>
 </template>
+<style>
+* {
+  font-size: 16px;
+}
+</style>

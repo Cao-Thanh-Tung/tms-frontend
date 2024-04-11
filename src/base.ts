@@ -12,15 +12,12 @@
  * Do not edit the class manually.
  */
 
-
 import type {Configuration} from './configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
 import type {AxiosInstance, AxiosPromise, RawAxiosRequestConfig} from 'axios';
 import globalAxios from 'axios';
-
-export const BASE_PATH = "http://localhost:8080".replace(/\/+$/, "");
-
+export const BASE_PATH = import.meta.env.VITE_BASE_URL.replace(/\/+$/, "");
 /**
  *
  * @export
