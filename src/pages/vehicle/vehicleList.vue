@@ -8,11 +8,20 @@ import {
 } from "@ant-design/icons-vue";
 import { reactive, ref, UnwrapRef, onMounted } from "vue";
 import { message } from "ant-design-vue";
+<<<<<<< HEAD
 import { AddressDTO } from "@/api";
 import { AddressResourceApi } from "@/api";
 import store from "@/store";
 import { Configuration } from "@/configuration";
 import { VehicleDTO, VehicleResourceApi } from '../../api';
+=======
+import { AddressDTO, UserDTO, UserXDTO, Vehicle } from "@/api";
+import { AddressResourceApi } from "@/api";
+import store from "@/store";
+import { Configuration } from "@/configuration";
+import { VehicleDTO, VehicleResourceApi, UserXResourceApi, UserResourceApi } from '../../api';
+import MultipleSearch from "@/components/MultipleSearch.vue";
+>>>>>>> 3516b28 (searchVehicle)
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -345,6 +354,25 @@ const handleReset = (clearFilters: any) => {
   clearFilters({ confirm: true });
   state.searchText = "";
 };
+
+const searchFields = ref([
+  { name: 'type', label: 'Type' },
+  { name: 'licensePlatesNumber', label: 'License Plates Number' },
+  { name: 'maxLoadKg', label: 'Max Load (kg)' }
+]);
+
+async function searchVehicles(criteria: Vehicle) {
+  console.log(criteria)
+  try {
+    if(criteria.type === "" && criteria.licensePlatesNumber === "" && criteria.maxLoadKg === 0) {
+      fetchData();
+    }
+    const response = await vehicleApi.searchVehicles(criteria);
+    vehicles.splice(0, vehicles.length, ...response.data);
+  } catch (error) {
+    console.error('Error searching vehicles:', error);
+  }
+}
 </script>
 <template>
   <!-- -->
@@ -352,7 +380,7 @@ const handleReset = (clearFilters: any) => {
     <a-breadcrumb-item>Xe</a-breadcrumb-item>
     <a-breadcrumb-item>Danh sách xe</a-breadcrumb-item>
   </a-breadcrumb>
-
+  <MultipleSearch :searchFields="searchFields" @search="searchVehicles" />
   <!-- vehicle list table -->
   <a-layout-content
     :style="{
