@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons-vue";
 import { reactive, ref, UnwrapRef, onMounted } from "vue";
 import { message } from "ant-design-vue";
-import { AddressDTO, UserDTO, UserXDTO } from "@/api";
+import { AddressDTO } from "@/api";
 import { AddressResourceApi } from "@/api";
 import store from "@/store";
 import { Configuration } from "@/configuration";
@@ -191,8 +191,9 @@ const edit = () => {
   editLoading.value = true;
   console.log(JSON.parse(JSON.stringify(formEditState)));
   console.log(formEditState.id);
+  let formEditStateParmams : any = formEditState.id
   vehicleApi
-    .partialUpdateVehicle(formEditState.id, formEditState)
+    .partialUpdateVehicle(formEditStateParmams, formEditState)
     .then((res) => {
       console.log(res);
       const index = vehicles.findIndex((user: VehicleDTO) => {

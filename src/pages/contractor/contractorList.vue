@@ -58,6 +58,7 @@ const columns = [
     key: "signingDate",
     dataIndex: "signingDate",
 
+
   },
   {
     title: "Ngày hết hạn",
@@ -95,7 +96,7 @@ const fetchData = () => {
 onMounted(fetchData);
 
 // Delete user and update to table content
-const deleteContractor = async (Contractor?: ContractorDTO) => {
+const deleteContractor = async (Contractor?: any ) => {
   try {
     await contractorApi.deleteContractor(Contractor?.id ?? 0);
     await addressApi.deleteAddress(Contractor!.address!.id!);
@@ -118,13 +119,16 @@ const formEditState: UnwrapRef<ContractorDTO> = reactive<ContractorDTO>(
 const showEditForm = (v: ContractorDTO) => {
   // Deep copy the object
   console.log(v);
+  console.log(v);
   const copy = JSON.parse(JSON.stringify(v));
 
   // Convert string dates to Date objects
   if (copy.signingDate) {
     copy.signingDate = moment(new Date(copy.signingDate));
+    copy.signingDate = moment(new Date(copy.signingDate));
   }
   if (copy.expirationDate) {
+    copy.expirationDate = moment(new Date(copy.expirationDate));
     copy.expirationDate = moment(new Date(copy.expirationDate));
   }
 
@@ -140,6 +144,7 @@ const edit = () => {
   editLoading.value = true;
   console.log(JSON.parse(JSON.stringify(formEditState)));
   console.log(formEditState.id);
+  let formEditStateParams : any = formEditState.id
   contractorApi
     .partialUpdateContractor(formEditState.id!, formEditState)
     .then((res) => {

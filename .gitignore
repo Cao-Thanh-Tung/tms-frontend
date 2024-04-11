@@ -1,6 +1,10 @@
 /node_modules/
 /.idea/
+<<<<<<< HEAD
 #enviroment
 .env
 #build
 /dist/
+=======
+.env
+>>>>>>> master
