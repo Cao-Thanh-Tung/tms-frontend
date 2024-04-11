@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled } from '@ant-design/icons-vue';
-// import { OrderResourceApi } from '@/api';
+import { Configuration } from '@/configuration';
+import store from '@/store';
 const columns = [
     { title: 'Mã', dataIndex: 'code', key: 'code' },
     { title: 'Chi phí', dataIndex: 'cost', key: 'cost' },
     { title: 'Loại hàng', dataIndex: 'goodType', key: 'goodType' },
-    { title: 'Trọng lượng', dataIndex: 'weight', key: 'weight' },
+    { title: 'Số lượng', dataIndex: 'weight', key: 'weight' },
     { title: 'Người đặt', dataIndex: 'owner', key: 'owner' },
     { title: 'Thao tác', key: 'operation' },
 ];
-
+const config = new Configuration({
+    accessToken: () => store.getters.jwt,
+    baseOptions: {
+        headers: { 'Content-Type': 'application/json' }
+    }
+})
 
 interface DataItem {
     key: number;
@@ -139,7 +145,7 @@ for (let i = 0; i < 3; ++i) {
         address: `London Park no. ${i}`,
     });
 }
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 const open = ref<boolean>(false);
 
 const showModal = () => {
@@ -160,6 +166,9 @@ const cancel = (e: MouseEvent) => {
     console.log(e);
     message.error('Click on No');
 };
+onBeforeMount(() => {
+
+})
 </script>
 <template>
     <a-breadcrumb style="margin: 16px 0">

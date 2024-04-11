@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { reactive, ref, UnwrapRef, onMounted } from 'vue';
+import { reactive, ref, UnwrapRef, onBeforeMount } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO, AddressDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, AddressResourceApi } from '@/api';
@@ -142,9 +142,8 @@ const columns = [
 ];
 
 const users = reactive<UserXDTO[]>([]);
-
 // Get users from server to push in table content
-onMounted(() => {
+onBeforeMount(() => {
     userxApi.getAllUserXES().then((res) => {
         const employees = res.data.filter((userx: UserXDTO) => {
             return userx.role === "employee" || userx.role === "driver" || userx.role === "none"

@@ -13,6 +13,7 @@
       <button class="control-button" @click="route">Route</button>
     </div> -->
     <!-- 
+    <!-- 
     <div class="search-results" v-if="showSearchResults">
       <div
         class="search-result"
@@ -42,6 +43,7 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import concaveman from "concaveman";
+import { anyType } from "ant-design-vue/es/_util/type";
 interface SearchResults {
   name: string;
   country: string;
@@ -270,11 +272,16 @@ export default {
 
       const concaveHull = concaveman(points);
 
-      const latLngs = concaveHull.map(
-        (point) => point.reverse() as L.LatLngTuple
-      );
-      polygonLayer.value = L.polygon(latLngs, { color: "red" }).addTo(
-        map.value as L.Map
+      const latLngs = concaveHull.map(([lng, lat]: any) => [
+        lat,
+        lng,
+      ]);
+      if (polygonLayer.value) {
+        map.value!.removeLayer(polygonLayer.value);
+      }
+
+      polygonLayer.value = L.polygon(latLngs: , { color: "red" }).addTo(
+        map.value
       );
       console.log(polygonLayer.value);
     };
@@ -294,9 +301,9 @@ export default {
           const p = markers[i];
           const direction =
             (next.getLatLng().lng - current.getLatLng().lng) *
-              (p.getLatLng().lat - current.getLatLng().lat) -
+            (p.getLatLng().lat - current.getLatLng().lat) -
             (next.getLatLng().lat - current.getLatLng().lat) *
-              (p.getLatLng().lng - current.getLatLng().lng);
+            (p.getLatLng().lng - current.getLatLng().lng);
           if (direction < 0) {
             next = p;
           }
