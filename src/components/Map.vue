@@ -29,7 +29,10 @@ import { PositionDTO } from '../api';
 // }
 const props = defineProps<{
   vehiclePositonList: PositionDTO[];
-  positionList: PositionDTO[];
+  positionList: {
+    type: PositionDTO[],
+    default: () => []
+  }
 }>();
 watch(() => props.vehiclePositonList, (newVal) => {
   // make marker
@@ -53,10 +56,10 @@ let markers = [] as L.Marker[]; // Array to store the markers
 watch(() => props.positionList, (newVal) => {
   console.log("newVal", newVal)
   if (map.value) {
-  
+
     markers.forEach(marker => {
-    if(map.value)
-    map.value.removeLayer(marker)
+      if (map.value)
+        map.value.removeLayer(marker)
     });
     markers = []; // Clear the markers array
     map.value.eachLayer((layer: L.Layer) => {
@@ -258,44 +261,42 @@ const createMap = () => {
 
 onMounted(() => {
   map.value = createMap();
-onMounted(() => {
-  map.value = createMap();
+  onMounted(() => {
+    map.value = createMap();
 
-  getLocation();
-  map.value.on("mousemove", (event: L.LeafletMouseEvent) => {
-    const { lat, lng } = event.latlng;
-    displayCoordinates(lat, lng);
-  });
-
-
-  map.value.on("dblclick", function (e: L.LeafletMouseEvent) {
-    if (map.value) {
-      createMarker(e.latlng.lat, e.latlng.lng).addTo(map.value as L.Map);
-    }
-  });
-});
-
-const getLocation = () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.watchPosition((position) => {
-      lat.value = position.coords.latitude;
-      lng.value = position.coords.longitude;
-      if (map.value) map.value.setView([lat.value, lng.value], 13);
+    getLocation();
+    map.value.on("mousemove", (event: L.LeafletMouseEvent) => {
+      const { lat, lng } = event.latlng;
+      displayCoordinates(lat, lng);
     });
-  } else {
-    console.log("Geolocation is not supported by this browser.");
-  }
-};
-
-const displayCoordinates = (lat: number, lng: number) => {
-  const coordinatesDisplay = document.getElementById("coordinatesDisplay");
-  if (coordinatesDisplay)
-    coordinatesDisplay.innerHTML = `Lat: ${lat} Lng: ${lng}`;
-};
 
 
+    map.value.on("dblclick", function (e: L.LeafletMouseEvent) {
+      if (map.value) {
+        createMarker(e.latlng.lat, e.latlng.lng).addTo(map.value as L.Map);
+      }
+    });
+  });
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition((position) => {
+        lat.value = position.coords.latitude;
+        lng.value = position.coords.longitude;
+        if (map.value) map.value.setView([lat.value, lng.value], 13);
+      });
+    } else {
+      console.log("Geolocation is not supported by this browser.");
+    }
+  };
+
+  const displayCoordinates = (lat: number, lng: number) => {
+    const coordinatesDisplay = document.getElementById("coordinatesDisplay");
+    if (coordinatesDisplay)
+      coordinatesDisplay.innerHTML = `Lat: ${lat} Lng: ${lng}`;
+  };
+});
 </script>
-
 <style scoped>
 .map-app {
   height: 100vh;
