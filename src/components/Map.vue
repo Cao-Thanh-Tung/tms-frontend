@@ -258,6 +258,8 @@ const createMap = () => {
 
 onMounted(() => {
   map.value = createMap();
+onMounted(() => {
+  map.value = createMap();
 
   getLocation();
   map.value.on("mousemove", (event: L.LeafletMouseEvent) => {
