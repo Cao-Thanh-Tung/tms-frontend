@@ -1,8 +1,0 @@
-danh sách cần hiển thị trên phân tuyến:
-    - Hiển thị được danh sách xe -> click xe-> hành trình(danh sách location-> click ra pickup or drop off, cân, đơn hàng nào, time đến)
-    - Chốt hành trình của xe -> Không sửa được
-    - Hiển thị hành trình trên map của một/ nhiều xe -> click vào từng location -> thông tin như trên -> có thể đỡ đơn hàng ra khỏi tuyến( dỡ cả pick up và delivery)
-    - Danh sách đơn hàng chưa được phân tuyến (cả trên map) -> click vào điểm -> gán vào một xe nào đó(cho phép chọn vị trí gán trên hành trình)
-    - Sau mỗi action(dỡ, gán thêm tuyến) -> hight light xe bị chỉnh sửa -> hiển thị chỉ số thay đổi liên quan(xe, solution)
-    - Cho phép gọi thuật toán cập nhật lời giải tự động, tạo mới  lời giải tự động, tải lại lời giải trước đó, config tham số thuật toán
-    

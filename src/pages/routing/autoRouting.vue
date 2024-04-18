@@ -169,13 +169,16 @@ import store from "../../store";
 import { SolverConfigDTO, VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi, SolverConfigResourceApi, ScheduleResourceApi, ScheduleInputOrderResourceApi, ScheduleInputVehicleResourceApi, ScheduleDTO, ScheduleInputResourceApi } from '../../api';
 import { message } from "ant-design-vue";
 
-
+//import route for redirect
+import { useRouter } from 'vue-router';
 let solverConfig = ref({
   startTime: "",
   endTime: "",
   solveTimeLimitSec: 0,
   strategy: "",
 } as SolverConfigDTO);
+const router = useRouter();
+
 let isLoading = ref(false);
 let vehicleList = ref([] as VehicleDTO[]);
 let orderList = ref([] as OrderDTO[]);
@@ -274,7 +277,7 @@ const validateInput = () => {
     return false;
   }
   if (!solverConfig.value.startTime || !solverConfig.value.endTime || !solverConfig.value.strategy) {
-    message.error("Vui lòng điền đầy đủ thông tin");
+    message.error("Vui lòng điền đầy đủ thông tin config thuật toán");
     isLoading.value = false;
     return false;
   }
@@ -287,83 +290,112 @@ const validateInput = () => {
 };
 
 const createSchedule = async () => {
-  return await scheduleResourceApi.createSchedule({
-    "name": "test",
-    "coordinatorUserXId": currentEmployee.id,
-  });
+  try {
+    const response = await scheduleResourceApi.createSchedule({
+      "name": "test",
+      "coordinatorUserXId": currentEmployee.id,
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
 
-const createScheduleInput = async (scheduleId:number) => {
-  return await scheduleInputResourceApi.createScheduleInput({
-    "status": "CREATED",
-    "scheduleId": scheduleId,
-  });
+const createScheduleInput = async (scheduleId: number) => {
+  try {
+    const response = await scheduleInputResourceApi.createScheduleInput({
+      "status": "CREATED",
+      "scheduleId": scheduleId,
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
 
-const createScheduleInputOrders = async (scheduleInputId:number, scheduleId:number) => {
-  return await Promise.all(state.selectedOrderList.map((order) =>
-    scheduleInputOrderResourceApi.createScheduleInputOrder({
+const createScheduleInputOrders = async (scheduleInputId: number, scheduleId: number) => {
+  try {
+    const response = await Promise.all(state.selectedOrderList.map((order) => scheduleInputOrderResourceApi.createScheduleInputOrder({
       "orderId": order.id,
       "scheduleInputId": scheduleInputId,
       "scheduleId": scheduleId,
     })
-  ));
+    ));
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
 
-const createScheduleInputVehicles = async (scheduleInputId:number, scheduleId:number) => {
-  return await Promise.all(state.selectedVehicleList.map((vehicle) =>
-    scheduleInputVehicleResourceApi.createScheduleInputVehicle({
+const createScheduleInputVehicles = async (scheduleInputId: number, scheduleId: number) => {
+  try {
+    const response = await Promise.all(state.selectedVehicleList.map((vehicle) => scheduleInputVehicleResourceApi.createScheduleInputVehicle({
       "vehicleId": vehicle.id,
       "scheduleInputId": scheduleInputId,
       "scheduleId": scheduleId,
     })
-  ));
+    ));
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
 
-const createSolverConfig = async (scheduleInputId:number) => {
-  return await solverConfigResourceApi.createSolverConfig({
-    "scheduleInputId": scheduleInputId,
-    "startTime": solverConfig.value.startTime,
-    "endTime": solverConfig.value.endTime,
-    "solveTimeLimitSec": (solverConfig.value.solveTimeLimitSec || 0) * 3600,
-    "strategy": solverConfig.value.strategy,
-  });
+const createSolverConfig = async (scheduleInputId: number, scheduleId: number) => {
+  try {
+    const response = await solverConfigResourceApi.createSolverConfig({
+      "scheduleInputId": scheduleInputId,
+      "startTime": solverConfig.value.startTime,
+      "endTime": solverConfig.value.endTime,
+      "solveTimeLimitSec": (solverConfig.value.solveTimeLimitSec || 0) * 3600,
+      "strategy": solverConfig.value.strategy,
+      "scheduleId": scheduleId,
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
-
 const scheduleHandle = async () => {
   try {
     if (!validateInput()) {
       return;
     }
+    isLoading.value = true;
 
     const schedule = await createSchedule();
-    if(schedule.data.id === undefined) {
-      console.log('schedule.data.id is undefined');
-      return;
-    }
-    const scheduleInput = await createScheduleInput(schedule.data.id);
+    const scheduleId = schedule.data.id;
+    if (scheduleId === undefined) throw new Error("Schedule id is undefined");
+    const scheduleInput = await createScheduleInput(scheduleId);
+    const scheduleInputId = scheduleInput.data.id;
+    if (scheduleInputId === undefined) throw new Error("Schedule input id is undefined");
+    await createScheduleInputOrders(scheduleInputId, scheduleId);
+    await createScheduleInputVehicles(scheduleInputId, scheduleId);
+    await createSolverConfig(scheduleInputId, scheduleId);
 
-    if (schedule.data.id === undefined || scheduleInput.data.id === undefined) {
-      console.log('schedule.data.id or scheduleInput.data.id is undefined');
-      return;
-    }
 
-    await createScheduleInputOrders(scheduleInput.data.id, schedule.data.id);
-    await createScheduleInputVehicles(scheduleInput.data.id, schedule.data.id);
-    const solverConfigRes = await createSolverConfig(scheduleInput.data.id);
-
-    console.log(solverConfigRes);
-    isLoading.value = false;
-    isModalVisible.value = false;
     message.success("Tạo lịch thành công");
-
+    isLoading.value = false;
+    changePage();
   } catch (err) {
     console.log(err);
     message.error("Tạo lịch thất bại");
     isLoading.value = false;
   }
 };
-
+const changePage = () => {
+  return new Promise<void>((resolve, reject) => {
+    router.push("/employee/solution")
+      .then(() => {
+        console.log("Navigation successful!");
+        resolve();
+      })
+      .catch((error) => {
+        console.error("Navigation failed!", error);
+        reject(error);
+      });
+  });
+};
 const clickSetup = async () => {
   isModalVisible.value = true;
   // check if vehicle list is not empty
@@ -541,4 +573,39 @@ const viewResultsHandler = () => {
 .solver-config-form .ant-form-item {
   margin-bottom: 20px;
 }
-</style>
+</style>async const res = await positionResourceApi
+          .getAllPositionsByVehicle(vehicle.id);
+        if (vehicle.id === undefined) return;
+        vehicle2Position.value.set(vehicle.id, res.data);async try {
+    const response = await Promise.all(state.selectedOrderList.map((order) => scheduleInputOrderResourceApi.createScheduleInputOrder({
+      "orderId": order.id,
+      "scheduleInputId": scheduleInputId,
+      "scheduleId": scheduleId,
+    })
+    ));
+    return response;
+  } catch (error) {
+    throw error;
+  }async try {
+    const response = await Promise.all(state.selectedVehicleList.map((vehicle) => scheduleInputVehicleResourceApi.createScheduleInputVehicle({
+      "vehicleId": vehicle.id,
+      "scheduleInputId": scheduleInputId,
+      "scheduleId": scheduleId,
+    })
+    ));
+    return response;
+  } catch (error) {
+    throw error;
+  }async try {
+    const response = await solverConfigResourceApi.createSolverConfig({
+      "scheduleInputId": scheduleInputId,
+      "startTime": solverConfig.value.startTime,
+      "endTime": solverConfig.value.endTime,
+      "solveTimeLimitSec": (solverConfig.value.solveTimeLimitSec || 0) * 3600,
+      "strategy": solverConfig.value.strategy,
+      "scheduleId": scheduleId,
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
