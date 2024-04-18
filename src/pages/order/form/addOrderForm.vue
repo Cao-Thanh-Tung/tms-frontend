@@ -213,7 +213,7 @@ const createAddFormModel = () => {
         code: undefined,
         customerId: undefined,
         cost: undefined,
-        goodType: undefined,
+        goodType: "masterbill",
         weight: undefined,
         volume: undefined,
         note: undefined,
@@ -223,12 +223,12 @@ const createAddFormModel = () => {
         length: undefined,
         width: undefined,
         height: undefined,
-        waitingTimeSecIn: undefined,
-        waitingTimeSecOut: undefined,
-        carryTimeSecIn: undefined,
-        carryTimeSecOut: undefined,
-        rangeFrom: undefined,
-        rangeTo: undefined,
+        waitingTimeSecIn: 5,
+        waitingTimeSecOut: 5,
+        carryTimeSecIn: 5,
+        carryTimeSecOut: 5,
+        rangeFrom: [moment().startOf('day').subtract(1, 'months'), moment().endOf('day').add(1, 'months')],
+        rangeTo: [moment().startOf('day').subtract(1, 'months'), moment().endOf('day').add(1, 'months')],
     }
 };
 

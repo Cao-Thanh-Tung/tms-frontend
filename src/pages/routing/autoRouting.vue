@@ -17,9 +17,9 @@
       </a-steps>
       <ul v-if="setupStep === 1">
         <a-table :dataSource="vehicleList" :row-selection="{
-      selectedRowKeys: state.selectedRowKeys,
-      onChange: onVehicleSelectChange,
-    }" :pagination="true" rowKey="id">
+          selectedRowKeys: state.selectedRowKeys,
+          onChange: onVehicleSelectChange,
+        }" :pagination="true" rowKey="id">
           <a-table-column dataIndex="type" key="type">
             <template #title>
               <div>
@@ -33,11 +33,11 @@
               <div>
                 Biển số xe
                 <a-input placeholder="Filter License Plates Number" @input="
-      handleVehicleSearch(
-        $event.target.value,
-        'licensePlatesNumber'
-      )
-      " />
+                  handleVehicleSearch(
+                    $event.target.value,
+                    'licensePlatesNumber'
+                  )
+                  " />
               </div>
             </template>
           </a-table-column>
@@ -61,9 +61,9 @@
       </ul>
       <ul v-if="setupStep === 2">
         <a-table :dataSource="orderList" :row-selection="{
-      selectedRowKeys: state.selectedOrderKeys,
-      onChange: onOrderSelectChange,
-    }" :pagination="true" rowKey="id">
+          selectedRowKeys: state.selectedOrderKeys,
+          onChange: onOrderSelectChange,
+        }" :pagination="true" rowKey="id">
           <a-table-column dataIndex="goodType" key="goodType">
             <template #title>
               <div>
@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import mapApp from "@/components/Map.vue";
+// import mapApp from "@/components/Map.vue";
 import { SettingOutlined } from "@ant-design/icons-vue";
 import { ref, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";

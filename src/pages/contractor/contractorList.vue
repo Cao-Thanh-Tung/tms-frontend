@@ -15,6 +15,8 @@ import { ContractorResourceApi, ContractorDTO } from "../../api";
 import moment from "moment";
 import DateSearch from "@/components/DateSearch.vue";
 import { Entity } from "@/search.types";
+import AddressForm from "@/components/AddressForm.vue";
+
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -70,8 +72,8 @@ const columns = [
     dataIndex: ["address", "fullName"],
     key: "address",
     customFilterDropdown: true,
-    onFilter: (value: string, record: ContractorDTO) =>
-      record.address!.fullName!.toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value: string, record: ContractorDTO) => true
+    // record.address!.fullName!.toLowerCase().includes(value.toLowerCase()),
   },
   {
     title: "Thao tác",
@@ -96,7 +98,7 @@ const fetchData = () => {
 onMounted(fetchData);
 
 // Delete user and update to table content
-const deleteContractor = async (Contractor?: any ) => {
+const deleteContractor = async (Contractor?: any) => {
   try {
     await contractorApi.deleteContractor(Contractor?.id ?? 0);
     await addressApi.deleteAddress(Contractor!.address!.id!);
@@ -144,7 +146,7 @@ const edit = () => {
   editLoading.value = true;
   console.log(JSON.parse(JSON.stringify(formEditState)));
   console.log(formEditState.id);
-  let formEditStateParams : any = formEditState.id
+  let formEditStateParams: any = formEditState.id
   contractorApi
     .partialUpdateContractor(formEditState.id!, formEditState)
     .then((res) => {
@@ -198,21 +200,17 @@ const showAddForm = () => {
 const add = async () => {
   addLoading.value = true;
   try {
-    let addressId = (
-      await addressApi.createAddress(<AddressDTO>{
-        fullName: formAddState.address.fullName,
-      })
-    ).data.id;
+
 
     await contractorApi.createContractor(<ContractorDTO>{
-        name: formAddState.name,
-        signingDate: formAddState.signingDate,
-        expirationDate: formAddState.expirationDate,
-        address: {
-          id: addressId,
-        },
-      })
-    
+      name: formAddState.name,
+      signingDate: formAddState.signingDate,
+      expirationDate: formAddState.expirationDate,
+      address: {
+        id: formAddState.address.id,
+      },
+    })
+
     // console.log(contractors);
     message.success("Tạo tài khoản Nhà thầu thành công!");
   } catch (err) {
@@ -260,22 +258,15 @@ async function handleSearchResults(results: Entity[]) {
     <a-breadcrumb-item>Nhà thầu</a-breadcrumb-item>
     <a-breadcrumb-item>Danh sách Nhà thầu</a-breadcrumb-item>
   </a-breadcrumb>
-  <DateSearch entityName="Contractor" :attributes="['signingDate', 'expirationDate']" @search="handleSearchResults"/>
+  <DateSearch entityName="Contractor" :attributes="['signingDate', 'expirationDate']" @search="handleSearchResults" />
   <!-- Contractor list table -->
-  <a-layout-content
-    :style="{
-      background: '#fff',
-      padding: '24px',
-      margin: 0,
-      minHeight: '280px',
-    }"
-  >
-    <a-table
-      :dataSource="contractors"
-      :columns="columns"
-      :scroll="{ x: 1300 }"
-      :pagination="pagination"
-    >
+  <a-layout-content :style="{
+    background: '#fff',
+    padding: '24px',
+    margin: 0,
+    minHeight: '280px',
+  }">
+    <a-table :dataSource="contractors" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'">
           <a>
@@ -296,12 +287,8 @@ async function handleSearchResults(results: Entity[]) {
           <a href="#" @click="() => showEditForm(record)">
             <EditOutlined />
           </a>
-          <a-popconfirm
-            title="Xóa Nhà thầu?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="() => deleteContractor((<ContractorDTO>record))"
-          >
+          <a-popconfirm title="Xóa Nhà thầu?" ok-text="Yes" cancel-text="No"
+            @confirm="() => deleteContractor((<ContractorDTO>record))">
             <a href="#">
               <DeleteFilled style="margin-left: 12px" />
             </a>
@@ -312,40 +299,26 @@ async function handleSearchResults(results: Entity[]) {
       <template #customFilterIcon="{ filtered }">
         <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
       </template>
-      <template
-        #customFilterDropdown="{
-          setSelectedKeys,
-          selectedKeys,
-          confirm,
-          clearFilters,
-          column,
-        }"
-      >
+      <template #customFilterDropdown="{
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+        column,
+      }">
         <div style="padding: 8px">
-          <a-input
-            ref="searchInput"
-            :placeholder="`Search`"
-            :value="selectedKeys[0]"
+          <a-input ref="searchInput" :placeholder="`Search`" :value="selectedKeys[0]"
             style="width: 188px; margin-bottom: 8px; display: block"
             @change="(e: any) => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-            @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
-          />
-          <a-button
-            type="primary"
-            size="small"
-            style="width: 90px; margin-right: 8px"
-            @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
-          >
+            @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)" />
+          <a-button type="primary" size="small" style="width: 90px; margin-right: 8px"
+            @click="handleSearch(selectedKeys, confirm, column.dataIndex)">
             <template #icon>
               <SearchOutlined />
             </template>
             Search
           </a-button>
-          <a-button
-            size="small"
-            style="width: 90px"
-            @click="handleReset(clearFilters)"
-          >
+          <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
             Reset
           </a-button>
         </div>
@@ -354,23 +327,14 @@ async function handleSearchResults(results: Entity[]) {
     </a-table>
   </a-layout-content>
   <!-- Float button create new Contractor-->
-  <a-float-button
-    type="primary"
-    @click="showAddForm"
-    tooltip="Tạo Nhà thầu mới"
-  >
+  <a-float-button type="primary" @click="showAddForm" tooltip="Tạo Nhà thầu mới">
     <template #icon>
       <plus-outlined />
     </template>
   </a-float-button>
 
   <!-- Popup edit Contractor form -->
-  <a-modal
-    v-model:open="openEditForm"
-    title="Chỉnh sửa thông tin Nhà thầu"
-    :confirm-loading="editLoading"
-    @ok="edit"
-  >
+  <a-modal v-model:open="openEditForm" title="Chỉnh sửa thông tin Nhà thầu" :confirm-loading="editLoading" @ok="edit">
     <a-form :model="formEditState">
       <a-form-item ref="firstName" label="Tên nhà thầu" name="name">
         <a-input v-model:value="formEditState.name" />
@@ -378,27 +342,17 @@ async function handleSearchResults(results: Entity[]) {
       <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
         <a-date-picker v-model:value="formEditState.signingDate" />
       </a-form-item>
-      <a-form-item
-        ref="expirationDate"
-        label="Ngày hết hạn"
-        name="expirationDate"
-      >
+      <a-form-item ref="expirationDate" label="Ngày hết hạn" name="expirationDate">
         <a-date-picker v-model:value="formEditState.expirationDate" />
       </a-form-item>
       <a-form-item ref="address" label="Địa chỉ" name="address">
-        <a-input v-model:value="formEditState.address!.fullName" />
+        <!-- <a-input v-model:value="formEditState.address!.fullName" /> -->
       </a-form-item>
     </a-form>
   </a-modal>
 
   <!-- Popup create Contractor form -->
-  <a-modal
-    v-model:open="openAddForm"
-    title="Tạo mới Nhà thầu"
-    :confirm-loading="addLoading"
-    @ok="add"
-    @cancel="reset"
-  >
+  <a-modal v-model:open="openAddForm" title="Tạo mới Nhà thầu" :confirm-loading="addLoading" @ok="add" @cancel="reset">
     <a-form>
       <a-form-item ref="name" label="Tên nhà thầu" name="name">
         <a-input v-model:value="formAddState.name" />
@@ -406,15 +360,12 @@ async function handleSearchResults(results: Entity[]) {
       <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
         <a-date-picker v-model:value="formAddState.signingDate" />
       </a-form-item>
-      <a-form-item
-        ref="expirationDate"
-        label="Ngày hết hạn"
-        name="expirationDate"
-      >
+      <a-form-item ref="expirationDate" label="Ngày hết hạn" name="expirationDate">
         <a-date-picker v-model:value="formAddState.expirationDate" />
       </a-form-item>
       <a-form-item ref="address" label="Địa chỉ" name="address">
-        <a-input v-model:value="formAddState.address!.fullName" />
+        <!-- <a-input v-model:value="formAddState.address!.fullName" /> -->
+        <AddressForm @save="(addressId: any) => formAddState.address.id = addressId" />
       </a-form-item>
     </a-form>
   </a-modal>

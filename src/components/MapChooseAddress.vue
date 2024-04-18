@@ -58,7 +58,9 @@ onMounted(() => {
     });
 })
 onUpdated(() => {
-    map.value?.setView([props.lat, props.lng], 13);
+    console.log("map update");
+    let zoom = map.value?.getZoom();
+    map.value?.setView([props.lat, props.lng], zoom);
     if (marker.value) {
         map.value?.removeLayer(marker.value);
     }
