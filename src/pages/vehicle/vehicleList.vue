@@ -347,7 +347,28 @@ const handleReset = (clearFilters: any) => {
   state.searchText = "";
 };
 
-const searchFields = ref(Object.keys(formAddState).map(key => ({ name: key, label: key })));
+const vehicleDummy: { [key: string]: string } = {
+  type: 'string',
+  license_plates_number: 'string',
+  max_load_kg: 'number',
+  min_load_kg: 'number',
+  height: 'number',
+  width: 'number',
+  length: 'number',
+  min_pallets: 'number',
+  max_pallets: 'number',
+  registration_date: 'date',
+  registration_expireDate: 'date',
+  fuel_type: 'string',
+  average_velocity: 'number',
+  code: 'string',
+  // maxStopPoints: 'number',
+  // ownerUserX: 'UserXDTO',
+  // driver: 'UserXDTO',
+  // currentAddress: 'AddressDTO',
+};
+
+const searchFields = ref(Object.keys(vehicleDummy).map(key => ({ name: key, type: vehicleDummy[key], label: key })));
 
 async function handleSearchResults(results: Entity[]) {
   try {
