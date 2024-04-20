@@ -266,7 +266,6 @@ const edit = () => {
 // Logic addForm
 const openAddForm = ref<boolean>(false);
 const addLoading = ref<boolean>(false);
-const addressApi = new AddressResourceApi(config);
 const userApi = new UserResourceApi(config);
 const formAddState = reactive({
     login: "",
@@ -305,7 +304,7 @@ const add = async () => {
         return;
     }
     let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formEditState.user!.email!)) {
+    if (!emailRegex.test(formAddState.email!)) {
         message.error("Email không đúng định dạng!");
         return;
     }
