@@ -15,6 +15,8 @@ import changePassword from "@/pages/user/changePassword.vue";
 import clientList from "@/pages/client/clientList.vue";
 import clientListForEmployee from "@/pages/client/clientListForEmployee.vue";
 import contractorList from "@/pages/contractor/contractorList.vue";
+import solution from "@/pages/solution/solution.vue";
+import solutionList from "@/pages/solution/solutionList.vue";
 const routes = [
     //common router
     {name:"user-info", path:'/account/info', component: userInfo},
@@ -37,6 +39,8 @@ const routes = [
     {name: "vehicle-status", path: '/employee/vehicle-status', component: vehicleStatusForEmployee},
     {name:"clients", path: '/employee/clients', component: clientListForEmployee},
     {name:"auto-routing",path: '/employee/routing', component:  autoRouting},
+    {name:"solution",path: '/employee/solution', component:  solutionList},
+    {name:"solution-detail",path: '/employee/solution/:id', component:  solution},
     //driver router
 
     //customer router
