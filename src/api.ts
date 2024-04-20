@@ -383,6 +383,12 @@ export interface JWTToken {
      * @memberof JWTToken
      */
     'id_token'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof JWTToken
+     */
+    'refresh_token'?: string;
 }
 /**
  * 
@@ -573,6 +579,12 @@ export interface OrderDTO {
      * @memberof OrderDTO
      */
     'status'?: string;
+    /**
+     * 
+     * @type {UserXDTO}
+     * @memberof OrderDTO
+     */
+    'customer'?: UserXDTO;
 }
 /**
  * 
@@ -657,13 +669,7 @@ export interface OrderItemDTO {
      * @type {number}
      * @memberof OrderItemDTO
      */
-    'carryInTimeSec'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof OrderItemDTO
-     */
-    'carryOutTimeSec'?: number;
+    'carryTimeSec'?: number;
     /**
      * 
      * @type {string}
@@ -682,6 +688,12 @@ export interface OrderItemDTO {
      * @memberof OrderItemDTO
      */
     'orderId'?: number;
+    /**
+     * 
+     * @type {AddressDTO}
+     * @memberof OrderItemDTO
+     */
+    'address'?: AddressDTO;
     /**
      * 
      * @type {number}
@@ -1398,6 +1410,133 @@ export interface UserXDTO {
      * @memberof UserXDTO
      */
     'address'?: AddressDTO;
+    /**
+     * 
+     * @type {number}
+     * @memberof UserXDTO
+     */
+    'addressId'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface Vehicle
+ */
+export interface Vehicle {
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'id': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Vehicle
+     */
+    'type'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Vehicle
+     */
+    'licensePlatesNumber'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'maxLoadKg'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'minLoadKg'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'height'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'width'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'length'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'minPallets'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'maxPallets'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Vehicle
+     */
+    'registrationDate'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Vehicle
+     */
+    'registrationExpireDate'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Vehicle
+     */
+    'fuelType'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'averageVelocity'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Vehicle
+     */
+    'code'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Vehicle
+     */
+    'maxStopPoints'?: number;
+    /**
+     * 
+     * @type {UserX}
+     * @memberof Vehicle
+     */
+    'driver'?: UserX;
+    /**
+     * 
+     * @type {UserX}
+     * @memberof Vehicle
+     */
+    'ownerUserX'?: UserX;
+    /**
+     * 
+     * @type {Address}
+     * @memberof Vehicle
+     */
+    'currentAddress'?: Address;
 }
 /**
  * 
@@ -1622,6 +1761,12 @@ export interface VehicleDTO {
      * @memberof VehicleDTO
      */
     'ownerUserX'?: UserXDTO;
+    /**
+     * 
+     * @type {UserXDTO}
+     * @memberof VehicleDTO
+     */
+    'driver'?: UserXDTO;
     /**
      * 
      * @type {AddressDTO}
@@ -2567,6 +2712,23 @@ export const AddressResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} communeId 
+         * @param {number} districtId 
+         * @param {string} street 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllAddressesByCondition(communeId: number, districtId: number, street: string, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AddressDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAddressesByCondition(communeId, districtId, street, page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AddressResourceApi.getAllAddressesByCondition']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {AddressDTO} addressDTO 
          * @param {*} [options] Override http request option.
@@ -3296,7 +3458,7 @@ export const ContractorResourceApiAxiosParamCreator = function (configuration?: 
         createContractor: async (contractorDTO: ContractorDTO, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'contractorDTO' is not null or undefined
             assertParamExists('createContractor', 'contractorDTO', contractorDTO)
-            const localVarPath = `/api/contractors`;
+            const localVarPath = `/api/admin/contractors`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3331,7 +3493,7 @@ export const ContractorResourceApiAxiosParamCreator = function (configuration?: 
         deleteContractor: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('deleteContractor', 'id', id)
-            const localVarPath = `/api/contractors/{id}`
+            const localVarPath = `/api/admin/contractors/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3408,7 +3570,7 @@ export const ContractorResourceApiAxiosParamCreator = function (configuration?: 
         getContractor: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('getContractor', 'id', id)
-            const localVarPath = `/api/contractors/{id}`
+            const localVarPath = `/api/admin/contractors/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3492,7 +3654,7 @@ export const ContractorResourceApiAxiosParamCreator = function (configuration?: 
             assertParamExists('partialUpdateContractor', 'id', id)
             // verify required parameter 'contractorDTO' is not null or undefined
             assertParamExists('partialUpdateContractor', 'contractorDTO', contractorDTO)
-            const localVarPath = `/api/contractors/{id}`
+            const localVarPath = `/api/admin/contractors/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3531,7 +3693,7 @@ export const ContractorResourceApiAxiosParamCreator = function (configuration?: 
             assertParamExists('updateContractor', 'id', id)
             // verify required parameter 'contractorDTO' is not null or undefined
             assertParamExists('updateContractor', 'contractorDTO', contractorDTO)
-            const localVarPath = `/api/contractors/{id}`
+            const localVarPath = `/api/admin/contractors/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3622,6 +3784,21 @@ export const ContractorResourceApiFp = function(configuration?: Configuration) {
         async getContractorByName(name: string, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ContractorDTO>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getContractorByName(name, page, size, sort, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {string} name 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getContractorByName(name: string, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ContractorDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getContractorByName(name, page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ContractorResourceApi.getContractorByName']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
@@ -5363,6 +5540,68 @@ export const OrderItemResourceApiAxiosParamCreator = function (configuration?: C
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumOfOrderItem: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/order-items-num`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumOfOrderItemOfOrder: async (orderId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'orderId' is not null or undefined
+            assertParamExists('getNumOfOrderItemOfOrder', 'orderId', orderId)
+            const localVarPath = `/api/{orderId}/order-items-num`
+                .replace(`{${"orderId"}}`, encodeURIComponent(String(orderId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5382,6 +5621,54 @@ export const OrderItemResourceApiAxiosParamCreator = function (configuration?: C
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} orderId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOrderItemsByOrderId: async (orderId: number, page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'orderId' is not null or undefined
+            assertParamExists('getOrderItemsByOrderId', 'orderId', orderId)
+            const localVarPath = `/api/order-items-list/{orderId}`
+                .replace(`{${"orderId"}}`, encodeURIComponent(String(orderId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort) {
+                localVarQueryParameter['sort'] = sort;
+            }
 
 
     
@@ -5516,6 +5803,29 @@ export const OrderItemResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumOfOrderItem(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumOfOrderItem(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrderItemResourceApi.getNumOfOrderItem']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumOfOrderItemOfOrder(orderId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumOfOrderItemOfOrder(orderId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrderItemResourceApi.getNumOfOrderItemOfOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5523,6 +5833,21 @@ export const OrderItemResourceApiFp = function(configuration?: Configuration) {
         async getOrderItem(id: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderItemDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getOrderItem(id, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {number} orderId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getOrderItemsByOrderId(orderId: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<OrderItemDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getOrderItemsByOrderId(orderId, page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrderItemResourceApi.getOrderItemsByOrderId']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
@@ -5587,12 +5912,41 @@ export const OrderItemResourceApiFactory = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumOfOrderItem(options?: any): AxiosPromise<number> {
+            return localVarFp.getNumOfOrderItem(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumOfOrderItemOfOrder(orderId: number, options?: any): AxiosPromise<number> {
+            return localVarFp.getNumOfOrderItemOfOrder(orderId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         getOrderItem(id: number, options?: any): AxiosPromise<OrderItemDTO> {
             return localVarFp.getOrderItem(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} orderId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOrderItemsByOrderId(orderId: number, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<OrderItemDTO>> {
+            return localVarFp.getOrderItemsByOrderId(orderId, page, size, sort, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5661,6 +6015,27 @@ export class OrderItemResourceApi extends BaseAPI {
 
     /**
      * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrderItemResourceApi
+     */
+    public getNumOfOrderItem(options?: RawAxiosRequestConfig) {
+        return OrderItemResourceApiFp(this.configuration).getNumOfOrderItem(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} orderId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrderItemResourceApi
+     */
+    public getNumOfOrderItemOfOrder(orderId: number, options?: RawAxiosRequestConfig) {
+        return OrderItemResourceApiFp(this.configuration).getNumOfOrderItemOfOrder(orderId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5668,6 +6043,20 @@ export class OrderItemResourceApi extends BaseAPI {
      */
     public getOrderItem(id: number, options?: AxiosRequestConfig) {
         return OrderItemResourceApiFp(this.configuration).getOrderItem(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} orderId 
+     * @param {number} [page] Zero-based page index (0..N)
+     * @param {number} [size] The size of the page to be returned
+     * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrderItemResourceApi
+     */
+    public getOrderItemsByOrderId(orderId: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
+        return OrderItemResourceApiFp(this.configuration).getOrderItemsByOrderId(orderId, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5864,6 +6253,68 @@ export const OrderResourceApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfOrder: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/orders-num`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfOrderAssignToEmployee: async (userId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('getNumberOfOrderAssignToEmployee', 'userId', userId)
+            const localVarPath = `/api/{userId}/orders-num`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5883,6 +6334,54 @@ export const OrderResourceApiAxiosParamCreator = function (configuration?: Confi
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOrdersAssignToEmployee: async (userId: number, page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('getOrdersAssignToEmployee', 'userId', userId)
+            const localVarPath = `/api/{userId}/orders`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort) {
+                localVarQueryParameter['sort'] = sort;
+            }
 
 
     
@@ -6030,6 +6529,29 @@ export const OrderResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumberOfOrder(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumberOfOrder(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrderResourceApi.getNumberOfOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumberOfOrderAssignToEmployee(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumberOfOrderAssignToEmployee(userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrderResourceApi.getNumberOfOrderAssignToEmployee']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6037,6 +6559,21 @@ export const OrderResourceApiFp = function(configuration?: Configuration) {
         async getOrder(id: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getOrder(id, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getOrdersAssignToEmployee(userId: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<OrderDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getOrdersAssignToEmployee(userId, page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrderResourceApi.getOrdersAssignToEmployee']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
@@ -6113,12 +6650,41 @@ export const OrderResourceApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfOrder(options?: any): AxiosPromise<number> {
+            return localVarFp.getNumberOfOrder(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfOrderAssignToEmployee(userId: number, options?: any): AxiosPromise<number> {
+            return localVarFp.getNumberOfOrderAssignToEmployee(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         getOrder(id: number, options?: any): AxiosPromise<OrderDTO> {
             return localVarFp.getOrder(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOrdersAssignToEmployee(userId: number, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<OrderDTO>> {
+            return localVarFp.getOrdersAssignToEmployee(userId, page, size, sort, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6201,6 +6767,27 @@ export class OrderResourceApi extends BaseAPI {
 
     /**
      * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrderResourceApi
+     */
+    public getNumberOfOrder(options?: RawAxiosRequestConfig) {
+        return OrderResourceApiFp(this.configuration).getNumberOfOrder(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrderResourceApi
+     */
+    public getNumberOfOrderAssignToEmployee(userId: number, options?: RawAxiosRequestConfig) {
+        return OrderResourceApiFp(this.configuration).getNumberOfOrderAssignToEmployee(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6208,6 +6795,20 @@ export class OrderResourceApi extends BaseAPI {
      */
     public getOrder(id: number, options?: AxiosRequestConfig) {
         return OrderResourceApiFp(this.configuration).getOrder(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} userId 
+     * @param {number} [page] Zero-based page index (0..N)
+     * @param {number} [size] The size of the page to be returned
+     * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrderResourceApi
+     */
+    public getOrdersAssignToEmployee(userId: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
+        return OrderResourceApiFp(this.configuration).getOrdersAssignToEmployee(userId, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6320,6 +6921,54 @@ export const PositionResourceApiAxiosParamCreator = function (configuration?: Co
          */
         getAllPositions: async (page?: number, size?: number, sort?: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/positions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllPositionsByVehicle: async (id: number, page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getAllPositionsByVehicle', 'id', id)
+            const localVarPath = `/api/positions/vehicle/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -6510,6 +7159,21 @@ export const PositionResourceApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} id 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllPositionsByVehicle(id: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PositionDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllPositionsByVehicle(id, page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PositionResourceApi.getAllPositionsByVehicle']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6577,6 +7241,18 @@ export const PositionResourceApiFactory = function (configuration?: Configuratio
          */
         getAllPositions(page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<PositionDTO>> {
             return localVarFp.getAllPositions(page, size, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllPositionsByVehicle(id: number, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<PositionDTO> {
+            return localVarFp.getAllPositionsByVehicle(id, page, size, sort, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6650,6 +7326,20 @@ export class PositionResourceApi extends BaseAPI {
      */
     public getAllPositions(page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
         return PositionResourceApiFp(this.configuration).getAllPositions(page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} id 
+     * @param {number} [page] Zero-based page index (0..N)
+     * @param {number} [size] The size of the page to be returned
+     * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PositionResourceApi
+     */
+    public getAllPositionsByVehicle(id: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
+        return PositionResourceApiFp(this.configuration).getAllPositionsByVehicle(id, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -9126,6 +9816,419 @@ export class ScheduleResourceApi extends BaseAPI {
         return ScheduleResourceApiFp(this.configuration).updateSchedule(id, scheduleDTO, options).then((request) => request(this.axios, this.basePath));
     }
 }
+
+
+/**
+ * SearchResourceApi - axios parameter creator
+ * @export
+ */
+export const SearchResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllEntities: async (entityName: string, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'entityName' is not null or undefined
+            assertParamExists('getAllEntities', 'entityName', entityName)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('getAllEntities', 'pageable', pageable)
+            const localVarPath = `/api/search/getAll/{entityName}`
+                .replace(`{${"entityName"}}`, encodeURIComponent(String(entityName)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {string} attributeName 
+         * @param {string} startDate 
+         * @param {string} endDate 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByDate: async (entityName: string, attributeName: string, startDate: string, endDate: string, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'entityName' is not null or undefined
+            assertParamExists('searchByDate', 'entityName', entityName)
+            // verify required parameter 'attributeName' is not null or undefined
+            assertParamExists('searchByDate', 'attributeName', attributeName)
+            // verify required parameter 'startDate' is not null or undefined
+            assertParamExists('searchByDate', 'startDate', startDate)
+            // verify required parameter 'endDate' is not null or undefined
+            assertParamExists('searchByDate', 'endDate', endDate)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchByDate', 'pageable', pageable)
+            const localVarPath = `/api/searchByDate/{entityName}/{attributeName}`
+                .replace(`{${"entityName"}}`, encodeURIComponent(String(entityName)))
+                .replace(`{${"attributeName"}}`, encodeURIComponent(String(attributeName)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = (startDate as any instanceof Date) ?
+                    (startDate as any).toISOString() :
+                    startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = (endDate as any instanceof Date) ?
+                    (endDate as any).toISOString() :
+                    endDate;
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {string} attributeName 
+         * @param {Pageable} pageable 
+         * @param {number} [startValue] 
+         * @param {number} [endValue] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByRange: async (entityName: string, attributeName: string, pageable: Pageable, startValue?: number, endValue?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'entityName' is not null or undefined
+            assertParamExists('searchByRange', 'entityName', entityName)
+            // verify required parameter 'attributeName' is not null or undefined
+            assertParamExists('searchByRange', 'attributeName', attributeName)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchByRange', 'pageable', pageable)
+            const localVarPath = `/api/searchByRange/{entityName}/{attributeName}`
+                .replace(`{${"entityName"}}`, encodeURIComponent(String(entityName)))
+                .replace(`{${"attributeName"}}`, encodeURIComponent(String(attributeName)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (startValue !== undefined) {
+                localVarQueryParameter['startValue'] = startValue;
+            }
+
+            if (endValue !== undefined) {
+                localVarQueryParameter['endValue'] = endValue;
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {{ [key: string]: string; }} allParams 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchEntities: async (entityName: string, allParams: { [key: string]: string; }, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'entityName' is not null or undefined
+            assertParamExists('searchEntities', 'entityName', entityName)
+            // verify required parameter 'allParams' is not null or undefined
+            assertParamExists('searchEntities', 'allParams', allParams)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchEntities', 'pageable', pageable)
+            const localVarPath = `/api/search/{entityName}`
+                .replace(`{${"entityName"}}`, encodeURIComponent(String(entityName)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (allParams !== undefined) {
+                for (const [key, value] of Object.entries(allParams)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SearchResourceApi - functional programming interface
+ * @export
+ */
+export const SearchResourceApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SearchResourceApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllEntities(entityName: string, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllEntities(entityName, pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchResourceApi.getAllEntities']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {string} attributeName 
+         * @param {string} startDate 
+         * @param {string} endDate 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchByDate(entityName: string, attributeName: string, startDate: string, endDate: string, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchByDate(entityName, attributeName, startDate, endDate, pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchResourceApi.searchByDate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {string} attributeName 
+         * @param {Pageable} pageable 
+         * @param {number} [startValue] 
+         * @param {number} [endValue] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchByRange(entityName: string, attributeName: string, pageable: Pageable, startValue?: number, endValue?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchByRange(entityName, attributeName, pageable, startValue, endValue, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchResourceApi.searchByRange']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {{ [key: string]: string; }} allParams 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchEntities(entityName: string, allParams: { [key: string]: string; }, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchEntities(entityName, allParams, pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchResourceApi.searchEntities']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * SearchResourceApi - factory interface
+ * @export
+ */
+export const SearchResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SearchResourceApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllEntities(entityName: string, pageable: Pageable, options?: any): AxiosPromise<Array<object>> {
+            return localVarFp.getAllEntities(entityName, pageable, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {string} attributeName 
+         * @param {string} startDate 
+         * @param {string} endDate 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByDate(entityName: string, attributeName: string, startDate: string, endDate: string, pageable: Pageable, options?: any): AxiosPromise<Array<object>> {
+            return localVarFp.searchByDate(entityName, attributeName, startDate, endDate, pageable, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {string} attributeName 
+         * @param {Pageable} pageable 
+         * @param {number} [startValue] 
+         * @param {number} [endValue] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByRange(entityName: string, attributeName: string, pageable: Pageable, startValue?: number, endValue?: number, options?: any): AxiosPromise<Array<object>> {
+            return localVarFp.searchByRange(entityName, attributeName, pageable, startValue, endValue, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {{ [key: string]: string; }} allParams 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchEntities(entityName: string, allParams: { [key: string]: string; }, pageable: Pageable, options?: any): AxiosPromise<Array<object>> {
+            return localVarFp.searchEntities(entityName, allParams, pageable, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * SearchResourceApi - object-oriented interface
+ * @export
+ * @class SearchResourceApi
+ * @extends {BaseAPI}
+ */
+export class SearchResourceApi extends BaseAPI {
+    /**
+     * 
+     * @param {string} entityName 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SearchResourceApi
+     */
+    public getAllEntities(entityName: string, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return SearchResourceApiFp(this.configuration).getAllEntities(entityName, pageable, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} entityName 
+     * @param {string} attributeName 
+     * @param {string} startDate 
+     * @param {string} endDate 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SearchResourceApi
+     */
+    public searchByDate(entityName: string, attributeName: string, startDate: string, endDate: string, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return SearchResourceApiFp(this.configuration).searchByDate(entityName, attributeName, startDate, endDate, pageable, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} entityName 
+     * @param {string} attributeName 
+     * @param {Pageable} pageable 
+     * @param {number} [startValue] 
+     * @param {number} [endValue] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SearchResourceApi
+     */
+    public searchByRange(entityName: string, attributeName: string, pageable: Pageable, startValue?: number, endValue?: number, options?: RawAxiosRequestConfig) {
+        return SearchResourceApiFp(this.configuration).searchByRange(entityName, attributeName, pageable, startValue, endValue, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} entityName 
+     * @param {{ [key: string]: string; }} allParams 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SearchResourceApi
+     */
+    public searchEntities(entityName: string, allParams: { [key: string]: string; }, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return SearchResourceApiFp(this.configuration).searchEntities(entityName, allParams, pageable, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**
@@ -13244,7 +14347,7 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
         createUserX: async (userXDTO: UserXDTO, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userXDTO' is not null or undefined
             assertParamExists('createUserX', 'userXDTO', userXDTO)
-            const localVarPath = `/api/user-xes`;
+            const localVarPath = `/api/admin/user-xes`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -13279,7 +14382,7 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
         deleteUserX: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('deleteUserX', 'id', id)
-            const localVarPath = `/api/user-xes/{id}`
+            const localVarPath = `/api/admin/user-xes/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -13349,6 +14452,164 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 
+         * @param {number} employeeId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCustomerForEmployee: async (employeeId: number, page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'employeeId' is not null or undefined
+            assertParamExists('getCustomerForEmployee', 'employeeId', employeeId)
+            const localVarPath = `/api/{employeeId}/customers`
+                .replace(`{${"employeeId"}}`, encodeURIComponent(String(employeeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDrivers: async (page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/user-xes/drivers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} employeeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfCustomerForEmployee: async (employeeId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'employeeId' is not null or undefined
+            assertParamExists('getNumberOfCustomerForEmployee', 'employeeId', employeeId)
+            const localVarPath = `/api/{employeeId}/customers-num`
+                .replace(`{${"employeeId"}}`, encodeURIComponent(String(employeeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfUserXByRole: async (role: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'role' is not null or undefined
+            assertParamExists('getNumberOfUserXByRole', 'role', role)
+            const localVarPath = `/api/user-xes-num/{role}`
+                .replace(`{${"role"}}`, encodeURIComponent(String(role)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -13356,7 +14617,7 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
         getUserX: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('getUserX', 'id', id)
-            const localVarPath = `/api/user-xes/{id}`
+            const localVarPath = `/api/admin/user-xes/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -13479,7 +14740,7 @@ export const UserXResourceApiAxiosParamCreator = function (configuration?: Confi
             assertParamExists('updateUserX', 'id', id)
             // verify required parameter 'userXDTO' is not null or undefined
             assertParamExists('updateUserX', 'userXDTO', userXDTO)
-            const localVarPath = `/api/user-xes/{id}`
+            const localVarPath = `/api/admin/user-xes/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -13550,6 +14811,59 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} employeeId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCustomerForEmployee(employeeId: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserXDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCustomerForEmployee(employeeId, page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getCustomerForEmployee']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getDrivers(page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserXDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getDrivers(page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getDrivers']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} employeeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumberOfCustomerForEmployee(employeeId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumberOfCustomerForEmployee(employeeId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getNumberOfCustomerForEmployee']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNumberOfUserXByRole(role: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNumberOfUserXByRole(role, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getNumberOfUserXByRole']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -13557,6 +14871,33 @@ export const UserXResourceApiFp = function(configuration?: Configuration) {
         async getUserX(id: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserXDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getUserX(id, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {string} role 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserXByRole(role: string, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserXDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserXByRole(role, page, size, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getUserXByRole']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserXByLogin(login: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserXDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserXByLogin(login, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserXResourceApi.getUserXByLogin']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
@@ -13633,6 +14974,47 @@ export const UserXResourceApiFactory = function (configuration?: Configuration, 
          */
         getAllUserXES(page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<UserXDTO>> {
             return localVarFp.getAllUserXES(page, size, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} employeeId 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCustomerForEmployee(employeeId: number, page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<UserXDTO>> {
+            return localVarFp.getCustomerForEmployee(employeeId, page, size, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} [page] Zero-based page index (0..N)
+         * @param {number} [size] The size of the page to be returned
+         * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDrivers(page?: number, size?: number, sort?: Array<string>, options?: any): AxiosPromise<Array<UserXDTO>> {
+            return localVarFp.getDrivers(page, size, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} employeeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfCustomerForEmployee(employeeId: number, options?: any): AxiosPromise<number> {
+            return localVarFp.getNumberOfCustomerForEmployee(employeeId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} role 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNumberOfUserXByRole(role: string, options?: any): AxiosPromise<number> {
+            return localVarFp.getNumberOfUserXByRole(role, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -13718,6 +15100,55 @@ export class UserXResourceApi extends BaseAPI {
      */
     public getAllUserXES(page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
         return UserXResourceApiFp(this.configuration).getAllUserXES(page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} employeeId 
+     * @param {number} [page] Zero-based page index (0..N)
+     * @param {number} [size] The size of the page to be returned
+     * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getCustomerForEmployee(employeeId: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getCustomerForEmployee(employeeId, page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} [page] Zero-based page index (0..N)
+     * @param {number} [size] The size of the page to be returned
+     * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getDrivers(page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getDrivers(page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} employeeId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getNumberOfCustomerForEmployee(employeeId: number, options?: RawAxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getNumberOfCustomerForEmployee(employeeId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} role 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserXResourceApi
+     */
+    public getNumberOfUserXByRole(role: string, options?: RawAxiosRequestConfig) {
+        return UserXResourceApiFp(this.configuration).getNumberOfUserXByRole(role, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14651,6 +16082,20 @@ export const VehicleResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {Vehicle} example 
+         * @param {Pageable} pageable 
+         * @param {string} [keyword] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchVehicles(example: Vehicle, pageable: Pageable, keyword?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<VehicleDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchVehicles(example, pageable, keyword, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['VehicleResourceApi.searchVehicles']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {VehicleDTO} vehicleDTO 
          * @param {*} [options] Override http request option.
@@ -14820,6 +16265,19 @@ export class VehicleResourceApi extends BaseAPI {
      */
     public getVehicleByKeyword(keyword: string, page?: number, size?: number, sort?: Array<string>, options?: AxiosRequestConfig) {
         return VehicleResourceApiFp(this.configuration).getVehicleByKeyword(keyword, page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {Vehicle} example 
+     * @param {Pageable} pageable 
+     * @param {string} [keyword] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof VehicleResourceApi
+     */
+    public searchVehicles(example: Vehicle, pageable: Pageable, keyword?: string, options?: RawAxiosRequestConfig) {
+        return VehicleResourceApiFp(this.configuration).searchVehicles(example, pageable, keyword, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

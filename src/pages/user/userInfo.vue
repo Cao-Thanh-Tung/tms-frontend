@@ -20,7 +20,6 @@ onMounted(() => {
     .catch((e) => {
       console.error(e);
     });
-  console.log(userInfor.value);
 });
 </script>
 <template>
@@ -28,7 +27,33 @@ onMounted(() => {
     <a-breadcrumb-item>Tài khoản</a-breadcrumb-item>
     <a-breadcrumb-item>Thông tin chi tiết</a-breadcrumb-item>
   </a-breadcrumb>
-  <div>{{ userInfor }}</div>
+  <a-card title="Thông tin cá nhân" style="width: 600px;">
+    <a-row>
+      <a-col :span="8"><strong>Tên:</strong></a-col>
+      <a-col :span="16">{{ userInfor?.firstName }}</a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="8"><strong>Họ:</strong></a-col>
+      <a-col :span="16">{{ userInfor?.lastName }}</a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="8"><strong>Email:</strong></a-col>
+      <a-col :span="16">{{ userInfor?.email }}</a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="8"><strong>Login:</strong></a-col>
+      <a-col :span="16">{{ userInfor?.login }}</a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="8"><strong>Activated:</strong></a-col>
+      <a-col :span="16">{{ userInfor?.activated }}</a-col>
+    </a-row>
+    <a-row>
+      <a-col :span="8"><strong>Authorities:</strong></a-col>
+      <a-col :span="16">{{ userInfor?.authorities }}</a-col>
+    </a-row>
+    
+  </a-card>
 </template>
 
 <style scoped></style>

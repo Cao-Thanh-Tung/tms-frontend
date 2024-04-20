@@ -13,6 +13,8 @@ import store from "@/store";
 import { Configuration } from "@/configuration";
 import { ContractorResourceApi, ContractorDTO } from "../../api";
 import moment from "moment";
+import DateSearch from "@/components/DateSearch.vue";
+import { Entity } from "@/search.types";
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -56,6 +58,7 @@ const columns = [
     key: "signingDate",
     dataIndex: "signingDate",
 
+
   },
   {
     title: "Ngày hết hạn",
@@ -95,7 +98,7 @@ onMounted(fetchData);
 // Delete user and update to table content
 const deleteContractor = async (Contractor?: any ) => {
   try {
-    await contractorApi.deleteContractor(Contractor!.id);
+    await contractorApi.deleteContractor(Contractor?.id ?? 0);
     await addressApi.deleteAddress(Contractor!.address!.id!);
     const index = contractors.indexOf(<ContractorDTO>Contractor);
     console.log(index);
@@ -116,13 +119,16 @@ const formEditState: UnwrapRef<ContractorDTO> = reactive<ContractorDTO>(
 const showEditForm = (v: ContractorDTO) => {
   // Deep copy the object
   console.log(v);
+  console.log(v);
   const copy = JSON.parse(JSON.stringify(v));
 
   // Convert string dates to Date objects
   if (copy.signingDate) {
     copy.signingDate = moment(new Date(copy.signingDate));
+    copy.signingDate = moment(new Date(copy.signingDate));
   }
   if (copy.expirationDate) {
+    copy.expirationDate = moment(new Date(copy.expirationDate));
     copy.expirationDate = moment(new Date(copy.expirationDate));
   }
 
@@ -140,7 +146,7 @@ const edit = () => {
   console.log(formEditState.id);
   let formEditStateParams : any = formEditState.id
   contractorApi
-    .partialUpdateContractor(formEditStateParams, formEditState)
+    .partialUpdateContractor(formEditState.id!, formEditState)
     .then((res) => {
       console.log(res);
       const index = contractors.findIndex((user: ContractorDTO) => {
@@ -239,6 +245,14 @@ const handleReset = (clearFilters: any) => {
   clearFilters({ confirm: true });
   state.searchText = "";
 };
+
+async function handleSearchResults(results: Entity[]) {
+  try {
+    contractors.splice(0, contractors.length, ...results);
+  } catch (error) {
+    console.error('Error handling search results:', error);
+  }
+}
 </script>
 <template>
   <!-- -->
@@ -246,7 +260,7 @@ const handleReset = (clearFilters: any) => {
     <a-breadcrumb-item>Nhà thầu</a-breadcrumb-item>
     <a-breadcrumb-item>Danh sách Nhà thầu</a-breadcrumb-item>
   </a-breadcrumb>
-
+  <DateSearch entityName="Contractor" :attributes="['signingDate', 'expirationDate']" @search="handleSearchResults"/>
   <!-- Contractor list table -->
   <a-layout-content
     :style="{
@@ -271,6 +285,11 @@ const handleReset = (clearFilters: any) => {
         <template v-if="column.key === 'expirationDate'">
           <span>
             {{ moment(record.expirationDate).format("DD/MM/YYYY") }}
+          </span>
+        </template>
+        <template v-if="column.key === 'signingDate'">
+          <span>
+            {{ moment(record.signingDate).format("DD/MM/YYYY") }}
           </span>
         </template>
         <template v-if="column.key === 'operation'">
@@ -334,7 +353,6 @@ const handleReset = (clearFilters: any) => {
       <!-- Filter end -->
     </a-table>
   </a-layout-content>
-
   <!-- Float button create new Contractor-->
   <a-float-button
     type="primary"
@@ -400,6 +418,7 @@ const handleReset = (clearFilters: any) => {
       </a-form-item>
     </a-form>
   </a-modal>
+
 </template>
 
 <style scoped></style>

@@ -12,7 +12,9 @@ import { AddressDTO } from "@/api";
 import { AddressResourceApi } from "@/api";
 import store from "@/store";
 import { Configuration } from "@/configuration";
-import { VehicleDTO, VehicleResourceApi } from '../../api';
+import { VehicleDTO, VehicleResourceApi, UserXResourceApi, UserResourceApi } from '../../api';
+import MultipleSearch from "@/components/MultipleSearch.vue";
+import { Entity } from "@/search.types";
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -348,13 +350,11 @@ const handleReset = (clearFilters: any) => {
 
 const searchFields = ref(Object.keys(formAddState).map(key => ({ name: key, label: key })));
 
-async function searchVehicles(criteria: any) {
+async function handleSearchResults(results: Entity[]) {
   try {
-    const pageable: Pageable = { page: 0, size: 10 }; 
-    const response = await vehicleApi.searchVehicles(criteria, pageable);
-    vehicles.splice(0, vehicles.length, ...response.data);
+    vehicles.splice(0, vehicles.length, ...results);
   } catch (error) {
-    console.error('Error searching vehicles:', error);
+    console.error('Error handling search results:', error);
   }
 }
 </script>
@@ -364,7 +364,7 @@ async function searchVehicles(criteria: any) {
     <a-breadcrumb-item>Xe</a-breadcrumb-item>
     <a-breadcrumb-item>Danh sách xe</a-breadcrumb-item>
   </a-breadcrumb>
-  <MultipleSearch :searchFields="searchFields" @search="searchVehicles" />
+  <MultipleSearch :searchFields="searchFields" :entityName="'Vehicle'" @search="handleSearchResults" />
   <!-- vehicle list table -->
   <a-layout-content
     :style="{
@@ -636,6 +636,7 @@ async function searchVehicles(criteria: any) {
       </a-form-item>
     </a-form>
   </a-modal>
+
 </template>
 
 <style scoped></style>
