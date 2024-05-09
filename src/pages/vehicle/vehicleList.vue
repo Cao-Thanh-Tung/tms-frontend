@@ -12,7 +12,7 @@ import { AddressDTO } from "@/api";
 import { AddressResourceApi } from "@/api";
 import store from "@/store";
 import { Configuration } from "@/configuration";
-import { VehicleDTO, VehicleResourceApi, UserXResourceApi, UserResourceApi } from '../../api';
+import { VehicleDTO, VehicleResourceApi } from '../../api';
 import MultipleSearch from "@/components/MultipleSearch.vue";
 import { Entity } from "@/search.types";
 // config request object

@@ -212,6 +212,7 @@ export interface CommuneDTO {
  * @interface ContractorDTO
  */
 export interface ContractorDTO {
+[x: string]: any;
     /**
      * 
      * @type {number}
@@ -9948,6 +9949,7 @@ export const SearchResourceApiFactory = function (configuration?: Configuration,
  * @extends {BaseAPI}
  */
 export class SearchResourceApi extends BaseAPI {
+[x: string]: any;
     /**
      * 
      * @param {string} entityName 

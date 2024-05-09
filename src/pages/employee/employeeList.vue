@@ -3,7 +3,7 @@ import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined 
 import { reactive, ref, UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
-import { UserXResourceApi, UserResourceApi, AddressResourceApi, ScheduleResourceApi, CustomerAssignmentResourceApi, VehicleResourceApi } from '@/api';
+import { UserXResourceApi, UserResourceApi, ScheduleResourceApi, CustomerAssignmentResourceApi, VehicleResourceApi } from '@/api';
 import store from '@/store';
 import { Configuration } from '@/configuration';
 import { AdminUserDTO } from '../../api';

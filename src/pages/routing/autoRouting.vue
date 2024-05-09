@@ -166,7 +166,7 @@ import { ref, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";
 import { Configuration } from "../../configuration";
 import store from "../../store";
-import { SolverConfigDTO, VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi, SolverConfigResourceApi, ScheduleResourceApi, ScheduleInputOrderResourceApi, ScheduleInputVehicleResourceApi, ScheduleDTO, ScheduleInputResourceApi } from '../../api';
+import { SolverConfigDTO, VehicleDTO, OrderDTO, PositionDTO, PositionResourceApi, SolverConfigResourceApi, ScheduleResourceApi, ScheduleInputOrderResourceApi, ScheduleInputVehicleResourceApi, ScheduleInputResourceApi } from '../../api';
 import { message } from "ant-design-vue";
 
 //import route for redirect

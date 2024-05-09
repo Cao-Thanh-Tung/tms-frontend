@@ -11,18 +11,18 @@
         minHeight: '280px',
     }">
         <a-table :columns="columns" :dataSource="scheduleList" rowKey="id">
-            <template #name="text">
+            <!-- <template #name="text">
                 <a @click="showDetail(text)">{{ text }}</a>
             </template>
             <template #action="text">
                 <a-button type="primary" @click="showDetail(text)">Chi tiết</a-button>
-            </template>
+            </template> -->
         </a-table>
     </a-layout-content>
 </template>
 
 <script setup lang="ts">
-import { ScheduleDTO, ScheduleResourceApi, SolverConfigDTO, SolverConfigResourceApi, ScheduleInputResourceApi, ScheduleInputOrderResourceApi, ScheduleInputVehicleResourceApi } from "../../api";
+import { ScheduleDTO, ScheduleResourceApi, ScheduleInputResourceApi, ScheduleInputOrderResourceApi, ScheduleInputVehicleResourceApi } from "../../api";
 import { Configuration } from "../../configuration";
 import { ref, onMounted } from 'vue';
 import store from "../../store";
@@ -58,7 +58,6 @@ const config = new Configuration({
 });
 const user = store.getters.user;
 const scheduleResourceApi = new ScheduleResourceApi(config);
-const solverConfigResourceApi = new SolverConfigResourceApi(config);
 
 const scheduleInputResourceApi = new ScheduleInputResourceApi(config);
 const scheduleInputOrderResourceApi = new ScheduleInputOrderResourceApi(config);
@@ -82,12 +81,12 @@ const fetchSchedules = () => {
         console.log(scheduleList.value);
     });
 }
-const fetchSolverConfig = () => {
-    solverConfigResourceApi.getAllSolverConfigs().then((res) => {
-        console.log(res.data);
-    });
-}
-const fetchScheduleInput = (scheduleId: number) => {
+// const fetchSolverConfig = () => {
+//     solverConfigResourceApi.getAllSolverConfigs().then((res) => {
+//         console.log(res.data);
+//     });
+// }
+const fetchScheduleInput = (_id?: number) => {
     scheduleInputResourceApi.getAllScheduleInputs().then((res) => {
         console.log(res.data);
     });

@@ -40,9 +40,9 @@ watch(
     }
   }
 );
-const getMarkerInfo = (position: PositionDTO, index: number) => {
-  return `<b>Lat:</b> ${position.lat} <br> <b>Lng:</b> ${position.lng} <br> <b>Index:</b> ${index}`;
-};
+// const getMarkerInfo = (position: PositionDTO, index: number) => {
+//   return `<b>Lat:</b> ${position.lat} <br> <b>Lng:</b> ${position.lng} <br> <b>Index:</b> ${index}`;
+// };
 // hiển thị route từ positionList
 let markers = [] as L.Marker[]; // Array to store the markers
 watch(
@@ -60,24 +60,24 @@ watch(
         }
       });
       if (newVal == undefined) return;
-      if (newVal.length > 1) {
-        const latlngs = newVal.map((position, index) => {
-          if (!position.lat || !position.lng) return;
-          const latlng = L.latLng(position.lat, position.lng);
-          const marker = createMarker(position.lat, position.lng, true);
-          marker.bindPopup(getMarkerInfo(position, index));
-          marker.addTo(map.value as L.Map);
-          markers.push(marker); // Add the marker to the array
-          return latlng;
-        });
-        const control = L.Routing.control({
-          waypoints: latlngs,
-          routeWhileDragging: false,
-          showInstructions: false,
-          show: false,
-        }).addTo(map.value as L.Map);
-        map.value.fitBounds(control.getWaypoints());
-      }
+      // if (newVal.length > 1) {
+      //   const latlngs = newVal.map((position, index) => {
+      //     if (!position.lat || !position.lng) return;
+      //     const latlng = L.latLng(position.lat, position.lng);
+      //     const marker = createMarker(position.lat, position.lng, true);
+      //     marker.bindPopup(getMarkerInfo(position, index));
+      //     marker.addTo(map.value as L.Map);
+      //     markers.push(marker); // Add the marker to the array
+      //     return latlng;
+      //   });
+        // const control = L.Routing.control({
+        //   waypoints: latlngs,
+        //   routeWhileDragging: false,
+        //   showInstructions: false,
+        //   show: false,
+        // }).addTo(map.value as L.Map);
+        // map.value.fitBounds(control.getWaypoints());
+      // }
     }
   }
 );
@@ -99,10 +99,10 @@ const lng = ref(0);
 const map = ref<L.Map | null>(null);
 const mapContainer = ref();
 const createMarker = (lat: number, lng: number, draggable = true) => {
-  let redMarker = L.AwesomeMarkers.icon({
-    icon: 'home',
-  });
-  const marker = L.marker([lat, lng], { draggable, icon: redMarker });
+  // let redMarker = L.AwesomeMarkers.icon({
+  //   icon: 'home',
+  // });
+  const marker = L.marker([lat, lng], { draggable });
   let initialLatLng: L.LatLng;
   if (draggable) {
     marker.on("dragstart", () => {

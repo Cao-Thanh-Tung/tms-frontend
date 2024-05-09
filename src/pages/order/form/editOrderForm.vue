@@ -62,7 +62,7 @@ const rulesRef = reactive({
     ],
     volume: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (editFormContent.goodType === 'masterbill') {
                         if (value == undefined || isNaN(parseFloat(value))) {
@@ -82,7 +82,7 @@ const rulesRef = reactive({
 
     numPallets: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     let numPallets = parseFloat(value);
                     if (editFormContent.goodType === 'pallet') {
@@ -104,7 +104,7 @@ const rulesRef = reactive({
     ],
     length: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (editFormContent.goodType === 'box') {
                         if (value == undefined || isNaN(parseFloat(value))) {
@@ -123,7 +123,7 @@ const rulesRef = reactive({
     ],
     width: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (editFormContent.goodType === 'box') {
                         if (value == undefined || isNaN(parseFloat(value))) {
@@ -142,7 +142,7 @@ const rulesRef = reactive({
     ],
     height: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (editFormContent.goodType === 'box') {
                         if (value == undefined || isNaN(parseFloat(value))) {
@@ -335,7 +335,7 @@ const showEditOrder = async (orderId: number) => {
 
 
 };
-const { resetFields, validate, validateInfos } = useForm(editFormContent, rulesRef);
+const { validate, validateInfos } = useForm(editFormContent, rulesRef);
 
 const requestToEditOrder = async () => {
     editOrderLoading.value = true;

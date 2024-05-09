@@ -144,7 +144,7 @@ const edit = () => {
   editLoading.value = true;
   console.log(JSON.parse(JSON.stringify(formEditState)));
   console.log(formEditState.id);
-  let formEditStateParams : any = formEditState.id
+  // let formEditStateParams : any = formEditState.id
   contractorApi
     .partialUpdateContractor(formEditState.id!, formEditState)
     .then((res) => {

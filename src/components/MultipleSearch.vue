@@ -24,7 +24,7 @@
 import { ref, defineProps } from 'vue';
 import store from "@/store";
 import { Entity, SearchParams } from "@/search.types"
-import { SearchResourceApi, Pageable } from "@/api";
+import { SearchResourceApi } from "@/api";
 import { Configuration } from "@/configuration";
 
 interface Field {
@@ -81,7 +81,7 @@ const search = async () => {
 
 async function searchEntities<T extends Entity>({ criteria, keyword }: SearchParams<T>, entityName: string) {
   try {
-    const pageable: Pageable = { page: 0, size: 10 }; 
+    const pageable: any = { page: 0, size: 10 }; 
     let allParams = { ...criteria };
     if (keyword) {
       allParams = { ...allParams, keyword };

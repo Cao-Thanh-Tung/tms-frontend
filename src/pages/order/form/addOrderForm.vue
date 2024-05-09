@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { Configuration } from '@/configuration';
-import { OrderItemResourceApi, OrderResourceApi, UserXDTO, UserXResourceApi } from '@/api';
+import { OrderItemResourceApi, OrderResourceApi, UserXDTO } from '@/api';
 import { debounce } from 'lodash-es';
 import AddressForm from '@/components/AddressForm.vue';
 import moment from 'moment';
@@ -25,7 +25,7 @@ const config = new Configuration({
 });
 const orderApi = new OrderResourceApi(config);
 const orderItemApi = new OrderItemResourceApi(config);
-const userxApi = new UserXResourceApi(config);
+// const userxApi = new UserXResourceApi(config);
 const addOrderLoading = ref(false);
 
 const rulesRef = reactive({
@@ -61,7 +61,7 @@ const rulesRef = reactive({
     ],
     volume: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (addFormContent.goodType === 'masterbill') {
                         if (value == undefined || isNaN(parseFloat(value))) {
@@ -81,7 +81,7 @@ const rulesRef = reactive({
 
     numPallets: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     let numPallets = parseFloat(value);
                     if (addFormContent.goodType === 'pallet') {
@@ -103,7 +103,7 @@ const rulesRef = reactive({
     ],
     length: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (addFormContent.goodType === 'box') {
                         if (value == undefined || isNaN(parseFloat(value))) {
@@ -122,7 +122,7 @@ const rulesRef = reactive({
     ],
     width: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (addFormContent.goodType === 'box') {
                         if (value == undefined || isNaN(parseFloat(value))) {
@@ -141,7 +141,7 @@ const rulesRef = reactive({
     ],
     height: [
         {
-            validator: (rule: any, value: string) => {
+            validator: (_rule: any, value: string) => {
                 return new Promise((resolve, reject) => {
                     if (addFormContent.goodType === 'box') {
                         if (value == undefined || isNaN(parseFloat(value))) {
