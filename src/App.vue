@@ -7,7 +7,7 @@ import Authorization from "@/pages/auth/Authorization.vue";
 <template>
   <div>
     <Authorization v-if="!store.getters.isLogin" />
-    <Navbar :role="store.getters.user?.role" :avatar="store.getters.user.user?.imageUrl"
+    <Navbar :role="store.getters?.user?.role" :avatar="store.getters?.user.user?.imageUrl"
       :name="store.getters.user.user?.lastName" v-else>
       <router-view />
     </Navbar>

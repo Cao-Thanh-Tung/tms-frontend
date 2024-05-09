@@ -13,4 +13,12 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 5000,
   },
+  
+  server: {
+    proxy: {
+      "/api": "https://tms.optstudy.id.vn",
+    },
+  },
+
+
 })

@@ -15,6 +15,8 @@ const initialState = ():{
     const decodedToken = KJUR.jws.JWS.parse(jwt);
     if (decodedToken.payloadObj) {
       payloadObj = decodedToken.payloadObj as { exp: number, sub: string };
+
+      
       const now = Math.floor(Date.now() / 1000);
       if (now > payloadObj.exp) {
         localStorage.removeItem('jwt');
@@ -58,6 +60,8 @@ const store = createStore({
   mutations: {
     [SET_JWT](state, jwt) {
       state.jwt = jwt;
+      console.log(jwt);
+      
       if (jwt === null) {
         localStorage.removeItem('jwt');
       }else{

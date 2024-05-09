@@ -17,7 +17,6 @@ const login = async (values: LoginVM) => {
   loading.value = true;
   try {
     const res = await userJwtControllerApi.authorize(values);
-    console.log(res.data.id_token);
     store.dispatch("login", res.data.id_token)
     message.success("Đăng nhập thành công");
     router.push("/orders");
