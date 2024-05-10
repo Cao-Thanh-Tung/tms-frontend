@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons-vue";
 import { reactive, ref, UnwrapRef, onMounted } from "vue";
 import { message } from "ant-design-vue";
+import dayjs, { Dayjs } from 'dayjs';
 import { AddressDTO } from "@/api";
 import { AddressResourceApi } from "@/api";
 import store from "@/store";
@@ -16,6 +17,7 @@ import { VehicleDTO, VehicleResourceApi, UserXResourceApi, UserResourceApi } fro
 import MultipleSearch from "@/components/MultipleSearch.vue";
 import { Entity } from "@/search.types";
 import AddressForm from "@/components/AddressForm.vue";
+
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -132,7 +134,7 @@ const columns = [
 const vehicles = reactive<VehicleDTO[]>([]);
 
 // Get vehicles from server to push in table content
-const fetchData = () => {
+const fetchContentTable = () => {
   vehicleApi
     .getAllVehicles()
     .then((res) => {
@@ -141,6 +143,23 @@ const fetchData = () => {
     .catch((err) => {
       console.log("Get All Vehicle." + err);
     });
+}
+const fetchData = () => {
+  fetchContentTable();
+  userxApi.getUserXByRole("employee").then((res) => {
+    dpvRawList.value = res.data.map((item: any) => ({
+      value: item.id,
+      label: item.user.firstName + " " + item.user.lastName,
+    }));
+    dpvList.value = dpvRawList.value;
+  });
+  userxApi.getUserXByRole("driver").then((res) => {
+    txRawList.value = res.data.map((item: any) => ({
+      value: item.id,
+      label: item.user.firstName + " " + item.user.lastName,
+    }));
+    txList.value = txRawList.value;
+  });
 };
 onMounted(fetchData);
 
@@ -149,7 +168,7 @@ const deleteVehicle = async (vehicle?: VehicleDTO) => {
   try {
     await vehicleApi.deleteVehicle(vehicle!.id ?? 0);
     message.success("Đã xóa thông tin xe thành công!");
-    fetchData();
+    fetchContentTable();
   } catch (err) {
     console.log(err);
     message.error("Xóa thông tin xe thất bại!");
@@ -160,56 +179,124 @@ const deleteVehicle = async (vehicle?: VehicleDTO) => {
 const openEditForm = ref<boolean>(false);
 const infoModalVisible = ref<boolean>(false);
 
-let formEditState: UnwrapRef<VehicleDTO> = reactive<VehicleDTO>(
-  createDefaultVehicleDTO()
-);
+let formEditState = reactive<{
+  driver: { id: null | number },
+  ownerUserX: { id: null | number },
+  currentAddress: { id: number, fullName: string },
+  type: string,
+  licensePlatesNumber: string,
+  maxLoadKg: number,
+  minLoadKg: number,
+  height: number,
+  width: number,
+  length: number,
+  minPallets: number,
+  maxPallets: number,
+  registrationDate: Dayjs | null,
+  registrationExpireDate: Dayjs | null,
+  fuelType: string,
+  averageVelocity: number,
+  maxStopPoints: number,
+  id: number,
+}>({
+  id: -1,
+  type: "",
+  licensePlatesNumber: "",
+  maxLoadKg: 0,
+  minLoadKg: 0,
+  height: 0,
+  width: 0,
+  length: 0,
+  minPallets: 0,
+  maxPallets: 0,
+  registrationDate: null,
+  registrationExpireDate: null,
+  fuelType: "",
+  averageVelocity: 0,
+  maxStopPoints: 0,
+  ownerUserX: {
+    id: null,
+  },
+  driver: {
+    id: null,
+  },
+  currentAddress: {
+    id: -1,
+    fullName: "",
+  },
+});
+const dateFormat = 'YYYY/MM/DD';
 const showEditForm = (v: VehicleDTO) => {
-  const copy = JSON.parse(JSON.stringify(v));
-  copy.registrationDate = "";
-  copy.registrationExpireDate = "";
-
+  let vId = v.id;
+  formEditState.id = vId!;
   // Assign the modified object to formEditState
-  Object.assign(formEditState, copy);
-  openEditForm.value = true;
-};
-
-const showMoreInfo = (v: VehicleDTO) => {
-  // Fetch detailed information of the selected vehicle
-  vehicleApi.getVehicle(v.id!)
+  vehicleApi.getVehicle(vId!)
     .then((res) => {
-      formEditState = res.data; // Assign detailed information to reactive variable
-      infoModalVisible.value = true; // Show modal dialog
+      let vehicle = res.data;
+      formEditState.averageVelocity = vehicle.averageVelocity!;
+      formEditState.currentAddress.id = vehicle.currentAddress?.id!;
+      formEditState.driver.id = vehicle.driver?.id!;
+      formEditState.fuelType = vehicle.fuelType!;
+      formEditState.height = vehicle.height!;
+      formEditState.length = vehicle.length!;
+      formEditState.licensePlatesNumber = vehicle.licensePlatesNumber!;
+      formEditState.maxLoadKg = vehicle.maxLoadKg!;
+      formEditState.maxPallets = vehicle.maxPallets!;
+      formEditState.maxStopPoints = vehicle.maxStopPoints!;
+      formEditState.minLoadKg = vehicle.minLoadKg!;
+      formEditState.minPallets = vehicle.minPallets!;
+      formEditState.ownerUserX.id = vehicle.ownerUserX?.id!;
+      formEditState.registrationDate = dayjs(vehicle.registrationDate!, dateFormat);
+      formEditState.registrationExpireDate = dayjs(vehicle.registrationExpireDate!, dateFormat);
+      formEditState.type = vehicle.type!;
+      formEditState.width = vehicle.width!;
+      console.log(vehicle.registrationDate!);
     })
     .catch((err) => {
       console.error("Error fetching vehicle details:", err);
       message.error("Failed to fetch vehicle details.");
     });
+  openEditForm.value = true;
 };
 
 const editLoading = ref<boolean>(false);
 const edit = () => {
   editLoading.value = true;
-  console.log(JSON.parse(JSON.stringify(formEditState)));
-  console.log(formEditState.id);
-  let formEditStateParmams: any = formEditState.id
+  console.log(formEditState.registrationDate!.format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
   vehicleApi
-    .partialUpdateVehicle(formEditStateParmams, formEditState)
+    .partialUpdateVehicle(formEditState.id, {
+      id: formEditState.id,
+      type: formEditState.type,
+      licensePlatesNumber: formEditState.licensePlatesNumber,
+      maxLoadKg: formEditState.maxLoadKg,
+      minLoadKg: formEditState.minLoadKg,
+      height: formEditState.height,
+      width: formEditState.width,
+      length: formEditState.length,
+      minPallets: formEditState.minPallets,
+      maxPallets: formEditState.maxLoadKg,
+      maxStopPoints: formEditState.maxStopPoints,
+      registrationDate: formEditState.registrationDate!.format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+      registrationExpireDate: formEditState.registrationExpireDate!.format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+      fuelType: formEditState.fuelType,
+      averageVelocity: formEditState.averageVelocity,
+      ownerUserX: {
+        id: formEditState.ownerUserX.id!,
+      },
+      driver: {
+        id: formEditState.driver.id!,
+      },
+      currentAddress: {
+        id: formEditState.currentAddress.id,
+      }
+    })
     .then((res) => {
-      console.log(res);
-      const index = vehicles.findIndex((user: VehicleDTO) => {
-        return user.id === formEditState.id;
-      });
-      console.log(index);
-      console.log(vehicles[index]);
-      Object.assign(
-        vehicles[index],
-        JSON.parse(JSON.stringify(formEditState))
-      );
+      fetchContentTable();
       message.success("Đã thay đổi thông tin xe thành công!");
     })
     .catch((err) => {
       console.log(err);
-      message.success("Thay đổi thông tin xe thất bại!");
+      message.error("Thay đổi thông tin xe thất bại!");
     })
     .finally(() => {
       editLoading.value = false;
@@ -274,20 +361,7 @@ function reset() {
 const userxApi = new UserXResourceApi(config);
 const showAddForm = () => {
   openAddForm.value = true;
-  userxApi.getUserXByRole("employee").then((res) => {
-    dpvRawList.value = res.data.map((item: any) => ({
-      value: item.id,
-      label: item.user.firstName + " " + item.user.lastName,
-    }));
-    dpvList.value = dpvRawList.value;
-  });
-  userxApi.getUserXByRole("driver").then((res) => {
-    txRawList.value = res.data.map((item: any) => ({
-      value: item.id,
-      label: item.user.firstName + " " + item.user.lastName,
-    }));
-    txList.value = txRawList.value;
-  });
+
 };
 
 const add = async () => {
@@ -432,9 +506,6 @@ const searchTX = (text: string) => {
               <DeleteFilled style="margin-left: 6px" />
             </a>
           </a-popconfirm>
-          <a href="#" @click="() => showMoreInfo(record)">
-            <InfoCircleOutlined style="margin-left: 6px;" />
-          </a>
         </template>
       </template>
       <!-- Filter-->
@@ -475,28 +546,6 @@ const searchTX = (text: string) => {
       <plus-outlined />
     </template>
   </a-float-button>
-  <a-modal v-model:visible="infoModalVisible" title="Thông tin chi tiết xe" :footer="null"
-    @cancel="infoModalVisible = false">
-    <a-descriptions :column="1">
-      <a-descriptions-item label="Kiểu xe">{{ formEditState?.type }}</a-descriptions-item>
-      <a-descriptions-item label="Biển số xe">{{ formEditState?.licensePlatesNumber }}</a-descriptions-item>
-      <a-descriptions-item label="Tải trọng tối đa">{{ formEditState?.maxLoadKg }}</a-descriptions-item>
-      <a-descriptions-item label="Tải trọng tối thiểu">{{ formEditState?.minLoadKg }}</a-descriptions-item>
-      <a-descriptions-item label="Chiều cao">{{ formEditState?.height }}</a-descriptions-item>
-      <a-descriptions-item label="Chiều rộng">{{ formEditState?.width }}</a-descriptions-item>
-      <a-descriptions-item label="Chiều dài">{{ formEditState?.length }}</a-descriptions-item>
-      <a-descriptions-item label="Số pallet tối thiểu">{{ formEditState?.minPallets }}</a-descriptions-item>
-      <a-descriptions-item label="Số pallet tối đa">{{ formEditState?.maxPallets }}</a-descriptions-item>
-      <a-descriptions-item label="Ngày đăng ký">{{ formEditState?.registrationDate }}</a-descriptions-item>
-      <a-descriptions-item label="Ngày hết hạn">{{ formEditState?.registrationExpireDate }}</a-descriptions-item>
-      <a-descriptions-item label="Vận tốc trung bình">{{ formEditState?.averageVelocity }}</a-descriptions-item>
-      <a-descriptions-item label="Số điểm dừng tối đa">{{ formEditState?.maxStopPoints }}</a-descriptions-item>
-      <a-descriptions-item label="Kiểu dầu">{{ formEditState?.fuelType }}</a-descriptions-item>
-      <a-descriptions-item label="Tên người sở hữu">{{ formEditState?.ownerUserX?.user?.lastName
-        }}</a-descriptions-item>
-      <a-descriptions-item label="Địa chỉ">{{ formEditState?.currentAddress?.fullName }}</a-descriptions-item>
-    </a-descriptions>
-  </a-modal>
   <!-- Popup edit vehicle form  -->
   <a-modal width="900px" v-model:open="openEditForm" title="Chỉnh sửa thông tin Xe" :confirm-loading="editLoading"
     @ok="edit">
@@ -580,22 +629,24 @@ const searchTX = (text: string) => {
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item label="Điều phối viên">
-            <a-select>
-              <a-select-option key="" value=""></a-select-option>
+          <a-form-item label="Người điều phối">
+            <a-select v-model:value="formEditState.ownerUserX.id" placeholder=" Chọn" show-search style="width: 100%"
+              :options="dpvList" @search="searchDPV" :filter-option="false">
             </a-select>
           </a-form-item>
         </a-col>
         <a-col :span="4">
           <a-form-item label="Tài xế">
-            <a-select>
-              <a-select-option key="" value=""></a-select-option>
+            <a-select v-model:value="formEditState.driver.id" placeholder=" Chọn" show-search style="width: 100%"
+              :options="txList" @search="searchTX" :filter-option="false">
             </a-select>
           </a-form-item>
         </a-col>
       </a-row>
       <a-form-item ref="currentAddress" label="Địa chỉ" name="currentAddress">
-        <a-input v-model:value="formEditState.currentAddress!.fullName" />
+        <!-- <a-input  v-model:value="formEditState.currentAddress!.fullName" /> -->
+        <AddressForm v-if="openEditForm" :initial-address-id="formEditState.currentAddress.id"
+          @save="(addressId: any) => formEditState.currentAddress.id = addressId" />
       </a-form-item>
       <!-- <a-form-item
         ref="ownerUserX"
