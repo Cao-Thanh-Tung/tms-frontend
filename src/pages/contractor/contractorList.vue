@@ -101,7 +101,6 @@ onMounted(fetchData);
 const deleteContractor = async (Contractor?: any) => {
   try {
     await contractorApi.deleteContractor(Contractor?.id ?? 0);
-    await addressApi.deleteAddress(Contractor!.address!.id!);
     const index = contractors.indexOf(<ContractorDTO>Contractor);
     console.log(index);
     message.success("Đã xóa thông tin Nhà thầu thành công!");
@@ -120,8 +119,6 @@ const formEditState: UnwrapRef<ContractorDTO> = reactive<ContractorDTO>(
 );
 const showEditForm = (v: ContractorDTO) => {
   // Deep copy the object
-  console.log(v);
-  console.log(v);
   const copy = JSON.parse(JSON.stringify(v));
 
   // Convert string dates to Date objects
@@ -144,8 +141,6 @@ const showEditForm = (v: ContractorDTO) => {
 const editLoading = ref<boolean>(false);
 const edit = () => {
   editLoading.value = true;
-  console.log(JSON.parse(JSON.stringify(formEditState)));
-  console.log(formEditState.id);
   let formEditStateParams: any = formEditState.id
   contractorApi
     .partialUpdateContractor(formEditState.id!, formEditState)
@@ -154,8 +149,6 @@ const edit = () => {
       const index = contractors.findIndex((user: ContractorDTO) => {
         return user.id === formEditState.id;
       });
-      console.log(index);
-      console.log(contractors[index]);
       Object.assign(
         contractors[index],
         JSON.parse(JSON.stringify(formEditState))
@@ -175,7 +168,6 @@ const edit = () => {
 // Logic addForm
 const openAddForm = ref<boolean>(false);
 const addLoading = ref<boolean>(false);
-const addressApi = new AddressResourceApi(config);
 const formAddState = reactive({
   name: "",
   signingDate: "",
@@ -347,6 +339,8 @@ async function handleSearchResults(results: Entity[]) {
       </a-form-item>
       <a-form-item ref="address" label="Địa chỉ" name="address">
         <!-- <a-input v-model:value="formEditState.address!.fullName" /> -->
+        <AddressForm v-if="openEditForm" :initial-address-id="formEditState.address?.id"
+          @save="(addressId: any) => formEditState.address!.id = addressId" />
       </a-form-item>
     </a-form>
   </a-modal>

@@ -1,6 +1,7 @@
 <template>
   <div style="padding: 20px;">
-    <div v-for="(criterion, index) in searchCriteria" :key="index" style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div v-for="(criterion, index) in searchCriteria" :key="index"
+      style="display: flex; align-items: center; margin-bottom: 10px;">
       <span style="margin-right: 10px;">{{ criterion.name }}:</span>
       <div class="input-container">
         <a-input v-model:value="criterion.value" placeholder="Enter value for {{ criterion.name }}" />
@@ -54,7 +55,7 @@ const config = new Configuration({
 const searchResourceApi = new SearchResourceApi(config);
 
 const emits = defineEmits(['search']);
-const searchCriteria = ref<Array<{name: string, value: string}>>([]);
+const searchCriteria = ref<Array<{ name: string, value: string }>>([]);
 const selectedField = ref<string>('');
 const searchValue = ref<string>('');
 
@@ -70,7 +71,7 @@ const removeCriterion = (index: number) => {
   searchCriteria.value.splice(index, 1);
 };
 
-const search = async () => {  
+const search = async () => {
   // Emit the search event with the current search criteria and keyword
   const criteria = searchCriteria.value.reduce((obj, item) => Object.assign(obj, { [item.name]: item.value }), {});
   const keyword = searchValue.value.trim() !== '' ? searchValue.value : undefined;
@@ -81,7 +82,7 @@ const search = async () => {
 
 async function searchEntities<T extends Entity>({ criteria, keyword }: SearchParams<T>, entityName: string) {
   try {
-    const pageable: Pageable = { page: 0, size: 10 }; 
+    const pageable: Pageable = { page: 0, size: 10 };
     let allParams = { ...criteria };
     if (keyword) {
       allParams = { ...allParams, keyword };

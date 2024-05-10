@@ -15,6 +15,7 @@ import { Configuration } from "@/configuration";
 import { VehicleDTO, VehicleResourceApi, UserXResourceApi, UserResourceApi } from '../../api';
 import MultipleSearch from "@/components/MultipleSearch.vue";
 import { Entity } from "@/search.types";
+import AddressForm from "@/components/AddressForm.vue";
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -49,6 +50,7 @@ function createDefaultVehicleDTO() {
     fuelType: "",
     averageVelocity: 0,
     maxStopPoints: 0,
+
     // ownerUserX: createDefaultUserXDTO(),
     currentAddress: createDefaultAddressDTO(), // Đây là một cách để tạo một đối tượng rỗng của AddressDTO
   };
@@ -64,36 +66,50 @@ const columns = [
     customFilterDropdown: true,
     onFilter: (value: string, record: VehicleDTO) =>
       record.type!.toLowerCase().includes(value.toLowerCase()),
+    width: '3%',
+
   },
   {
     title: "Biển số xe",
     key: "licensePlatesNumber",
     dataIndex: "licensePlatesNumber",
+    width: '6%',
   },
   {
     title: "Chiều cao",
     dataIndex: "height",
     key: "height",
+    width: '2%',
   },
   {
     title: "Chiều rộng",
     dataIndex: "width",
     key: "width",
+    width: '2%',
   },
   {
     title: "Chiều dài",
     dataIndex: "length",
     key: "length",
+    width: '2%',
   },
   {
     title: "Kiểu dầu",
     dataIndex: "fuelType",
     key: "fuelType",
+    width: '2%',
   },
   {
-    title: "Tên người sở hữu",
+    title: "Điều phối viên",
     dataIndex: ["ownerUserX", "user", "lastName"],
     key: "userX",
+    width: '6%',
+  },
+  {
+    title: "Tài xế",
+    dataIndex: ["driver", "user", "lastName"],
+    key: "driver",
+    width: '6%',
   },
   {
     title: "Địa chỉ",
@@ -102,11 +118,14 @@ const columns = [
     customFilterDropdown: true,
     onFilter: (value: string, record: VehicleDTO) =>
       record.currentAddress!.fullName!.toLowerCase().includes(value.toLowerCase()),
+    width: '12%',
+
   },
   {
     title: "Thao tác",
     key: "operation",
     fixed: "right",
+    width: '2%',
   },
 ];
 
@@ -129,13 +148,8 @@ onMounted(fetchData);
 const deleteVehicle = async (vehicle?: VehicleDTO) => {
   try {
     await vehicleApi.deleteVehicle(vehicle!.id ?? 0);
-    // await userxApi.deleteUserX(vehicle!.ownerUserX!.id!);
-    // await userApi.deleteUser(vehicle!.ownerUserX!.user!.login!)
-    await addressApi.deleteAddress(vehicle!.currentAddress!.id!);
-    const index = vehicles.indexOf(<VehicleDTO>vehicle);
-    console.log(index);
     message.success("Đã xóa thông tin xe thành công!");
-    vehicles.splice(index, 1);
+    fetchData();
   } catch (err) {
     console.log(err);
     message.error("Xóa thông tin xe thất bại!");
@@ -224,14 +238,12 @@ const formAddState = reactive({
   fuelType: "",
   averageVelocity: 0,
   maxStopPoints: 0,
-  // ownerUserX: {
-  //   id: -1,
-  //   user: {
-  //     id: -1,
-  //     firstName: "",
-  //     lastName: "",
-  //   },
-  // },
+  ownerUserX: {
+    id: null,
+  },
+  driver: {
+    id: null,
+  },
   currentAddress: {
     id: -1,
     fullName: "",
@@ -253,27 +265,36 @@ function reset() {
   formAddState.fuelType = "";
   formAddState.averageVelocity = 0;
   formAddState.maxStopPoints = 0;
-  // formAddState.ownerUserX.id = -1;
-  // formAddState.ownerUserX.user.id = -1;
-  // formAddState.ownerUserX.user.firstName = "";
-  // formAddState.ownerUserX.user.lastName = "";
+  formAddState.ownerUserX.id = null;
+  formAddState.driver.id = null;
   formAddState.currentAddress.id = -1;
   formAddState.currentAddress.fullName = "";
 }
 
+const userxApi = new UserXResourceApi(config);
 const showAddForm = () => {
   openAddForm.value = true;
+  userxApi.getUserXByRole("employee").then((res) => {
+    dpvRawList.value = res.data.map((item: any) => ({
+      value: item.id,
+      label: item.user.firstName + " " + item.user.lastName,
+    }));
+    dpvList.value = dpvRawList.value;
+  });
+  userxApi.getUserXByRole("driver").then((res) => {
+    txRawList.value = res.data.map((item: any) => ({
+      value: item.id,
+      label: item.user.firstName + " " + item.user.lastName,
+    }));
+    txList.value = txRawList.value;
+  });
 };
 
 const add = async () => {
   addLoading.value = true;
+  console.log(formAddState);
   try {
     // let userXId = (await userxApi.getUserX())
-    let addressId = (
-      await addressApi.createAddress(<AddressDTO>{
-        fullName: formAddState.currentAddress.fullName,
-      })
-    ).data.id;
     await vehicleApi.createVehicle(<VehicleDTO>{
       type: formAddState.type,
       licensePlatesNumber: formAddState.licensePlatesNumber,
@@ -289,16 +310,14 @@ const add = async () => {
       fuelType: formAddState.fuelType,
       averageVelocity: formAddState.averageVelocity,
       maxStopPoints: formAddState.maxStopPoints,
-      // ownerUserX: {
-      //   id: ,
-      //   user: {
-      //     id: -1,
-      //     firstName: "",
-      //     lastName: "",
-      //   },
-      // },
+      ownerUserX: {
+        id: Number(formAddState.ownerUserX.id),
+      },
+      driver: {
+        id: Number(formAddState.driver.id),
+      },
       currentAddress: {
-        id: addressId,
+        id: formAddState.currentAddress.id,
       },
     })
     console.log(formAddState)
@@ -343,6 +362,23 @@ async function handleSearchResults(results: Entity[]) {
     console.error('Error handling search results:', error);
   }
 }
+
+const dpvRawList = ref<any[]>([]);
+const dpvList = ref<any[]>([]);
+const searchDPV = (text: string) => {
+  dpvList.value = dpvRawList.value.filter((item: any) => {
+    return item.label.toLowerCase().includes(text.toLowerCase());
+  });
+};
+
+const txRawList = ref<any[]>([]);
+const txList = ref<any[]>([]);
+const searchTX = (text: string) => {
+  txList.value = txRawList.value.filter((item: any) => {
+    return item.label.toLowerCase().includes(text.toLowerCase());
+  });
+};
+
 </script>
 <template>
   <!-- -->
@@ -358,7 +394,7 @@ async function handleSearchResults(results: Entity[]) {
     margin: 0,
     minHeight: '280px',
   }">
-    <a-table :dataSource="vehicles" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination">
+    <a-table :dataSource="vehicles" :columns="columns" :scroll="{ x: 2000 }" :pagination="pagination">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'type'">
           <a>
@@ -445,153 +481,196 @@ async function handleSearchResults(results: Entity[]) {
     @ok="edit">
     <a-form :model="formEditState" layout="vertical">
       <a-row :gutter="16">
-        <a-col :span="5">
+        <a-col :span="6">
           <a-form-item ref="type" label="Kiểu xe" name="type">
             <a-input v-model:value="formEditState.type" />
           </a-form-item>
         </a-col>
-        <a-col :span="5">
+        <a-col :span="6">
           <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber">
             <a-input v-model:value="formEditState.licensePlatesNumber" />
           </a-form-item>
         </a-col>
-        <a-col :span="5">
+        <a-col :span="6">
+          <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType">
+            <a-input v-model:value="formEditState.fuelType" />
+          </a-form-item>
+
+        </a-col>
+        <a-col :span="6">
+          <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints">
+            <a-input type="number" v-model:value="formEditState.maxStopPoints" />
+          </a-form-item>
+
+        </a-col>
+
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="4">
           <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg">
-            <a-input-number v-model:value="formEditState.maxLoadKg" />
+            <a-input type="number" v-model:value="formEditState.maxLoadKg" />
           </a-form-item>
         </a-col>
-        <a-col :span="5">
+        <a-col :span="4">
           <a-form-item ref="minLoadKg" label="Tải trọng tối thiểu" name="minLoadKg">
-            <a-input-number v-model:value="formEditState.minLoadKg" />
+            <a-input type="number" v-model:value="formEditState.minLoadKg" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
           <a-form-item ref="height" label="Chiều cao" name="height">
-            <a-input-number v-model:value="formEditState.height" />
+            <a-input type="number" v-model:value="formEditState.height" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="width" label="Chiều rộng" name="width">
+            <a-input type="number" v-model:value="formEditState.width" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="length" label="Chiều dài" name="length">
+            <a-input type="number" v-model:value="formEditState.length" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity">
+            <a-input type="number" v-model:value="formEditState.averageVelocity" />
           </a-form-item>
         </a-col>
       </a-row>
       <a-row :gutter="16">
-
-        <a-col :span="6">
-          <a-form-item ref="width" label="Chiều rộng" name="width">
-            <a-input-number v-model:value="formEditState.width" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="6">
-          <a-form-item ref="length" label="Chiều dài" name="length">
-            <a-input-number v-model:value="formEditState.length" />
-          </a-form-item>
-        </a-col>
         <a-col :span="6">
           <a-form-item ref="minPallets" label="Số pallet tối thiểu" name="minPallets">
-            <a-input-number v-model:value="formEditState.minPallets" />
+            <a-input type="number" v-model:value="formEditState.minPallets" />
           </a-form-item>
         </a-col>
         <a-col :span="6">
           <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets">
-            <a-input-number v-model:value="formEditState.maxPallets" />
+            <a-input type="number" v-model:value="formEditState.maxPallets" />
           </a-form-item>
         </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
+        <a-col :span="6">
           <a-form-item ref="registrationDate" label="Ngày đăng ký" name="registrationDate">
             <a-date-picker v-model:value="formEditState.registrationDate" />
           </a-form-item>
         </a-col>
-        <a-col :span="12">
+        <a-col :span="6">
           <a-form-item ref="registrationExpireDate" label="Ngày hết hạn" name="registrationExpireDate">
             <a-date-picker v-model:value="formEditState.registrationExpireDate" />
           </a-form-item>
         </a-col>
       </a-row>
-      <a-row :gutter="16">
-        <a-col :span="8">
-          <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity">
-            <a-input-number v-model:value="formEditState.averageVelocity" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="8">
-          <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints">
-            <a-input-number v-model:value="formEditState.maxStopPoints" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="8">
-          <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType">
-            <a-input v-model:value="formEditState.fuelType" />
-          </a-form-item>
-        </a-col>
-      </a-row>
+      <a-form-item ref="currentAddress" label="Địa chỉ" name="currentAddress">
+        <a-input v-model:value="formEditState.currentAddress!.fullName" />
+      </a-form-item>
       <!-- <a-form-item
         ref="ownerUserX"
         label="Tên người sở hữu"
         name="ownerUserX"
       > -->
-      <a-form-item ref="currentAddress" label="Địa chỉ" name="currentAddress">
-        <a-input v-model:value="formEditState.currentAddress!.fullName" />
-      </a-form-item>
+
     </a-form>
   </a-modal>
 
   <!-- Popup create vehicle form -->
-  <a-modal v-model:open="openAddForm" title="Tạo mới Xe" :confirm-loading="addLoading" @ok="add" @cancel="reset">
-    <a-form>
-      <a-form-item ref="type" label="Kiểu xe" name="type">
-        <a-input v-model:value="formAddState.type" />
-      </a-form-item>
-      <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber">
-        <a-input v-model:value="formAddState.licensePlatesNumber" />
-      </a-form-item>
-      <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg">
-        <a-input-number v-model:value="formAddState.maxLoadKg" />
-      </a-form-item>
-      <a-form-item ref="minLoadKg" label="Tải trọng tối thiểu" name="minLoadKg">
-        <a-input-number v-model:value="formAddState.minLoadKg" />
-      </a-form-item>
-      <a-form-item ref="height" label="Chiều cao" name="height">
-        <a-input-number v-model:value="formAddState.height" />
-      </a-form-item>
-      <a-form-item ref="width" label="Chiều rộng" name="width">
-        <a-input-number v-model:value="formAddState.width" />
-      </a-form-item>
-      <a-form-item ref="length" label="Chiều dài" name="length">
-        <a-input-number v-model:value="formAddState.length" />
-      </a-form-item>
-      <a-form-item ref="minPallets" label="Số pallet tối thiểu" name="minPallets">
-        <a-input-number v-model:value="formAddState.minPallets" />
-      </a-form-item>
-      <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets">
-        <a-input-number v-model:value="formAddState.maxPallets" />
-      </a-form-item>
-      <a-form-item ref="registrationDate" label="Ngày đăng ký" name="registrationDate">
-        <a-date-picker v-model:value="formAddState.registrationDate" />
-      </a-form-item>
-      <a-form-item ref="registrationExpireDate" label="Ngày hết hạn" name="registrationExpireDate">
-        <a-date-picker v-model:value="formAddState.registrationExpireDate" />
-      </a-form-item>
-      <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity">
-        <a-input-number v-model:value="formAddState.averageVelocity" />
-      </a-form-item>
-      <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints">
-        <a-input-number v-model:value="formAddState.maxStopPoints" />
-      </a-form-item>
-      <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType">
-        <a-input v-model:value="formAddState.fuelType" />
-      </a-form-item>
-
-      <!-- <a-form-item
-        ref="ownerUserX"
-        label="Tên người sở hữu"
-        name="ownerUserX"
-      > -->
+  <a-modal width="900px" v-model:open="openAddForm" title="Tạo mới Xe" :confirm-loading="addLoading" @ok="add"
+    @cancel="reset">
+    <a-form layout="vertical">
+      <a-row :gutter="16">
+        <a-col :span="6">
+          <a-form-item ref="type" label="Kiểu xe" name="type">
+            <a-input v-model:value="formAddState.type" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber">
+            <a-input v-model:value="formAddState.licensePlatesNumber" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType">
+            <a-input v-model:value="formAddState.fuelType" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints">
+            <a-input type="number" v-model:value="formAddState.maxStopPoints" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="8">
+        <a-col :span="4">
+          <a-form-item ref="minLoadKg" label="Tải trọng tối thiểu" name="minLoadKg">
+            <a-input type="number" v-model:value="formAddState.minLoadKg" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg">
+            <a-input type="number" v-model:value="formAddState.maxLoadKg" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="height" label="Chiều cao" name="height">
+            <a-input type="number" v-model:value="formAddState.height" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="width" label="Chiều rộng" name="width">
+            <a-input type="number" v-model:value="formAddState.width" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="length" label="Chiều dài" name="length">
+            <a-input type="number" v-model:value="formAddState.length" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity">
+            <a-input type="number" v-model:value="formAddState.averageVelocity" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="4">
+          <a-form-item ref="minPallets" label="Số pallet tối thiểu" name="minPallets">
+            <a-input type="number" v-model:value="formAddState.minPallets" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets">
+            <a-input type="number" v-model:value="formAddState.maxPallets" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="registrationDate" label="Ngày đăng ký" name="registrationDate">
+            <a-date-picker v-model:value="formAddState.registrationDate" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item ref="registrationExpireDate" label="Ngày hết hạn" name="registrationExpireDate">
+            <a-date-picker v-model:value="formAddState.registrationExpireDate" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item label="Người điều phối">
+            <a-select v-model:value="formAddState.ownerUserX.id" placeholder=" Chọn" show-search style="width: 100%"
+              :options="dpvList" @search="searchDPV" :filter-option="false">
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item label="Tài xế">
+            <a-select v-model:value="formAddState.driver.id" placeholder=" Chọn" show-search style="width: 100%"
+              :options="txList" @search="searchTX" :filter-option="false">
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row>
 
       <a-form-item ref="currentAddress" label="Địa chỉ" name="currentAddress">
-        <a-input v-model:value="formAddState.currentAddress!.fullName" />
+        <!-- <a-input v-model:value="formAddState.currentAddress!.fullName" /> -->
+        <AddressForm v-if="openAddForm" @save="(addressId: any) => formAddState.currentAddress.id = addressId" />
       </a-form-item>
     </a-form>
   </a-modal>
 
 </template>
-
-<style scoped></style>

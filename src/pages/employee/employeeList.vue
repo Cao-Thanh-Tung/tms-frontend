@@ -176,7 +176,7 @@ const vehicleApi = new VehicleResourceApi(config);
 // Delete user and update to table content
 const deleteEmployee = async (employee?: UserXDTO) => {
     try {
-        await vehicleApi.updateOwnerUserXIdToNull(employee?.id!);
+        // await vehicleApi.updateOwnerUserXIdToNull(employee?.id!);
         await customerAssignmentApi.deleteCustomerAssignmentByEmployeeUserXId(employee?.id!);
         await scheduleApi.updateScheduleCoordinateToNull(employee?.id!);
         await userxApi.deleteUserX(employee?.id!)
