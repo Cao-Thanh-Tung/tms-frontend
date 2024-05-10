@@ -347,28 +347,28 @@ const handleReset = (clearFilters: any) => {
   state.searchText = "";
 };
 
-const vehicleDummy: { [key: string]: string } = {
-  type: 'string',
-  license_plates_number: 'string',
-  max_load_kg: 'number',
-  min_load_kg: 'number',
-  height: 'number',
-  width: 'number',
-  length: 'number',
-  min_pallets: 'number',
-  max_pallets: 'number',
-  registration_date: 'date',
-  registration_expireDate: 'date',
-  fuel_type: 'string',
-  average_velocity: 'number',
-  code: 'string',
+const vehicleDummy = [
+  { name: 'type', type: 'string', displayName: 'Kiểu xe' },
+  { name: 'license_plates_number', type: 'string', displayName: 'Biển số xe' },
+  { name: 'max_load_kg', type: 'number', displayName: 'Tải trọng tối đa' },
+  { name: 'min_load_kg', type: 'number', displayName: 'Tải trọng tối thiểu' },
+  { name: 'height', type: 'number', displayName: 'Chiều cao' },
+  { name: 'width', type: 'number', displayName: 'Chiều rộng' },
+  { name: 'length', type: 'number', displayName: 'Chiều dài' },
+  { name: 'min_pallets', type: 'number', displayName: 'Số pallet tối thiểu' },
+  { name: 'max_pallets', type: 'number', displayName: 'Số pallet tối đa' },
+  { name: 'registration_date', type: 'date', displayName: 'Ngày đăng ký' },
+  { name: 'registration_expire_date', type: 'date', displayName: 'Ngày hết hạn đăng ký' },
+  { name: 'fuel_type', type: 'string', displayName: 'Loại nhiên liệu' },
+  { name: 'average_velocity', type: 'number', displayName: 'Vận tốc trung bình' },
+  { name: 'code', type: 'string', displayName: 'Mã' },
   // maxStopPoints: 'number',
   // ownerUserX: 'UserXDTO',
   // driver: 'UserXDTO',
   // currentAddress: 'AddressDTO',
-};
+];
 
-const searchFields = ref(Object.keys(vehicleDummy).map(key => ({ name: key, type: vehicleDummy[key], label: key })));
+const searchFields = ref(vehicleDummy);
 
 async function handleSearchResults(results: Entity[]) {
   try {
