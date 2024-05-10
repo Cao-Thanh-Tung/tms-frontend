@@ -538,24 +538,38 @@ const searchTX = (text: string) => {
         </a-col>
       </a-row>
       <a-row :gutter="16">
-        <a-col :span="6">
+        <a-col :span="4">
           <a-form-item ref="minPallets" label="Số pallet tối thiểu" name="minPallets">
             <a-input type="number" v-model:value="formEditState.minPallets" />
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="4">
           <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets">
             <a-input type="number" v-model:value="formEditState.maxPallets" />
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="4">
           <a-form-item ref="registrationDate" label="Ngày đăng ký" name="registrationDate">
             <a-date-picker v-model:value="formEditState.registrationDate" />
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="4">
           <a-form-item ref="registrationExpireDate" label="Ngày hết hạn" name="registrationExpireDate">
             <a-date-picker v-model:value="formEditState.registrationExpireDate" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item label="Điều phối viên">
+            <a-select>
+              <a-select-option key="" value=""></a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="4">
+          <a-form-item label="Tài xế">
+            <a-select>
+              <a-select-option key="" value=""></a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
       </a-row>
