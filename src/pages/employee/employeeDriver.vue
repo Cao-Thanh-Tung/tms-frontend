@@ -10,6 +10,8 @@ import { AdminUserDTO } from '../../api';
 import AddressForm from '@/components/AddressForm.vue';
 import { computed } from 'vue';
 import { usePagination } from 'vue-request';
+import { Form } from 'ant-design-vue';
+const useForm = Form.useForm;
 // config request object
 const config = new Configuration({
     accessToken: () => store.getters.jwt,
@@ -203,49 +205,63 @@ const deletedriver = async (driver?: UserXDTO) => {
 
 // Logic editForm
 const openEditForm = ref<boolean>(false);
-
-const formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>(createDefaultUserXDTO());
+const formEditState = reactive({
+    id: 0,
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    imageUrl: "",
+    addressId: -1,
+    activated: false,
+})
+// const formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>(createDefaultUserXDTO());
 const showEditForm = (v: UserXDTO) => {
-    Object.assign(formEditState, JSON.parse(JSON.stringify(v)));
-    formEditState.address!.id = v.addressId;
-    formEditState.addressId = v.addressId;
+    resetFieldsEditForm();
+    formEditState.id = v.id!;
+    formEditState.addressId = v.addressId!;
+    formEditState.firstName = v.user!.firstName!;
+    formEditState.lastName = v.user!.lastName!;
+    formEditState.phone = v.phoneNumber!;
+    formEditState.email = v.user!.email!;
+    formEditState.imageUrl = v.user!.imageUrl!;
+    formEditState.activated = v.user!.activated!;
     openEditForm.value = true;
 };
 
 const editLoading = ref<boolean>(false);
-const edit = () => {
+const editRequest = () => {
 
-    if (formEditState.address!.id === -1 || formEditState.address!.id === undefined) {
+    if (formEditState.addressId === -1 || formEditState.addressId === undefined) {
         message.error("Vui lòng chọn địa chỉ!");
         return;
     }
 
-    if (formEditState.user!.firstName === "") {
-        message.error("Vui lòng nhập họ!");
-        return;
-    }
-    if (formEditState.user!.lastName === "") {
-        message.error("Vui lòng nhập tên!");
-        return;
-    }
-    if (formEditState.user!.email === "") {
-        message.error("Vui lòng nhập email!");
-        return;
-    }
-
-
     editLoading.value = true;
     console.log(formEditState);
-    userxApi.partialUpdateUserX(formEditState.id!, formEditState).then((res) => {
+    userxApi.partialUpdateUserX(formEditState.id!, {
+        id: formEditState.id,
+        phoneNumber: formEditState.phone,
+        user: {
+            firstName: formEditState.firstName,
+            lastName: formEditState.lastName,
+            email: formEditState.email,
+            imageUrl: formEditState.imageUrl,
+            activated: formEditState.activated,
+        },
+        address: {
+            id: formEditState.addressId,
+        }
+    }).then((res) => {
         console.log(res);
         message.success("Đã thay đổi thông tin tài xế thành công!");
-    }).catch((err) => {
-        console.log(err);
-        message.success("Thay đổi thông tin tài xế thất bại!");
-    }).finally(() => {
-        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
         editLoading.value = false;
         openEditForm.value = false;
+        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
+    }).catch((err) => {
+        console.log(err);
+        editLoading.value = false;
+        message.error("Email đã được sử dụng!");
     })
 };
 
@@ -265,6 +281,7 @@ const formAddState = reactive({
     address: { id: -1, fullName: '' },
     role: "driver",
 })
+
 function reset() {
     formAddState.login = "";
     formAddState.password = "";
@@ -275,34 +292,19 @@ function reset() {
     formAddState.imageUrl = "";
     formAddState.address.id = -1;
     formAddState.address.fullName = "";
+    resetFieldsAddForm();
 }
 
 const showAddForm = () => {
+    reset();
     openAddForm.value = true;
 };
 
-const add = async () => {
+const addRequest = async () => {
     if (formAddState.address.id === -1 || formAddState.address.id === undefined) {
         message.error("Vui lòng chọn địa chỉ!");
         return;
     }
-    if (formAddState.login === "") {
-        message.error("Vui lòng nhập tài khoản!");
-        return;
-    }
-    if (formAddState.firstName === "") {
-        message.error("Vui lòng nhập họ!");
-        return;
-    }
-    if (formAddState.lastName === "") {
-        message.error("Vui lòng nhập tên!");
-        return;
-    }
-    if (formAddState.email === "") {
-        message.error("Vui lòng nhập email!");
-        return;
-    }
-
     addLoading.value = true;
     try {
         let userId = (await userApi.createUser(<AdminUserDTO>{
@@ -366,12 +368,79 @@ const chooseAddressAddForm = (addressId: number) => {
     formAddState.address.id = addressId;
 }
 const chooseAddressEditForm = (addressId: number) => {
-    formEditState.address!.id = addressId;
+    formEditState.addressId = addressId;
     console.log(addressId);
 }
-
-
-
+const rulesRefAddForm = reactive({
+    login: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    firstName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    lastName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    email: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+        {
+            type: 'email',
+            message: 'Email không đúng định dạng',
+        }
+    ],
+});
+const rulesRefEditForm = reactive({
+    firstName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    lastName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    email: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+        {
+            type: 'email',
+            message: 'Email không đúng định dạng',
+        }
+    ],
+});
+const { resetFields: resetFieldsAddForm, validate: validateAddForm, validateInfos: validateInfosAddForm } = useForm(formAddState, rulesRefAddForm);
+const { resetFields: resetFieldsEditForm, validate: validateEditForm, validateInfos: validateInfosEditForm } = useForm(formEditState, rulesRefEditForm);
+const add = () => {
+    validateAddForm().then(() => {
+        addRequest();
+    }).catch((e: any) => {
+        console.log(e);
+    });
+}
+const edit = () => {
+    validateEditForm().then(() => {
+        editRequest();
+    }).catch((e: any) => {
+        console.log(e);
+    })
+};
 </script>
 
 <template>
@@ -453,28 +522,44 @@ const chooseAddressEditForm = (addressId: number) => {
     <!-- Popup edit driver form -->
     <a-modal width="700px" v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin tài xế"
         :confirm-loading="editLoading" @ok="edit">
-        <a-form :model="formEditState">
-            <a-form-item ref="firstName" label="(*)Họ" name="firstName">
-                <a-input v-model:value="formEditState.user!.firstName" />
-            </a-form-item>
-            <a-form-item ref="lastName" label="(*)Tên" name="lastName">
-                <a-input v-model:value="formEditState.user!.lastName" />
-            </a-form-item>
-            <a-form-item ref="address" label="(*)Địa chỉ" name="address">
-                <address-form :initial-address-id="formEditState.address?.id"
+        <a-form :model="formEditState" layout="vertical">
+            <a-row :gutter="16">
+                <a-col :span="8">
+                    <a-form-item label="Họ" name="firstName" required v-bind="validateInfosEditForm.firstName">
+                        <a-input v-model:value="formEditState.firstName" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Tên" name="lastName" required v-bind="validateInfosEditForm.lastName">
+                        <a-input v-model:value="formEditState.lastName" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Kích hoạt tài khoản" name="activated">
+                        <a-switch v-model:checked="formEditState.activated" />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :span="8">
+                    <a-form-item label="Phone" name="phoneNumber">
+                        <a-input v-model:value="formEditState.phone" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Email" name="email" required v-bind="validateInfosEditForm.email">
+                        <a-input v-model:value="formEditState.email" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Đường dẫn ảnh" name="imageUrl">
+                        <a-input v-model:value="formEditState.imageUrl" />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-form-item ref="address" label="Địa chỉ" name="address" required>
+                <address-form :initial-address-id="formEditState.addressId"
                     @save="chooseAddressEditForm"></address-form>
-            </a-form-item>
-            <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
-                <a-input v-model:value="formEditState.phoneNumber" />
-            </a-form-item>
-            <a-form-item ref="email" label="(*)Email" name="email">
-                <a-input v-model:value="formEditState.user!.email" />
-            </a-form-item>
-            <a-form-item label="Kích hoạt tài khoản" name="activated">
-                <a-switch v-model:checked="formEditState.user!.activated" />
-            </a-form-item>
-            <a-form-item label="Đường dẫn ảnh" name="imageUrl">
-                <a-input v-model:value="formEditState.user!.imageUrl" />
             </a-form-item>
         </a-form>
     </a-modal>
@@ -482,27 +567,43 @@ const chooseAddressEditForm = (addressId: number) => {
     <!-- Popup create driver form -->
     <a-modal width="700px" v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới tài xế"
         :confirm-loading="addLoading" @ok="add" @cancel="reset">
-        <a-form>
-            <a-form-item label="(*)Tài khoản" name="username">
-                <a-input v-model:value="formAddState.login" />
-            </a-form-item>
-            <a-form-item label="(*)Họ" name="firstName">
-                <a-input v-model:value="formAddState.firstName" />
-            </a-form-item>
-            <a-form-item label="(*)Tên" name="lastName">
-                <a-input v-model:value="formAddState.lastName" />
-            </a-form-item>
-            <a-form-item label="(*)Địa chỉ" name="address">
+        <a-form layout="vertical">
+            <a-row :gutter="16" :model="formAddState">
+                <a-col :span="8">
+                    <a-form-item label="Tài khoản" name="username" required v-bind="validateInfosAddForm.login">
+                        <a-input v-model:value="formAddState.login" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Họ" name="firstName" required v-bind="validateInfosAddForm.firstName">
+                        <a-input v-model:value="formAddState.firstName" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Tên" name="lastName" required v-bind="validateInfosAddForm.lastName">
+                        <a-input v-model:value="formAddState.lastName" />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :span="8">
+                    <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
+                        <a-input v-model:value="formAddState.phone" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Email" name="email" required v-bind="validateInfosAddForm.email">
+                        <a-input v-model:value="formAddState.email" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="Ảnh" name="imageUrl">
+                        <a-input v-model:value="formAddState.imageUrl" />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-form-item label="Địa chỉ" name="address" required>
                 <address-form @save="chooseAddressAddForm"></address-form>
-            </a-form-item>
-            <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
-                <a-input v-model:value="formAddState.phone" />
-            </a-form-item>
-            <a-form-item label="(*)Email" name="email">
-                <a-input v-model:value="formAddState.email" />
-            </a-form-item>
-            <a-form-item label="Ảnh" name="imageUrl">
-                <a-input v-model:value="formAddState.imageUrl" />
             </a-form-item>
         </a-form>
     </a-modal>

@@ -23,43 +23,27 @@ const config = new Configuration({
     }
 })
 const userxApi = new UserXResourceApi(config);
-let formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>({
-    id: undefined,
-    phoneNumber: undefined,
-    role: undefined,
-    user: {
-        id: undefined,
-        login: undefined,
-        firstName: undefined,
-        lastName: undefined,
-        email: undefined,
-        imageUrl: undefined,
-        activated: undefined
-    },
-    address: {
-        id: undefined,
-        fullName: undefined
-    }
-});
+const formEditState = reactive({
+    id: 0,
+    phone: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    imageUrl: '',
+    activated: false,
+    addressId: -1,
+})
 onMounted(() => {
     userxApi.getUserX(props.user!).then((res) => {
         let user = res.data;
-        formEditState.id = user.id;
-        formEditState.phoneNumber = user.phoneNumber;
-        formEditState.role = user.role;
-        formEditState.user = {
-            id: user.user?.id,
-            login: user.user?.login,
-            firstName: user.user?.firstName,
-            lastName: user.user?.lastName,
-            email: user.user?.email,
-            imageUrl: user.user?.imageUrl,
-            activated: user.user?.activated
-        };
-        formEditState.address = {
-            id: user.address?.id,
-            fullName: user.address?.fullName
-        };
+        formEditState.id = user.id!;
+        formEditState.phone = user.phoneNumber || '';
+        formEditState.firstName = user.user!.firstName!;
+        formEditState.lastName = user.user!.lastName!;
+        formEditState.email = user.user!.email!;
+        formEditState.imageUrl = user.user!.imageUrl!;
+        formEditState.activated = user.user!.activated!;
+        formEditState.addressId = user.address!.id!;
     }).catch((err) => {
         console.log(err);
 
@@ -68,19 +52,19 @@ onMounted(() => {
 
 
 const rulesRef = reactive({
-    "user.firstName": [
+    firstName: [
         {
             required: true,
             message: 'Không để trống',
         },
     ],
-    "user.lastName": [
+    lastName: [
         {
             required: true,
             message: 'Không để trống',
         },
     ],
-    "user.email": [
+    email: [
         {
             required: true,
             message: 'Không để trống',
@@ -90,7 +74,7 @@ const rulesRef = reactive({
             message: 'Email không đúng định dạng',
         }
     ],
-    "address.id": [
+    addressId: [
         {
             required: true,
             message: 'Không để trống',
@@ -111,7 +95,20 @@ const edit = () => {
 
 const editRequest = () => {
     editLoading.value = true;
-    userxApi.partialUpdateUserX(formEditState.id!, formEditState).then((res) => {
+    userxApi.partialUpdateUserX(formEditState.id!, {
+        id: formEditState.id,
+        phoneNumber: formEditState.phone,
+        user: {
+            firstName: formEditState.firstName,
+            lastName: formEditState.lastName,
+            email: formEditState.email,
+            imageUrl: formEditState.imageUrl,
+            activated: formEditState.activated,
+        },
+        address: {
+            id: formEditState.addressId,
+        }
+    }).then((res) => {
         console.log(res);
         message.success("Đã thay đổi thông tin nhân viên thành công!");
         emit('edit-employee-success');
@@ -135,47 +132,43 @@ const cancelHandle = () => {
         <a-form :model="formEditState" layout="vertical">
             <a-row :gutter="16">
                 <a-col :span="8">
-                    <a-form-item ref="firstName" label="Họ" required v-model="validateInfos['user.firstName']">
-                        <a-input v-model:value="formEditState.user!.firstName" />
+                    <a-form-item ref="firstName" label="Họ" required v-bind="validateInfos.firstName">
+                        <a-input v-model:value="formEditState.firstName" />
                     </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                    <a-form-item ref="lastName" label="Tên" required v-model="validateInfos['user.lastName']">
-                        <a-input v-model:value="formEditState.user!.lastName" />
+                    <a-form-item ref="lastName" label="Tên" required v-bind="validateInfos.lastName">
+                        <a-input v-model:value="formEditState.lastName" />
                     </a-form-item>
                 </a-col>
                 <a-col :span="8">
                     <a-form-item label="Kích hoạt tài khoản">
-                        <a-switch v-model:checked="formEditState.user!.activated" />
+                        <a-switch v-model:checked="formEditState.activated" />
                     </a-form-item>
                 </a-col>
             </a-row>
             <a-row :gutter="16">
                 <a-col :span="8">
                     <a-form-item ref="phoneNumber" label="Phone">
-                        <a-input v-model:value="formEditState.phoneNumber" />
+                        <a-input v-model:value="formEditState.phone" />
                     </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                    <a-form-item ref="email" label="Email" required v-model="validateInfos['user.email']">
-                        <a-input v-model:value="formEditState.user!.email" />
+                    <a-form-item ref="email" label="Email" required v-model="validateInfos.email">
+                        <a-input v-model:value="formEditState.email" />
                     </a-form-item>
                 </a-col>
                 <a-col :span="8">
                     <a-form-item label="Đường dẫn ảnh" name="imageUrl">
-                        <a-input v-model:value="formEditState.user!.imageUrl" />
+                        <a-input v-model:value="formEditState.imageUrl" />
                     </a-form-item>
                 </a-col>
             </a-row>
-            <a-form-item ref="address" label="Địa chỉ" required v-model="validateInfos['address.id']">
-                <address-form :initial-address-id="formEditState.address?.id" @save="(addressId: number) => {
-                    formEditState.address!.id = addressId;
+            <a-form-item ref="address" label="Địa chỉ">
+                <address-form :initial-address-id="formEditState.addressId" @save="(addressId: number) => {
+                    formEditState.addressId = addressId;
                 }"></address-form>
             </a-form-item>
-
-
-
-
         </a-form>
     </a-modal>
 </template>

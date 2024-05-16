@@ -67,7 +67,6 @@
             </template>
             <!-- Filter end -->
         </a-table>
-
     </a-layout-content>
 
     <!-- Float button create new employee -->
@@ -81,27 +80,39 @@
     <!-- Popup edit employee form -->
     <a-modal v-model:open="openEditForm" title="Chỉnh sửa thông tin khách hàng" :confirm-loading="confirmLoading"
         @ok="handleOk" width="700px">
-        <a-form>
-            <a-form-item label="Tên" name="customerName">
-                <a-input v-model:value="formState.customerName" />
-            </a-form-item>
-            <a-form-item label="Số điện thoại" name="phoneNumber">
-                <a-input v-model:value="formState.phoneNumber" />
-            </a-form-item>
+        <a-form layout="vertical">
+            <a-row :gutter="16">
+                <a-col :span="16">
+                    <a-form-item label="Tên" name="customerName">
+                        <a-input v-model:value="formState.customerName" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="16">
+                    <a-form-item label="Số điện thoại" name="phoneNumber">
+                        <a-input v-model:value="formState.phoneNumber" />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :span="16">
+                    <a-form-item label="Email" name="email">
+                        <a-input v-model:value="formState.email" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="16">
+                    <a-form-item label="Nhân viên điều phối">
+                        <a-select v-model:value="formState.employee" placeholder="Chọn nhân viên điều phối" show-search
+                            :filter-option="filterOption"
+                            :options="allEmployeeList.map(item => ({ value: item.id, label: item.user?.firstName + ' ' + item.user?.lastName }))">
+                            <a-select-option v-for="item in allEmployeeList" :key="item.id" :value="item.id">
+                                {{ item.user?.firstName + " " + item.user?.lastName }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
             <a-form-item label="Địa chỉ" name="address">
                 <address-form @save="chooseAddressAddForm"></address-form>
-            </a-form-item>
-            <a-form-item label="Email" name="email">
-                <a-input v-model:value="formState.email" />
-            </a-form-item>
-            <a-form-item label="Nhân viên điều phối">
-                <a-select v-model:value="formState.employee" placeholder="Chọn nhân viên điều phối" show-search
-                    :filter-option="filterOption"
-                    :options="allEmployeeList.map(item => ({ value: item.id, label: item.user?.firstName + ' ' + item.user?.lastName }))">
-                    <a-select-option v-for="item in allEmployeeList" :key="item.id" :value="item.id">
-                        {{ item.user?.firstName + " " + item.user?.lastName }}
-                    </a-select-option>
-                </a-select>
             </a-form-item>
         </a-form>
     </a-modal>
@@ -110,36 +121,54 @@
     <!-- Popup create employee form -->
     <a-modal v-model:open="openAddForm" title="Tạo mới nhân viên" :confirm-loading="addLoading" @ok="addCustomer"
         @cancel="reset" width="700px">
-        <a-form>
-            <a-form-item label="Tài khoản" name="username">
-                <a-input v-model:value="formAddState.login" />
-            </a-form-item>
-            <a-form-item label="Họ" name="firstName">
-                <a-input v-model:value="formAddState.firstName" />
-            </a-form-item>
-            <a-form-item label="Tên" name="lastName">
-                <a-input v-model:value="formAddState.lastName" />
-            </a-form-item>
+        <a-form layout="vertical">
+            <a-row :gutter="16">
+                <a-col :span="6">
+                    <a-form-item label="Tài khoản" name="username" required v-bind="validateInfosAddForm.login">
+                        <a-input v-model:value="formAddState.login" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                    <a-form-item label="Họ" name="firstName" required v-bind="validateInfosAddForm.firstName">
+                        <a-input v-model:value="formAddState.firstName" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                    <a-form-item label="Tên" name="lastName" required v-bind="validateInfosAddForm.lastName">
+                        <a-input v-model:value="formAddState.lastName" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                    <a-form-item label="Ảnh" name="imageUrl">
+                        <a-input v-model:value="formAddState.imageUrl" />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row :gutter="16">
+                <a-col :span="8">
+                    <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
+                        <a-input v-model:value="formAddState.phone" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="10">
+                    <a-form-item label="Email" name="email" required v-bind="validateInfosAddForm.email">
+                        <a-input v-model:value="formAddState.email" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                    <a-form-item label="Nhân viên điều phối">
+                        <a-select v-model:value="formState.employee" placeholder="Chọn nhân viên điều phối" show-search
+                            :filter-option="filterOption"
+                            :options="allEmployeeList.map(item => ({ value: item.id, label: item.user?.firstName + ' ' + item.user?.lastName }))">
+                            <a-select-option v-for="item in allEmployeeList" :key="item.id" :value="item.id">
+                                {{ item.user?.firstName + " " + item.user?.lastName }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
             <a-form-item label="Địa chỉ" name="address">
                 <address-form @save="chooseAddressAddForm"></address-form>
-            </a-form-item>
-            <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
-                <a-input v-model:value="formAddState.phone" />
-            </a-form-item>
-            <a-form-item label="Email" name="email">
-                <a-input v-model:value="formAddState.email" />
-            </a-form-item>
-            <a-form-item label="Ảnh" name="imageUrl">
-                <a-input v-model:value="formAddState.imageUrl" />
-            </a-form-item>
-            <a-form-item label="Nhân viên điều phối">
-                <a-select v-model:value="formState.employee" placeholder="Chọn nhân viên điều phối" show-search
-                    :filter-option="filterOption"
-                    :options="allEmployeeList.map(item => ({ value: item.id, label: item.user?.firstName + ' ' + item.user?.lastName }))">
-                    <a-select-option v-for="item in allEmployeeList" :key="item.id" :value="item.id">
-                        {{ item.user?.firstName + " " + item.user?.lastName }}
-                    </a-select-option>
-                </a-select>
             </a-form-item>
         </a-form>
     </a-modal>
@@ -150,6 +179,7 @@ import {
     CustomerAssignmentDTO,
     UserXResourceApi,
     CustomerAssignmentResourceApi,
+    UserResourceApi,
 } from "../../api";
 import { Configuration } from "../../configuration";
 import { onMounted, ref } from "vue";
@@ -159,6 +189,8 @@ import { message } from "ant-design-vue";
 import { usePagination } from 'vue-request';
 import { computed, reactive, watch } from 'vue';
 import AddressForm from "@/components/AddressForm.vue";
+import { Form } from 'ant-design-vue';
+const useForm = Form.useForm;
 const config = new Configuration({
     accessToken: () => store.getters.jwt,
     baseOptions: {
@@ -168,6 +200,7 @@ const config = new Configuration({
     },
 });
 const userXApi = new UserXResourceApi(config);
+const userApi = new UserResourceApi(config);
 const customerAssignmentApi = new CustomerAssignmentResourceApi(config);
 const customerList = ref([] as UserXDTO[]);
 const allEmployeeList = ref([] as UserXDTO[]);
@@ -195,6 +228,7 @@ const formAddState = reactive({
     addressId: 0,
 });
 const showAddForm = () => {
+    resetFieldsAddForm();
     openAddForm.value = true;
 };
 const chooseAddressAddForm = (addressId: number) => {
@@ -212,18 +246,22 @@ const reset = () => {
     formAddState.assignEmployee = 0;
     formAddState.addressId = 0;
 };
-const addCustomer = () => {
+const addCustomerRequest = async () => {
     addLoading.value = true;
+    const userId = (await userApi.createUser({
+        login: formAddState.login,
+        email: formAddState.email,
+        firstName: formAddState.firstName,
+        lastName: formAddState.lastName,
+        imageUrl: formAddState.imageUrl,
+        activated: true,
+    })).data.id;
     userXApi
         .createUserX({
             phoneNumber: formAddState.phone,
             role: "customer",
             user: {
-                email: formAddState.email,
-                firstName: formAddState.firstName,
-                lastName: formAddState.lastName,
-                login: formAddState.login,
-                activated: true,
+                id: userId,
             },
         })
         .then(() => {
@@ -445,16 +483,7 @@ const getEmployeeName = (customerId: any) => {
     }
     return "Chưa phân công";
 };
-// const editCustomer = (record: UserXDTO) => {
-//     openEditForm.value = true;
-//     formState.value.id = record.id || 0;
-//     formState.value.customerName =
-//         record.user?.firstName + " " + record.user?.lastName;
-//     formState.value.phoneNumber = record.phoneNumber || "";
-//     formState.value.email = record.user?.email || "";
-//     formState.value.employee = getEmployeeIdByCustomerId(record.id) || 0;
-//     formState.value.assignmentId = getAssignmentIdByCustomerId(record.id) || 0;
-// };
+
 const deleteCustomer = (user: UserXDTO) => {
     const user_id = user.id || 0;
     const assignmentId = getAssignmentIdByCustomerId(user_id) || 0;
@@ -539,5 +568,70 @@ const handleOk = () => {
             });
     }
 };
+
+const rulesRefEditForm = reactive({
+    firstName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    lastName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    email: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+        {
+            type: 'email',
+            message: 'Email không đúng định dạng',
+        }
+    ],
+})
+
+const rulesRefAddForm = reactive({
+    login: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    firstName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    lastName: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+    ],
+    email: [
+        {
+            required: true,
+            message: 'Không để trống',
+        },
+        {
+            type: 'email',
+            message: 'Email không đúng định dạng',
+        }
+    ],
+})
+const { resetFields: resetFieldsAddForm, validate: validateAddForm, validateInfos: validateInfosAddForm } = useForm(formAddState, rulesRefAddForm);
+
+const addCustomer = () => {
+    validateAddForm().then(() => {
+        addCustomerRequest();
+    }).catch((e) => {
+        console.log(e);
+    });
+}
 </script>
 <style scoped></style>

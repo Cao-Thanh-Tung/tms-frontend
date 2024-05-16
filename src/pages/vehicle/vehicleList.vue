@@ -228,6 +228,7 @@ let formEditState = reactive<{
 });
 const dateFormat = 'YYYY/MM/DD';
 const showEditForm = (v: VehicleDTO) => {
+  resetFieldsEditForm();
   let vId = v.id;
   formEditState.id = vId!;
   // Assign the modified object to formEditState
@@ -289,12 +290,11 @@ const editRequest = () => {
       },
       currentAddress: {
         id: formEditState.currentAddress.id,
-      }
+      },
     })
     .then((res) => {
       fetchContentTable();
       message.success("Đã thay đổi thông tin xe thành công!");
-      resetFields();
     })
     .catch((err) => {
       console.log(err);
@@ -362,6 +362,7 @@ function reset() {
 
 const userxApi = new UserXResourceApi(config);
 const showAddForm = () => {
+  resetFieldsAddForm();
   openAddForm.value = true;
 
 };
@@ -490,7 +491,7 @@ const searchTX = (text: string) => {
 //       currentAddress: {
 //         id: formAddState.currentAddress.id,
 //       },
-const rulesRef = reactive({
+const rules = {
   type: [
     {
       required: true,
@@ -581,20 +582,23 @@ const rulesRef = reactive({
       message: 'Không để trống',
     },
   ],
-})
-const { resetFields, validate, validateInfos } = useForm(formAddState, rulesRef);
+}
+const rulesRefAddForm = reactive(rules);
+const rulesRefEditForm = reactive(rules);
+const { resetFields: resetFieldsAddForm, validate: validateAddForm, validateInfos: validateInfosAddForm } = useForm(formAddState, rulesRefAddForm);
+const { resetFields: resetFieldsEditForm, validate: validateEditForm, validateInfos: validateInfosEditForm } = useForm(formEditState, rulesRefEditForm);
 const add = () => {
-  validate().then(() => {
+  validateAddForm().then(() => {
     addRequest();
-  }).catch((e) => {
+  }).catch((e: any) => {
     console.log(e);
   });
 }
 
 const edit = () => {
-  validate().then(() => {
+  validateEditForm().then(() => {
     editRequest();
-  }).catch((e) => {
+  }).catch((e: any) => {
     console.log(e);
   });
 }
@@ -677,78 +681,87 @@ const edit = () => {
     @ok="edit">
     <a-form :model="formEditState" layout="vertical">
       <a-row :gutter="16">
-        <a-col :span="4">
-          <a-form-item ref="type" label="Kiểu xe" name="type">
+        <a-col :span="3">
+          <a-form-item ref="type" label="Kiểu xe" name="type" required v-bind="validateInfosEditForm.type">
             <a-input v-model:value="formEditState.type" />
           </a-form-item>
         </a-col>
         <a-col :span="5">
-          <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber">
+          <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber" required
+            v-bind="validateInfosEditForm.licensePlatesNumber">
             <a-input v-model:value="formEditState.licensePlatesNumber" />
           </a-form-item>
         </a-col>
         <a-col :span="3">
-          <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType">
+          <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType" required v-bind="validateInfosEditForm.fuelType">
             <a-input v-model:value="formEditState.fuelType" />
           </a-form-item>
 
         </a-col>
-        <a-col :span="4">
-          <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints">
+        <a-col :span="5">
+          <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints" required
+            v-bind="validateInfosEditForm.maxStopPoints">
             <a-input type="number" v-model:value="formEditState.maxStopPoints" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg">
+          <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg" required
+            v-bind="validateInfosEditForm.maxLoadKg">
             <a-input type="number" v-model:value="formEditState.maxLoadKg" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="minLoadKg" label="Tải trọng tối thiểu" name="minLoadKg">
+          <a-form-item ref="minLoadKg" label="Tải trọng tối thiểu" name="minLoadKg" required
+            v-bind="validateInfosEditForm.minLoadKg">
             <a-input type="number" v-model:value="formEditState.minLoadKg" />
           </a-form-item>
         </a-col>
       </a-row>
       <a-row :gutter="16">
         <a-col :span="4">
-          <a-form-item ref="height" label="Chiều cao" name="height">
+          <a-form-item ref="height" label="Chiều cao" name="height" required v-bind="validateInfosEditForm.height">
             <a-input type="number" v-model:value="formEditState.height" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="width" label="Chiều rộng" name="width">
+          <a-form-item ref="width" label="Chiều rộng" name="width" required v-bind="validateInfosEditForm.width">
             <a-input type="number" v-model:value="formEditState.width" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="length" label="Chiều dài" name="length">
+          <a-form-item ref="length" label="Chiều dài" name="length" required v-bind="validateInfosEditForm.length">
             <a-input type="number" v-model:value="formEditState.length" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity">
+          <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity" required
+            v-bind="validateInfosEditForm.averageVelocity">
             <a-input type="number" v-model:value="formEditState.averageVelocity" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="minPallets" label="Số pallet tối thiểu" name="minPallets">
+          <a-form-item ref="minPallets" label="Số pallet tối thiểu" name="minPallets" required
+            v-bind="validateInfosEditForm.minPallets">
             <a-input type="number" v-model:value="formEditState.minPallets" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets">
+          <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets" required
+            v-bind="validateInfosEditForm.maxPallets">
             <a-input type="number" v-model:value="formEditState.maxPallets" />
           </a-form-item>
         </a-col>
       </a-row>
       <a-row :gutter="16">
         <a-col :span="6">
-          <a-form-item ref="registrationDate" label="Ngày đăng kiểm" name="registrationDate">
+          <a-form-item ref="registrationDate" label="Ngày đăng kiểm" name="registrationDate" required
+            v-bind="validateInfosEditForm.registrationDate">
             <a-date-picker v-model:value="formEditState.registrationDate" style="width:100%" />
           </a-form-item>
         </a-col>
         <a-col :span="6">
-          <a-form-item ref="registrationExpireDate" label="Ngày hết hạn đăng kiểm" name="registrationExpireDate">
+          <a-form-item ref="registrationExpireDate" label="Ngày hết hạn đăng kiểm" name="registrationExpireDate"
+            required v-bind="validateInfosEditForm.registrationExpireDate">
             <a-date-picker v-model:value="formEditState.registrationExpireDate" style="width:100%" />
           </a-form-item>
         </a-col>
@@ -767,8 +780,7 @@ const edit = () => {
           </a-form-item>
         </a-col>
       </a-row>
-      <a-form-item ref="currentAddress" label="Địa chỉ" name="currentAddress">
-        <!-- <a-input  v-model:value="formEditState.currentAddress!.fullName" /> -->
+      <a-form-item ref="currentAddress" label="Địa chỉ" name="currentAddress" required>
         <AddressForm v-if="openEditForm" :initial-address-id="formEditState.currentAddress.id"
           @save="(addressId: any) => formEditState.currentAddress.id = addressId" />
       </a-form-item>
@@ -786,72 +798,72 @@ const edit = () => {
     @cancel="reset">
     <a-form layout="vertical">
       <a-row :gutter="16">
-        <a-col :span="4">
-          <a-form-item ref="type" label="Kiểu xe" name="type" required v-bind="validateInfos.type">
+        <a-col :span="3">
+          <a-form-item ref="type" label="Kiểu xe" name="type" required v-bind="validateInfosAddForm.type">
             <a-input v-model:value="formAddState.type" />
           </a-form-item>
         </a-col>
         <a-col :span="5">
           <a-form-item ref="licensePlatesNumber" label="Biển số xe" name="licensePlatesNumber" required
-            v-bind="validateInfos.licensePlatesNumber">
+            v-bind="validateInfosAddForm.licensePlatesNumber">
             <a-input v-model:value="formAddState.licensePlatesNumber" />
           </a-form-item>
         </a-col>
         <a-col :span="3">
-          <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType" required v-bind="validateInfos.fuelType">
+          <a-form-item ref="fuelType" label="Kiểu dầu" name="fuelType" required v-bind="validateInfosAddForm.fuelType">
             <a-input v-model:value="formAddState.fuelType" />
           </a-form-item>
         </a-col>
-        <a-col :span="4">
+        <a-col :span="5">
           <a-form-item ref="maxStopPoints" label="Số điểm dừng tối đa" name="maxStopPoints" required
-            v-bind="validateInfos.maxStopPoints">
+            v-bind="validateInfosAddForm.maxStopPoints">
             <a-input type="number" v-model:value="formAddState.maxStopPoints" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
           <a-form-item ref="minLoadKg" label="Tải trọng tối thiểu" name="minLoadKg" required
-            v-bind="validateInfos.minLoadKg">
+            v-bind="validateInfosAddForm.minLoadKg">
             <a-input type="number" v-model:value="formAddState.minLoadKg" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
           <a-form-item ref="maxLoadKg" label="Tải trọng tối đa" name="maxLoadKg" required
-            v-bind="validateInfos.maxLoadKg">
+            v-bind="validateInfosAddForm.maxLoadKg">
             <a-input type="number" v-model:value="formAddState.maxLoadKg" />
           </a-form-item>
         </a-col>
       </a-row>
       <a-row :gutter="8">
         <a-col :span="4">
-          <a-form-item ref="height" label="Chiều cao" name="height" required v-bind="validateInfos.height">
+          <a-form-item ref="height" label="Chiều cao" name="height" required v-bind="validateInfosAddForm.height">
             <a-input type="number" v-model:value="formAddState.height" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="width" label="Chiều rộng" name="width" required v-bind="validateInfos.width">
+          <a-form-item ref="width" label="Chiều rộng" name="width" required v-bind="validateInfosAddForm.width">
             <a-input type="number" v-model:value="formAddState.width" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
-          <a-form-item ref="length" label="Chiều dài" name="length" required v-bind="validateInfos.length">
+          <a-form-item ref="length" label="Chiều dài" name="length" required v-bind="validateInfosAddForm.length">
             <a-input type="number" v-model:value="formAddState.length" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
           <a-form-item ref="averageVelocity" label="Vận tốc trung bình" name="averageVelocity" required
-            v-bind="validateInfos.averageVelocity">
+            v-bind="validateInfosAddForm.averageVelocity">
             <a-input type="number" v-model:value="formAddState.averageVelocity" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
           <a-form-item ref="minPallets" label="Số pallet tối thiểu" name="minPallets" required
-            v-bind="validateInfos.minPallets">
+            v-bind="validateInfosAddForm.minPallets">
             <a-input type="number" v-model:value="formAddState.minPallets" />
           </a-form-item>
         </a-col>
         <a-col :span="4">
           <a-form-item ref="maxPallets" label="Số pallet tối đa" name="maxPallets" required
-            v-bind="validateInfos.maxPallets">
+            v-bind="validateInfosAddForm.maxPallets">
             <a-input type="number" v-model:value="formAddState.maxPallets" />
           </a-form-item>
         </a-col>
@@ -859,13 +871,13 @@ const edit = () => {
       <a-row :gutter="16">
         <a-col :span="6">
           <a-form-item ref="registrationDate" label="Ngày đăng kiểm" name="registrationDate" required
-            v-bind="validateInfos.registrationDate">
+            v-bind="validateInfosAddForm.registrationDate">
             <a-date-picker v-model:value="formAddState.registrationDate" style="width:100%" />
           </a-form-item>
         </a-col>
         <a-col :span="6">
           <a-form-item ref="registrationExpireDate" label="Ngày hết hạn đăng kiểm" name="registrationExpireDate"
-            required v-bind="validateInfos.registrationExpireDate">
+            required v-bind="validateInfosAddForm.registrationExpireDate">
             <a-date-picker v-model:value="formAddState.registrationExpireDate" style="width:100%" />
           </a-form-item>
         </a-col>
@@ -888,7 +900,7 @@ const edit = () => {
       <a-form-item ref="currentAddress" label="Địa chỉ" name="currentAddress" required>
         <!-- <a-input v-model:value="formAddState.currentAddress!.fullName" /> -->
         <AddressForm v-if="openAddForm" @save="(addressId: any) => formAddState.currentAddress.id = addressId"
-          v-bind="validateInfos.address" />
+          v-bind="validateInfosAddForm.address" />
       </a-form-item>
     </a-form>
   </a-modal>

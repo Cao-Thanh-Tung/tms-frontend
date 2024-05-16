@@ -74,12 +74,6 @@ const rulesRef = reactive({
             message: 'Email không đúng định dạng',
         }
     ],
-    // "address.id": [
-    //     {
-    //         required: true,
-    //         message: 'Không để trống',
-    //     },
-    // ],
 })
 const { resetFields, validate, validateInfos } = useForm(formAddState, rulesRef);
 const addEmployee = () => {
@@ -174,7 +168,7 @@ const cancelHandle = () => {
                     </a-form-item>
                 </a-col>
             </a-row>
-            <a-form-item label="Địa chỉ" required v-bind="validateInfos['address.id']">
+            <a-form-item label="Địa chỉ">
                 <address-form @save="(addressId: number) => { formAddState.address.id = addressId }"></address-form>
             </a-form-item>
         </a-form>
