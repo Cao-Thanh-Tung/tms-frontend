@@ -131,7 +131,7 @@ const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     });
 };
 const status = (status: string) => {
-    if (status === '0') return 'Chờ xác nhận';
+    if (status === '0') return 'Chờ phân tuyến';//bo
     if (status === '11') return 'Chờ phân tuyến';
     if (status === '12') return 'Từ chối';
     if (status === '13') return 'Chuyển nhà thầu';
