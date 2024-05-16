@@ -13,8 +13,12 @@ import store from "@/store";
 import { Configuration } from "@/configuration";
 import { ContractorResourceApi, ContractorDTO } from "../../api";
 import moment from "moment";
-import DateSearch from "@/components/DateSearch.vue";
 import { Entity } from "@/search.types";
+import AddressForm from "@/components/AddressForm.vue";
+import MultipleSearch from "@/components/MultipleSearch.vue";
+import { Form } from 'ant-design-vue';
+const useForm = Form.useForm;
+
 // config request object
 const config = new Configuration({
   accessToken: () => store.getters.jwt,
@@ -70,8 +74,8 @@ const columns = [
     dataIndex: ["address", "fullName"],
     key: "address",
     customFilterDropdown: true,
-    onFilter: (value: string, record: ContractorDTO) =>
-      record.address!.fullName!.toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value: string, record: ContractorDTO) => true
+    // record.address!.fullName!.toLowerCase().includes(value.toLowerCase()),
   },
   {
     title: "Thao tác",
@@ -96,10 +100,9 @@ const fetchData = () => {
 onMounted(fetchData);
 
 // Delete user and update to table content
-const deleteContractor = async (Contractor?: any ) => {
+const deleteContractor = async (Contractor?: any) => {
   try {
     await contractorApi.deleteContractor(Contractor?.id ?? 0);
-    await addressApi.deleteAddress(Contractor!.address!.id!);
     const index = contractors.indexOf(<ContractorDTO>Contractor);
     console.log(index);
     message.success("Đã xóa thông tin Nhà thầu thành công!");
@@ -117,9 +120,8 @@ const formEditState: UnwrapRef<ContractorDTO> = reactive<ContractorDTO>(
   createDefaultContractorDTO()
 );
 const showEditForm = (v: ContractorDTO) => {
+  resetFieldsEditForm();
   // Deep copy the object
-  console.log(v);
-  console.log(v);
   const copy = JSON.parse(JSON.stringify(v));
 
   // Convert string dates to Date objects
@@ -140,25 +142,22 @@ const showEditForm = (v: ContractorDTO) => {
 
 
 const editLoading = ref<boolean>(false);
-const edit = () => {
+const editRequest = () => {
   editLoading.value = true;
-  console.log(JSON.parse(JSON.stringify(formEditState)));
-  console.log(formEditState.id);
-  // let formEditStateParams : any = formEditState.id
+  console.log(formEditState);
   contractorApi
-    .partialUpdateContractor(formEditState.id!, formEditState)
+    .updateContractor(formEditState.id!, {
+      id: formEditState.id,
+      name: formEditState.name,
+      signingDate: formEditState.signingDate,
+      expirationDate: formEditState.expirationDate,
+      address: {
+        id: formEditState.address!.id,
+      },
+    })
     .then((res) => {
-      console.log(res);
-      const index = contractors.findIndex((user: ContractorDTO) => {
-        return user.id === formEditState.id;
-      });
-      console.log(index);
-      console.log(contractors[index]);
-      Object.assign(
-        contractors[index],
-        JSON.parse(JSON.stringify(formEditState))
-      );
       message.success("Đã thay đổi thông tin Nhà thầu thành công!");
+      resetFieldAddForm();
     })
     .catch((err) => {
       console.log(err);
@@ -167,13 +166,14 @@ const edit = () => {
     .finally(() => {
       editLoading.value = false;
       openEditForm.value = false;
+      resetFieldsEditForm();
+      fetchData();
     });
 };
 
 // Logic addForm
 const openAddForm = ref<boolean>(false);
 const addLoading = ref<boolean>(false);
-const addressApi = new AddressResourceApi(config);
 const formAddState = reactive({
   name: "",
   signingDate: "",
@@ -189,30 +189,26 @@ function reset() {
   formAddState.expirationDate = "";
   formAddState.address.id = -1;
   formAddState.address.fullName = "";
+  resetFieldAddForm();
 }
 
 const showAddForm = () => {
   openAddForm.value = true;
 };
 
-const add = async () => {
+const addRequest = async () => {
+
   addLoading.value = true;
   try {
-    let addressId = (
-      await addressApi.createAddress(<AddressDTO>{
-        fullName: formAddState.address.fullName,
-      })
-    ).data.id;
-
     await contractorApi.createContractor(<ContractorDTO>{
-        name: formAddState.name,
-        signingDate: formAddState.signingDate,
-        expirationDate: formAddState.expirationDate,
-        address: {
-          id: addressId,
-        },
-      })
-    
+      name: formAddState.name,
+      signingDate: formAddState.signingDate,
+      expirationDate: formAddState.expirationDate,
+      address: {
+        id: formAddState.address.id,
+      },
+    })
+
     // console.log(contractors);
     message.success("Tạo tài khoản Nhà thầu thành công!");
   } catch (err) {
@@ -246,6 +242,101 @@ const handleReset = (clearFilters: any) => {
   state.searchText = "";
 };
 
+
+const rules = {
+  name: [
+    {
+      required: true,
+      message: 'Không để trống',
+    },
+  ],
+  signingDate: [
+    {
+      required: true,
+      message: 'Không để trống',
+    },
+  ],
+  expirationDate: [
+    {
+      required: true,
+      message: 'Không để trống',
+    },
+  ]
+};
+
+
+const rulesRefAddForm = reactive(rules)
+const rulesRefEditForm = reactive(rules);
+
+const { resetFields: resetFieldAddForm, validate: validateAddForm, validateInfos: validateInfosAddForm } = useForm(formAddState, rulesRefAddForm);
+const { resetFields: resetFieldsEditForm, validate: validateEditForm, validateInfos: validateInfosEditForm } = useForm(formEditState, rulesRefEditForm);
+
+const add = () => {
+  validateAddForm().then(() => {
+    if (!formAddState.address.id || formAddState.address.id == -1) {
+      message.error("Địa chỉ không được để trống");
+      return;
+    }
+    if (new Date(formAddState.expirationDate!).getTime() <= new Date(formAddState.signingDate!).getTime()) {
+      message.error("Ngày hết hạn hợp đồng phải lớn hơn ngày ký hợp đồng");
+      return;
+    }
+    for (let i = 0; i < contractors.length; i++) {
+      if (formAddState.name == contractors[i].name) {
+        message.error("Tên nhà thầu đã tồn tại");
+        return;
+      }
+    }
+    addRequest();
+  }).catch((e: any) => {
+    console.log(e);
+  });
+}
+
+const edit = () => {
+  validateEditForm().then(() => {
+    if (!formEditState.address?.id || formEditState.address.id == -1) {
+      message.error("Địa chỉ không được để trống");
+      return;
+    }
+    if (new Date(formEditState.expirationDate!).getTime() <= new Date(formEditState.signingDate!).getTime()) {
+      message.error("Ngày hết hạn hợp đồng phải lớn hơn ngày ký hợp đồng");
+      return;
+    }
+    for (let i = 0; i < contractors.length; i++) {
+      if (contractors[i].id == formEditState.id) {
+        continue;
+      } else {
+        if (formEditState.name == contractors[i].name) {
+          message.error("Tên nhà thầu đã tồn tại");
+          return;
+        }
+      }
+    }
+    editRequest();
+  }).catch((e: any) => {
+    console.log(e);
+  });
+}
+
+const contractorDummy = [
+  {
+    name: "name",
+    type: "string",
+    displayName: "Tên nhà thầu",
+  },
+  {
+    name: "signingDate",
+    type: "date",
+    displayName: "Ngày ký hợp đồng",
+  },
+  {
+    name: "expirationDate",
+    type: "date",
+    displayName: "Ngày hết hạn hợp đồng",
+  }
+];
+const searchFields = ref(contractorDummy);
 async function handleSearchResults(results: Entity[]) {
   try {
     contractors.splice(0, contractors.length, ...results);
@@ -253,6 +344,8 @@ async function handleSearchResults(results: Entity[]) {
     console.error('Error handling search results:', error);
   }
 }
+// TODO handle bug duplicate contractor name in server
+// TODO handle bug date picker in server
 </script>
 <template>
   <!-- -->
@@ -260,22 +353,15 @@ async function handleSearchResults(results: Entity[]) {
     <a-breadcrumb-item>Nhà thầu</a-breadcrumb-item>
     <a-breadcrumb-item>Danh sách Nhà thầu</a-breadcrumb-item>
   </a-breadcrumb>
-  <DateSearch entityName="Contractor" :attributes="['signingDate', 'expirationDate']" @search="handleSearchResults"/>
+  <MultipleSearch :searchFields="searchFields" :entityName="'Contractor'" @search="handleSearchResults" />
   <!-- Contractor list table -->
-  <a-layout-content
-    :style="{
-      background: '#fff',
-      padding: '24px',
-      margin: 0,
-      minHeight: '280px',
-    }"
-  >
-    <a-table
-      :dataSource="contractors"
-      :columns="columns"
-      :scroll="{ x: 1300 }"
-      :pagination="pagination"
-    >
+  <a-layout-content :style="{
+    background: '#fff',
+    padding: '24px',
+    margin: 0,
+    minHeight: '280px',
+  }">
+    <a-table :dataSource="contractors" :columns="columns" :scroll="{ x: 1300 }" :pagination="pagination">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'">
           <a>
@@ -296,12 +382,8 @@ async function handleSearchResults(results: Entity[]) {
           <a href="#" @click="() => showEditForm(record)">
             <EditOutlined />
           </a>
-          <a-popconfirm
-            title="Xóa Nhà thầu?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="() => deleteContractor((<ContractorDTO>record))"
-          >
+          <a-popconfirm title="Xóa Nhà thầu?" ok-text="Yes" cancel-text="No"
+            @confirm="() => deleteContractor((<ContractorDTO>record))">
             <a href="#">
               <DeleteFilled style="margin-left: 12px" />
             </a>
@@ -312,40 +394,26 @@ async function handleSearchResults(results: Entity[]) {
       <template #customFilterIcon="{ filtered }">
         <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
       </template>
-      <template
-        #customFilterDropdown="{
-          setSelectedKeys,
-          selectedKeys,
-          confirm,
-          clearFilters,
-          column,
-        }"
-      >
+      <template #customFilterDropdown="{
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+        column,
+      }">
         <div style="padding: 8px">
-          <a-input
-            ref="searchInput"
-            :placeholder="`Search`"
-            :value="selectedKeys[0]"
+          <a-input ref="searchInput" :placeholder="`Search`" :value="selectedKeys[0]"
             style="width: 188px; margin-bottom: 8px; display: block"
             @change="(e: any) => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-            @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
-          />
-          <a-button
-            type="primary"
-            size="small"
-            style="width: 90px; margin-right: 8px"
-            @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
-          >
+            @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)" />
+          <a-button type="primary" size="small" style="width: 90px; margin-right: 8px"
+            @click="handleSearch(selectedKeys, confirm, column.dataIndex)">
             <template #icon>
               <SearchOutlined />
             </template>
             Search
           </a-button>
-          <a-button
-            size="small"
-            style="width: 90px"
-            @click="handleReset(clearFilters)"
-          >
+          <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
             Reset
           </a-button>
         </div>
@@ -354,67 +422,65 @@ async function handleSearchResults(results: Entity[]) {
     </a-table>
   </a-layout-content>
   <!-- Float button create new Contractor-->
-  <a-float-button
-    type="primary"
-    @click="showAddForm"
-    tooltip="Tạo Nhà thầu mới"
-  >
+  <a-float-button type="primary" @click="showAddForm" tooltip="Tạo Nhà thầu mới">
     <template #icon>
       <plus-outlined />
     </template>
   </a-float-button>
 
   <!-- Popup edit Contractor form -->
-  <a-modal
-    v-model:open="openEditForm"
-    title="Chỉnh sửa thông tin Nhà thầu"
-    :confirm-loading="editLoading"
-    @ok="edit"
-  >
-    <a-form :model="formEditState">
-      <a-form-item ref="firstName" label="Tên nhà thầu" name="name">
+  <a-modal v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin Nhà thầu"
+    :confirm-loading="editLoading" @ok="edit">
+    <a-form :model="formEditState" layout="vertical">
+      <a-form-item ref="firstName" label="Tên nhà thầu" name="name" required v-bind="validateInfosEditForm.name">
         <a-input v-model:value="formEditState.name" />
       </a-form-item>
-      <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
-        <a-date-picker v-model:value="formEditState.signingDate" />
-      </a-form-item>
-      <a-form-item
-        ref="expirationDate"
-        label="Ngày hết hạn"
-        name="expirationDate"
-      >
-        <a-date-picker v-model:value="formEditState.expirationDate" />
-      </a-form-item>
-      <a-form-item ref="address" label="Địa chỉ" name="address">
-        <a-input v-model:value="formEditState.address!.fullName" />
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item ref="signingDate" label="Ngày ký hợp đồng" name="signingDate" required
+            v-bind="validateInfosEditForm.signingDate">
+            <a-date-picker v-model:value="formEditState.signingDate" style="width:100%" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item ref="expirationDate" label="Ngày hết hạn hợp đồng" name="expirationDate" required
+            v-bind="validateInfosEditForm.expirationDate">
+            <a-date-picker v-model:value="formEditState.expirationDate" style="width:100%" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+
+      <a-form-item ref="address" label="Địa chỉ" name="address" required v-bind="validateInfosEditForm.addressId">
+        <!-- <a-input v-model:value="formEditState.address!.fullName" /> -->
+        <AddressForm v-if="openEditForm" :initial-address-id="formEditState.address?.id"
+          @save="(addressId: any) => formEditState.address!.id = addressId" />
       </a-form-item>
     </a-form>
   </a-modal>
 
   <!-- Popup create Contractor form -->
-  <a-modal
-    v-model:open="openAddForm"
-    title="Tạo mới Nhà thầu"
-    :confirm-loading="addLoading"
-    @ok="add"
-    @cancel="reset"
-  >
-    <a-form>
-      <a-form-item ref="name" label="Tên nhà thầu" name="name">
+  <a-modal v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới Nhà thầu" :confirm-loading="addLoading"
+    @ok="add" @cancel="reset">
+    <a-form layout="vertical">
+      <a-form-item ref="name" label="Tên nhà thầu" name="name" required v-bind="validateInfosAddForm.name">
         <a-input v-model:value="formAddState.name" />
       </a-form-item>
-      <a-form-item ref="signingDate" label="Ngày đăng ký" name="signingDate">
-        <a-date-picker v-model:value="formAddState.signingDate" />
-      </a-form-item>
-      <a-form-item
-        ref="expirationDate"
-        label="Ngày hết hạn"
-        name="expirationDate"
-      >
-        <a-date-picker v-model:value="formAddState.expirationDate" />
-      </a-form-item>
-      <a-form-item ref="address" label="Địa chỉ" name="address">
-        <a-input v-model:value="formAddState.address!.fullName" />
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item ref="signingDate" label="Ngày ký hợp đồng" name="signingDate" required
+            v-bind="validateInfosAddForm.signingDate">
+            <a-date-picker v-model:value="formAddState.signingDate" style="width:100%" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item ref="expirationDate" label="Ngày hết hạn hợp đồng" name="expirationDate" required
+            v-bind="validateInfosAddForm.expirationDate">
+            <a-date-picker v-model:value="formAddState.expirationDate" style="width:100%" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-form-item ref="address" label="Địa chỉ" name="address" required v-bind="validateInfosEditForm.addressId">
+        <AddressForm @save="(addressId: any) => formAddState.address.id = addressId" />
       </a-form-item>
     </a-form>
   </a-modal>

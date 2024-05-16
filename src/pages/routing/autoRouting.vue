@@ -160,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import mapApp from "@/components/Map.vue";
+// import mapApp from "@/components/Map.vue";
 import { SettingOutlined } from "@ant-design/icons-vue";
 import { ref, reactive } from "vue";
 import { VehicleResourceApi, OrderResourceApi } from "@/api";

@@ -494,6 +494,73 @@ export interface ManagedUserVM {
 /**
  * 
  * @export
+ * @interface ManualSolutionDTO
+ */
+export interface ManualSolutionDTO {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ManualSolutionDTO
+     */
+    'finalSolution'?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof ManualSolutionDTO
+     */
+    'numVehicleUsed'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ManualSolutionDTO
+     */
+    'totalKm'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ManualSolutionDTO
+     */
+    'totalGoodKg'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ManualSolutionDTO
+     */
+    'totalConstraint'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ManualSolutionDTO
+     */
+    'numViolationTrip'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ManualSolutionDTO
+     */
+    'latestTime'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ManualSolutionDTO
+     */
+    'error'?: string;
+    /**
+     * 
+     * @type {Array<TripDTO>}
+     * @memberof ManualSolutionDTO
+     */
+    'trips'?: Array<TripDTO>;
+    /**
+     * 
+     * @type {Array<UnplannedOrderDTO>}
+     * @memberof ManualSolutionDTO
+     */
+    'unplannedOrders'?: Array<UnplannedOrderDTO>;
+}
+/**
+ * 
+ * @export
  * @interface OrderDTO
  */
 export interface OrderDTO {
@@ -888,6 +955,31 @@ export interface ScheduleInputVehicleDTO {
 /**
  * 
  * @export
+ * @interface SearchCriteria
+ */
+export interface SearchCriteria {
+    /**
+     * 
+     * @type {string}
+     * @memberof SearchCriteria
+     */
+    'attributeName'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SearchCriteria
+     */
+    'operator'?: string;
+    /**
+     * 
+     * @type {object}
+     * @memberof SearchCriteria
+     */
+    'value'?: any; //object 
+}
+/**
+ * 
+ * @export
  * @interface SolutionDTO
  */
 export interface SolutionDTO {
@@ -972,6 +1064,12 @@ export interface SolutionSummaryDTO {
     'latestTime'?: string;
     /**
      * 
+     * @type {string}
+     * @memberof SolutionSummaryDTO
+     */
+    'error'?: string;
+    /**
+     * 
      * @type {number}
      * @memberof SolutionSummaryDTO
      */
@@ -1007,6 +1105,18 @@ export interface SolutionTripDTO {
      * @memberof SolutionTripDTO
      */
     'totalLoadKg'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof SolutionTripDTO
+     */
+    'totalKm'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SolutionTripDTO
+     */
+    'isFinal'?: boolean;
     /**
      * 
      * @type {number}
@@ -1210,6 +1320,216 @@ export interface SolverConfigDTO {
      * @memberof SolverConfigDTO
      */
     'scheduleInputId'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface SolverInputDTO
+ */
+export interface SolverInputDTO {
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof SolverInputDTO
+     */
+    'orderIds'?: Array<number>;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof SolverInputDTO
+     */
+    'vehicleIds'?: Array<number>;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolverInputDTO
+     */
+    'startTime'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolverInputDTO
+     */
+    'endTime'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof SolverInputDTO
+     */
+    'solveTimeLimitSec'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolverInputDTO
+     */
+    'strategy'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface SolverInputWithInitialDTO
+ */
+export interface SolverInputWithInitialDTO {
+    /**
+     * 
+     * @type {SolverInputDTO}
+     * @memberof SolverInputWithInitialDTO
+     */
+    'solverInputDTO'?: SolverInputDTO;
+    /**
+     * 
+     * @type {ManualSolutionDTO}
+     * @memberof SolverInputWithInitialDTO
+     */
+    'initialSolution'?: ManualSolutionDTO;
+}
+/**
+ * 
+ * @export
+ * @interface SolverResultDTO
+ */
+export interface SolverResultDTO {
+    /**
+     * 
+     * @type {number}
+     * @memberof SolverResultDTO
+     */
+    'scheduleInputId'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof SolverResultDTO
+     */
+    'solutionId'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface StopPointDTO
+ */
+export interface StopPointDTO {
+    /**
+     * 
+     * @type {string}
+     * @memberof StopPointDTO
+     */
+    'estimatedArrivalTime'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StopPointDTO
+     */
+    'estimatedLeaveTime'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof StopPointDTO
+     */
+    'stopPointAddressId'?: number;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof StopPointDTO
+     */
+    'orderIds'?: Array<number>;
+}
+/**
+ * 
+ * @export
+ * @interface TripDTO
+ */
+export interface TripDTO {
+    /**
+     * 
+     * @type {string}
+     * @memberof TripDTO
+     */
+    'estimatedStartTime'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TripDTO
+     */
+    'estimatedEndTime'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof TripDTO
+     */
+    'totalLoadKg'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TripDTO
+     */
+    'totalKm'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TripDTO
+     */
+    'isFinal'?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof TripDTO
+     */
+    'fromAddressId'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TripDTO
+     */
+    'toAddressId'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TripDTO
+     */
+    'vehicleId'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TripDTO
+     */
+    'driverUserXId'?: number;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof TripDTO
+     */
+    'orderIds'?: Array<number>;
+    /**
+     * 
+     * @type {Array<StopPointDTO>}
+     * @memberof TripDTO
+     */
+    'stopPoints'?: Array<StopPointDTO>;
+}
+/**
+ * 
+ * @export
+ * @interface UnplannedOrderDTO
+ */
+export interface UnplannedOrderDTO {
+    /**
+     * 
+     * @type {string}
+     * @memberof UnplannedOrderDTO
+     */
+    'reason'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof UnplannedOrderDTO
+     */
+    'orderItemId'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof UnplannedOrderDTO
+     */
+    'orderId'?: number;
 }
 /**
  * 
@@ -6022,7 +6342,7 @@ export const OrderResourceApiAxiosParamCreator = function (configuration?: Confi
          * @throws {RequiredError}
          */
         getAllOrders: async (page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/orders`;
+            const localVarPath = `/api/admin/orders`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -9342,51 +9662,6 @@ export const ScheduleResourceApiAxiosParamCreator = function (configuration?: Co
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllSchedulesByEmployee: async (id: number, page?: number, size?: number, sort?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('getAllSchedulesByEmployee', 'id', id)
-            const localVarPath = `/api/schedules/employee/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (size !== undefined) {
-                localVarQueryParameter['size'] = size;
-            }
-
-            if (sort) {
-                localVarQueryParameter['sort'] = sort;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} id 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
         getSchedule: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('getSchedule', 'id', id)
@@ -9582,18 +9857,6 @@ export const ScheduleResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllSchedulesByEmployee(id: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ScheduleDTO>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllSchedulesByEmployee(id, page, size, sort, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ScheduleResourceApi.getAllSchedulesByEmployee']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @param {number} id 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
         async getSchedule(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ScheduleDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getSchedule(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
@@ -9782,17 +10045,6 @@ export class ScheduleResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ScheduleResourceApi
      */
-    public getAllSchedulesByEmployee(id: number, page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
-        return ScheduleResourceApiFp(this.configuration).getAllSchedulesByEmployee(id, page, size, sort, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @param {number} id 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ScheduleResourceApi
-     */
     public getSchedule(id: number, options?: RawAxiosRequestConfig) {
         return ScheduleResourceApiFp(this.configuration).getSchedule(id, options).then((request) => request(this.axios, this.basePath));
     }
@@ -9800,7 +10052,6 @@ export class ScheduleResourceApi extends BaseAPI {
     /**
      * 
      * @param {number} id 
-     * @param {ScheduleDTO} scheduleDTO 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ScheduleResourceApi
@@ -9845,17 +10096,59 @@ export const SearchResourceApiAxiosParamCreator = function (configuration?: Conf
          * 
          * @param {string} entityName 
          * @param {Pageable} pageable 
-         * @param {string} [keyword] 
-         * @param {object} [body] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchEntities: async (entityName: string, pageable: Pageable, keyword?: string, body?: object, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAllEntities: async (entityName: string, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'entityName' is not null or undefined
-            assertParamExists('searchEntities', 'entityName', entityName)
+            assertParamExists('getAllEntities', 'entityName', entityName)
             // verify required parameter 'pageable' is not null or undefined
-            assertParamExists('searchEntities', 'pageable', pageable)
-            const localVarPath = `/api/search/{entityName}`
+            assertParamExists('getAllEntities', 'pageable', pageable)
+            const localVarPath = `/api/search/getAll/{entityName}`
+                .replace(`{${"entityName"}}`, encodeURIComponent(String(entityName)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {Pageable} pageable 
+         * @param {string} [keyword] 
+         * @param {Array<SearchCriteria>} [searchCriteria] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByAttributesAndKeyword: async (entityName: string, pageable: Pageable, keyword?: string, searchCriteria?: Array<SearchCriteria>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'entityName' is not null or undefined
+            assertParamExists('searchByAttributesAndKeyword', 'entityName', entityName)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchByAttributesAndKeyword', 'pageable', pageable)
+            const localVarPath = `/api/searchByAttributesAndKeyword/{entityName}`
                 .replace(`{${"entityName"}}`, encodeURIComponent(String(entityName)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -9885,7 +10178,7 @@ export const SearchResourceApiAxiosParamCreator = function (configuration?: Conf
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(searchCriteria, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -9911,10 +10204,25 @@ export const SearchResourceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async searchEntities(entityName: string, pageable: Pageable, keyword?: string, body?: object, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.searchEntities(entityName, pageable, keyword, body, options);
+        async getAllEntities(entityName: string, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllEntities(entityName, pageable, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SearchResourceApi.searchEntities']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SearchResourceApi.getAllEntities']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {Pageable} pageable 
+         * @param {string} [keyword] 
+         * @param {Array<SearchCriteria>} [searchCriteria] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchByAttributesAndKeyword(entityName: string, pageable: Pageable, keyword?: string, searchCriteria?: Array<SearchCriteria>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchByAttributesAndKeyword(entityName, pageable, keyword, searchCriteria, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchResourceApi.searchByAttributesAndKeyword']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -9936,8 +10244,20 @@ export const SearchResourceApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchEntities(entityName: string, pageable: Pageable, keyword?: string, body?: object, options?: any): AxiosPromise<Array<object>> {
-            return localVarFp.searchEntities(entityName, pageable, keyword, body, options).then((request) => request(axios, basePath));
+        getAllEntities(entityName: string, pageable: Pageable, options?: any): AxiosPromise<Array<object>> {
+            return localVarFp.getAllEntities(entityName, pageable, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} entityName 
+         * @param {Pageable} pageable 
+         * @param {string} [keyword] 
+         * @param {Array<SearchCriteria>} [searchCriteria] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByAttributesAndKeyword(entityName: string, pageable: Pageable, keyword?: string, searchCriteria?: Array<SearchCriteria>, options?: any): AxiosPromise<Array<object>> {
+            return localVarFp.searchByAttributesAndKeyword(entityName, pageable, keyword, searchCriteria, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -9960,8 +10280,22 @@ export class SearchResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SearchResourceApi
      */
-    public searchEntities(entityName: string, pageable: Pageable, keyword?: string, body?: object, options?: RawAxiosRequestConfig) {
-        return SearchResourceApiFp(this.configuration).searchEntities(entityName, pageable, keyword, body, options).then((request) => request(this.axios, this.basePath));
+    public getAllEntities(entityName: string, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return SearchResourceApiFp(this.configuration).getAllEntities(entityName, pageable, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} entityName 
+     * @param {Pageable} pageable 
+     * @param {string} [keyword] 
+     * @param {Array<SearchCriteria>} [searchCriteria] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SearchResourceApi
+     */
+    public searchByAttributesAndKeyword(entityName: string, pageable: Pageable, keyword?: string, searchCriteria?: Array<SearchCriteria>, options?: RawAxiosRequestConfig) {
+        return SearchResourceApiFp(this.configuration).searchByAttributesAndKeyword(entityName, pageable, keyword, searchCriteria, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -13230,6 +13564,267 @@ export class SolutionUnplannedOrderItemResourceApi extends BaseAPI {
 
 
 /**
+ * SolveResourceApi - axios parameter creator
+ * @export
+ */
+export const SolveResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputDTO} solverInputDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAutoSolve: async (scheduleId: number, solverInputDTO: SolverInputDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'scheduleId' is not null or undefined
+            assertParamExists('createAutoSolve', 'scheduleId', scheduleId)
+            // verify required parameter 'solverInputDTO' is not null or undefined
+            assertParamExists('createAutoSolve', 'solverInputDTO', solverInputDTO)
+            const localVarPath = `/api/solve/auto/{scheduleId}`
+                .replace(`{${"scheduleId"}}`, encodeURIComponent(String(scheduleId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(solverInputDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAutoSolveWithInitial: async (scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'scheduleId' is not null or undefined
+            assertParamExists('createAutoSolveWithInitial', 'scheduleId', scheduleId)
+            // verify required parameter 'solverInputWithInitialDTO' is not null or undefined
+            assertParamExists('createAutoSolveWithInitial', 'solverInputWithInitialDTO', solverInputWithInitialDTO)
+            const localVarPath = `/api/solve/auto-with-initial/{scheduleId}`
+                .replace(`{${"scheduleId"}}`, encodeURIComponent(String(scheduleId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(solverInputWithInitialDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createManualSolve: async (scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'scheduleId' is not null or undefined
+            assertParamExists('createManualSolve', 'scheduleId', scheduleId)
+            // verify required parameter 'solverInputWithInitialDTO' is not null or undefined
+            assertParamExists('createManualSolve', 'solverInputWithInitialDTO', solverInputWithInitialDTO)
+            const localVarPath = `/api/solve/manual/{scheduleId}`
+                .replace(`{${"scheduleId"}}`, encodeURIComponent(String(scheduleId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(solverInputWithInitialDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SolveResourceApi - functional programming interface
+ * @export
+ */
+export const SolveResourceApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SolveResourceApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputDTO} solverInputDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createAutoSolve(scheduleId: number, solverInputDTO: SolverInputDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SolverResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createAutoSolve(scheduleId, solverInputDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SolveResourceApi.createAutoSolve']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createAutoSolveWithInitial(scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SolverResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createAutoSolveWithInitial(scheduleId, solverInputWithInitialDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SolveResourceApi.createAutoSolveWithInitial']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createManualSolve(scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SolverResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createManualSolve(scheduleId, solverInputWithInitialDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SolveResourceApi.createManualSolve']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * SolveResourceApi - factory interface
+ * @export
+ */
+export const SolveResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SolveResourceApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputDTO} solverInputDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAutoSolve(scheduleId: number, solverInputDTO: SolverInputDTO, options?: any): AxiosPromise<SolverResultDTO> {
+            return localVarFp.createAutoSolve(scheduleId, solverInputDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAutoSolveWithInitial(scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options?: any): AxiosPromise<SolverResultDTO> {
+            return localVarFp.createAutoSolveWithInitial(scheduleId, solverInputWithInitialDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} scheduleId 
+         * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createManualSolve(scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options?: any): AxiosPromise<SolverResultDTO> {
+            return localVarFp.createManualSolve(scheduleId, solverInputWithInitialDTO, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * SolveResourceApi - object-oriented interface
+ * @export
+ * @class SolveResourceApi
+ * @extends {BaseAPI}
+ */
+export class SolveResourceApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} scheduleId 
+     * @param {SolverInputDTO} solverInputDTO 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolveResourceApi
+     */
+    public createAutoSolve(scheduleId: number, solverInputDTO: SolverInputDTO, options?: RawAxiosRequestConfig) {
+        return SolveResourceApiFp(this.configuration).createAutoSolve(scheduleId, solverInputDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} scheduleId 
+     * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolveResourceApi
+     */
+    public createAutoSolveWithInitial(scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options?: RawAxiosRequestConfig) {
+        return SolveResourceApiFp(this.configuration).createAutoSolveWithInitial(scheduleId, solverInputWithInitialDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} scheduleId 
+     * @param {SolverInputWithInitialDTO} solverInputWithInitialDTO 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolveResourceApi
+     */
+    public createManualSolve(scheduleId: number, solverInputWithInitialDTO: SolverInputWithInitialDTO, options?: RawAxiosRequestConfig) {
+        return SolveResourceApiFp(this.configuration).createManualSolve(scheduleId, solverInputWithInitialDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * SolverConfigResourceApi - axios parameter creator
  * @export
  */
@@ -15952,6 +16547,7 @@ export const VehicleResourceApiAxiosParamCreator = function (configuration?: Con
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(vehicleDTO, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -15960,8 +16556,7 @@ export const VehicleResourceApiAxiosParamCreator = function (configuration?: Con
         },
         /**
          * 
-         * @param {number} id 
-         * @param {VehicleDTO} vehicleDTO 
+         * @param {number} driverId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15985,78 +16580,10 @@ export const VehicleResourceApiAxiosParamCreator = function (configuration?: Con
 
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(vehicleDTO, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} driverId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateDriverUserXIdToNull: async (driverId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'driverId' is not null or undefined
-            assertParamExists('updateDriverUserXIdToNull', 'driverId', driverId)
-            const localVarPath = `/api/driver/{driverId}/vehicles`
-                .replace(`{${"driverId"}}`, encodeURIComponent(String(driverId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} ownerId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateOwnerUserXIdToNull: async (ownerId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'ownerId' is not null or undefined
-            assertParamExists('updateOwnerUserXIdToNull', 'ownerId', ownerId)
-            const localVarPath = `/api/owner/{ownerId}/vehicles`
-                .replace(`{${"ownerId"}}`, encodeURIComponent(String(ownerId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -16138,18 +16665,6 @@ export const VehicleResourceApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} ownerId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getAllVehicleByOwner(ownerId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<VehicleDTO>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllVehicleByOwner(ownerId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['VehicleResourceApi.getAllVehicleByOwner']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
          * @param {number} [page] Zero-based page index (0..N)
          * @param {number} [size] The size of the page to be returned
          * @param {Array<string>} [sort] Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
@@ -16185,30 +16700,6 @@ export const VehicleResourceApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateVehicle(id, vehicleDTO, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['VehicleResourceApi.partialUpdateVehicle']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @param {number} driverId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async updateDriverUserXIdToNull(driverId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateDriverUserXIdToNull(driverId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['VehicleResourceApi.updateDriverUserXIdToNull']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @param {number} ownerId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async updateOwnerUserXIdToNull(ownerId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateOwnerUserXIdToNull(ownerId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['VehicleResourceApi.updateOwnerUserXIdToNull']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -16283,31 +16774,12 @@ export const VehicleResourceApiFactory = function (configuration?: Configuration
         },
         /**
          * 
-         * @param {number} id 
-         * @param {VehicleDTO} vehicleDTO 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        partialUpdateVehicle(id: number, vehicleDTO: VehicleDTO, options?: any): AxiosPromise<VehicleDTO> {
-            return localVarFp.partialUpdateVehicle(id, vehicleDTO, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
          * @param {number} driverId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         updateDriverUserXIdToNull(driverId: number, options?: any): AxiosPromise<void> {
             return localVarFp.updateDriverUserXIdToNull(driverId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @param {number} ownerId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateOwnerUserXIdToNull(ownerId: number, options?: any): AxiosPromise<void> {
-            return localVarFp.updateOwnerUserXIdToNull(ownerId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -16358,8 +16830,8 @@ export class VehicleResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof VehicleResourceApi
      */
-    public getAllVehicleByOwner(ownerId: number, options?: RawAxiosRequestConfig) {
-        return VehicleResourceApiFp(this.configuration).getAllVehicleByOwner(ownerId, options).then((request) => request(this.axios, this.basePath));
+    public getAllVehicles(page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
+        return VehicleResourceApiFp(this.configuration).getAllVehicles(page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -16371,31 +16843,8 @@ export class VehicleResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof VehicleResourceApi
      */
-    public getAllVehicles(page?: number, size?: number, sort?: Array<string>, options?: RawAxiosRequestConfig) {
-        return VehicleResourceApiFp(this.configuration).getAllVehicles(page, size, sort, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @param {number} id 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof VehicleResourceApi
-     */
     public getVehicle(id: number, options?: RawAxiosRequestConfig) {
         return VehicleResourceApiFp(this.configuration).getVehicle(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @param {number} id 
-     * @param {VehicleDTO} vehicleDTO 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof VehicleResourceApi
-     */
-    public partialUpdateVehicle(id: number, vehicleDTO: VehicleDTO, options?: RawAxiosRequestConfig) {
-        return VehicleResourceApiFp(this.configuration).partialUpdateVehicle(id, vehicleDTO, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -16405,19 +16854,8 @@ export class VehicleResourceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof VehicleResourceApi
      */
-    public updateDriverUserXIdToNull(driverId: number, options?: RawAxiosRequestConfig) {
-        return VehicleResourceApiFp(this.configuration).updateDriverUserXIdToNull(driverId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @param {number} ownerId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof VehicleResourceApi
-     */
-    public updateOwnerUserXIdToNull(ownerId: number, options?: RawAxiosRequestConfig) {
-        return VehicleResourceApiFp(this.configuration).updateOwnerUserXIdToNull(ownerId, options).then((request) => request(this.axios, this.basePath));
+    public partialUpdateVehicle(id: number, vehicleDTO: VehicleDTO, options?: RawAxiosRequestConfig) {
+        return VehicleResourceApiFp(this.configuration).partialUpdateVehicle(id, vehicleDTO, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

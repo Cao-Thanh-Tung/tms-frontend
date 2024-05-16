@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { EditOutlined, DeleteFilled, UserOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { reactive, ref, UnwrapRef } from 'vue';
+import { onUpdated, reactive, ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { UserXDTO, UserDTO } from '@/api';
 import { UserXResourceApi, UserResourceApi, ScheduleResourceApi, CustomerAssignmentResourceApi, VehicleResourceApi } from '@/api';
 import store from '@/store';
 import { Configuration } from '@/configuration';
-import { AdminUserDTO } from '../../api';
-import AddressForm from '@/components/AddressForm.vue';
 import { computed } from 'vue';
 import { usePagination } from 'vue-request';
+import addEmployeeForm from './form/addEmployeeForm.vue';
+import editEmployeeForm from './form/editEmployeeForm.vue';
 // config request object
 const config = new Configuration({
     accessToken: () => store.getters.jwt,
@@ -18,6 +18,7 @@ const config = new Configuration({
     }
 })
 const userxApi = new UserXResourceApi(config);
+const userApi = new UserResourceApi(config);
 const numOfUserX = ref(0);
 async function getNumberOfUsers() {
     let num = 0;
@@ -32,31 +33,7 @@ async function getNumberOfUsers() {
 }
 
 // helper function
-function createDefaultUserDTO(): UserDTO {
-    return {
-        id: 0,
-        login: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        imageUrl: '',
-        activated: false
-    };
-}
 
-
-function createDefaultUserXDTO() {
-    return {
-        id: 0,
-        phoneNumber: '',
-        role: "employee",
-        user: createDefaultUserDTO(),
-        address: {
-            id: -1,
-            fullName: '',
-        }
-    };
-}
 
 // table config
 const columns = [
@@ -179,6 +156,9 @@ const updateTable = (
         ...filters,
     });
 }
+const defaultUpdate = () => {
+    updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
+}
 const handleTableChange = (
     pag: { pageSize: number; current: number },
     filters: any,
@@ -188,7 +168,6 @@ const handleTableChange = (
     tableCondition.filters = filters;
     tableCondition.sorter = sorter;
     updateTable(pag, filters, sorter);
-
 };
 
 const scheduleApi = new ScheduleResourceApi(config);
@@ -197,7 +176,7 @@ const vehicleApi = new VehicleResourceApi(config);
 // Delete user and update to table content
 const deleteEmployee = async (employee?: UserXDTO) => {
     try {
-        await vehicleApi.updateOwnerUserXIdToNull(employee?.id!);
+        // await vehicleApi.updateOwnerUserXIdToNull(employee?.id!);
         await customerAssignmentApi.deleteCustomerAssignmentByEmployeeUserXId(employee?.id!);
         await scheduleApi.updateScheduleCoordinateToNull(employee?.id!);
         await userxApi.deleteUserX(employee?.id!)
@@ -212,157 +191,23 @@ const deleteEmployee = async (employee?: UserXDTO) => {
 };
 
 // Logic editForm
-const openEditForm = ref<boolean>(false);
-
-const formEditState: UnwrapRef<UserXDTO> = reactive<UserXDTO>(createDefaultUserXDTO());
-const showEditForm = (v: UserXDTO) => {
-    Object.assign(formEditState, JSON.parse(JSON.stringify(v)));
-    formEditState.address!.id = v.addressId;
-    formEditState.addressId = v.addressId;
-    openEditForm.value = true;
-};
-
-const editLoading = ref<boolean>(false);
-const edit = () => {
-    if (formEditState.address!.id === -1 || formEditState.address!.id === undefined) {
-        message.error("Vui lòng chọn địa chỉ!");
-        return;
-    }
-    if (formEditState.user!.email === "") {
-        message.error("Vui lòng nhập email!");
-        return;
-    }
-
-    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formEditState.user!.email!)) {
-        message.error("Email không đúng định dạng!");
-        return;
-    }
-
-    if (formEditState.user!.firstName === "") {
-        message.error("Vui lòng nhập họ!");
-        return;
-    }
-    if (formEditState.user!.lastName === "") {
-        message.error("Vui lòng nhập tên!");
-        return;
-    }
-
-    editLoading.value = true;
-    console.log(formEditState);
-    userxApi.partialUpdateUserX(formEditState.id!, formEditState).then((res) => {
-        console.log(res);
-        message.success("Đã thay đổi thông tin nhân viên thành công!");
-        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
-        openEditForm.value = false;
-    }).catch((err) => {
-        console.log(err);
-        message.error("Email đã được sử dụng!");
-    }).finally(() => {
-        editLoading.value = false;
-    })
-};
 
 // Logic addForm
-const openAddForm = ref<boolean>(false);
-const addLoading = ref<boolean>(false);
-const userApi = new UserResourceApi(config);
-const formAddState = reactive({
-    login: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
-    imageUrl: "",
-    address: { id: -1, fullName: '' },
-    role: "employee",
-})
-function reset() {
-    formAddState.login = "";
-    formAddState.password = "";
-    formAddState.firstName = "";
-    formAddState.lastName = "";
-    formAddState.phone = "";
-    formAddState.email = "";
-    formAddState.imageUrl = "";
-    formAddState.address.id = -1;
-    formAddState.address.fullName = "";
-}
 
+const openAddForm = ref<boolean>(false);
+const openEditForm = ref<boolean>(false);
+const userxEdit = ref<UserXDTO>();
 const showAddForm = () => {
     openAddForm.value = true;
 };
+const showEditForm = (record: UserXDTO) => {
+    userxEdit.value = record;
+    openEditForm.value = true;
+};
 
-const add = async () => {
-    if (formAddState.address.id === -1 || formAddState.address.id === undefined) {
-        message.error("Vui lòng chọn địa chỉ!");
-        return;
-    }
-    if (formAddState.email === "") {
-        message.error("Vui lòng nhập email!");
-        return;
-    }
-    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formAddState.email!)) {
-        message.error("Email không đúng định dạng!");
-        return;
-    }
-    if (formAddState.firstName === "") {
-        message.error("Vui lòng nhập họ!");
-        return;
-    }
-    if (formAddState.lastName === "") {
-        message.error("Vui lòng nhập tên!");
-        return;
-    }
-    if (formAddState.login === "") {
-        message.error("Vui lòng nhập tài khoản!");
-        return;
-    }
-
-    addLoading.value = true;
-    try {
-        let userId = (await userApi.createUser(<AdminUserDTO>{
-            login: formAddState.login,
-            email: formAddState.email,
-            firstName: formAddState.firstName,
-            lastName: formAddState.lastName,
-            imageUrl: formAddState.imageUrl,
-        })).data.id;
-        await userxApi.createUserX(<UserXDTO>{
-            phoneNumber: formAddState.phone,
-            role: formAddState.role,
-            user: {
-                id: userId,
-            },
-            address: {
-                id: formAddState.address.id,
-                fullName: formAddState.address.fullName,
-            }
-        });
-        message.success("Tạo tài khoản nhân viên thành công!");
-        updateTable(tableCondition.pag, tableCondition.filters, tableCondition.sorter);
-        addLoading.value = false;
-        openAddForm.value = false;
-        reset();
-    } catch (err: any) {
-        console.log(err);
-        if (err.code === "ERR_BAD_REQUEST") {
-            if (err.response.data.errorKey === "userexists") {
-                message.error("Tên tài khoản đã tồn tại!");
-            } else if (err.response.data.errorKey === "emailexists") {
-                message.error("Email đã tồn tại!");
-            } else {
-                message.error("Tạo tài khoản nhân viên thất bại! Lỗi không xác định!");
-            }
-        } else {
-            message.error("Tạo tài khoản nhân viên thất bại! Lỗi không xác định");
-        }
-        addLoading.value = false;
-
-    }
-}
+onUpdated(() => {
+    console.log("hello");
+});
 
 const state = reactive({
     searchText: '',
@@ -381,14 +226,15 @@ const handleReset = (clearFilters: any) => {
     clearFilters({ confirm: true });
     state.searchText = '';
 };
-const chooseAddressAddForm = (addressId: number) => {
-    formAddState.address.id = addressId;
-}
-const chooseAddressEditForm = (addressId: number) => {
-    formEditState.address!.id = addressId;
-    console.log(addressId);
-}
 
+const addSuccess = () => {
+    openAddForm.value = false;
+    defaultUpdate();
+}
+const editSuccess = () => {
+    openEditForm.value = false;
+    defaultUpdate();
+};
 
 
 </script>
@@ -470,59 +316,9 @@ const chooseAddressEditForm = (addressId: number) => {
     </a-float-button>
 
     <!-- Popup edit employee form -->
-    <a-modal width="700px" v-if="openEditForm" v-model:open="openEditForm" title="Chỉnh sửa thông tin nhân viên"
-        :confirm-loading="editLoading" @ok="edit">
-        <a-form :model="formEditState">
-            <a-form-item ref="firstName" label="(*)Họ" name="firstName">
-                <a-input v-model:value="formEditState.user!.firstName" />
-            </a-form-item>
-            <a-form-item ref="lastName" label="(*)Tên" name="lastName">
-                <a-input v-model:value="formEditState.user!.lastName" />
-            </a-form-item>
-            <a-form-item ref="address" label="(*)Địa chỉ" name="address">
-                <address-form :initial-address-id="formEditState.address?.id"
-                    @save="chooseAddressEditForm"></address-form>
-            </a-form-item>
-            <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
-                <a-input v-model:value="formEditState.phoneNumber" />
-            </a-form-item>
-            <a-form-item ref="email" label="(*)Email" name="email">
-                <a-input v-model:value="formEditState.user!.email" />
-            </a-form-item>
-            <a-form-item label="Kích hoạt tài khoản" name="activated">
-                <a-switch v-model:checked="formEditState.user!.activated" />
-            </a-form-item>
-            <a-form-item label="Đường dẫn ảnh" name="imageUrl">
-                <a-input v-model:value="formEditState.user!.imageUrl" />
-            </a-form-item>
-        </a-form>
-    </a-modal>
+    <editEmployeeForm v-if="openEditForm" v-model:open="openEditForm" @edit-employee-success="editSuccess"
+        :user="userxEdit?.id!" />
 
     <!-- Popup create employee form -->
-    <a-modal width="700px" v-if="openAddForm" v-model:open="openAddForm" title="Tạo mới nhân viên"
-        :confirm-loading="addLoading" @ok="add" @cancel="reset">
-        <a-form>
-            <a-form-item label="(*)Tài khoản" name="username">
-                <a-input v-model:value="formAddState.login" />
-            </a-form-item>
-            <a-form-item label="(*)Họ" name="firstName">
-                <a-input v-model:value="formAddState.firstName" />
-            </a-form-item>
-            <a-form-item label="(*)Tên" name="lastName">
-                <a-input v-model:value="formAddState.lastName" />
-            </a-form-item>
-            <a-form-item label="(*)Địa chỉ" name="address">
-                <address-form @save="chooseAddressAddForm"></address-form>
-            </a-form-item>
-            <a-form-item ref="phoneNumber" label="Phone" name="phoneNumber">
-                <a-input v-model:value="formAddState.phone" />
-            </a-form-item>
-            <a-form-item label="(*)Email" name="email">
-                <a-input v-model:value="formAddState.email" />
-            </a-form-item>
-            <a-form-item label="Ảnh" name="imageUrl">
-                <a-input v-model:value="formAddState.imageUrl" />
-            </a-form-item>
-        </a-form>
-    </a-modal>
+    <addEmployeeForm v-if="openAddForm" v-model:open="openAddForm" @create-employee-success="addSuccess" />
 </template>
