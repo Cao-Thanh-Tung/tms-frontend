@@ -261,7 +261,7 @@ const rules = {
       required: true,
       message: 'Không để trống',
     },
-  ],
+  ]
 };
 
 
@@ -273,6 +273,20 @@ const { resetFields: resetFieldsEditForm, validate: validateEditForm, validateIn
 
 const add = () => {
   validateAddForm().then(() => {
+    if (!formAddState.address.id || formAddState.address.id == -1) {
+      message.error("Địa chỉ không được để trống");
+      return;
+    }
+    if (new Date(formAddState.expirationDate!).getTime() <= new Date(formAddState.signingDate!).getTime()) {
+      message.error("Ngày hết hạn hợp đồng phải lớn hơn ngày ký hợp đồng");
+      return;
+    }
+    for (let i = 0; i < contractors.length; i++) {
+      if (formAddState.name == contractors[i].name) {
+        message.error("Tên nhà thầu đã tồn tại");
+        return;
+      }
+    }
     addRequest();
   }).catch((e: any) => {
     console.log(e);
@@ -281,6 +295,24 @@ const add = () => {
 
 const edit = () => {
   validateEditForm().then(() => {
+    if (!formEditState.address?.id || formEditState.address.id == -1) {
+      message.error("Địa chỉ không được để trống");
+      return;
+    }
+    if (new Date(formEditState.expirationDate!).getTime() <= new Date(formEditState.signingDate!).getTime()) {
+      message.error("Ngày hết hạn hợp đồng phải lớn hơn ngày ký hợp đồng");
+      return;
+    }
+    for (let i = 0; i < contractors.length; i++) {
+      if (contractors[i].id == formEditState.id) {
+        continue;
+      } else {
+        if (formEditState.name == contractors[i].name) {
+          message.error("Tên nhà thầu đã tồn tại");
+          return;
+        }
+      }
+    }
     editRequest();
   }).catch((e: any) => {
     console.log(e);
@@ -312,8 +344,8 @@ async function handleSearchResults(results: Entity[]) {
     console.error('Error handling search results:', error);
   }
 }
-
-
+// TODO handle bug duplicate contractor name in server
+// TODO handle bug date picker in server
 </script>
 <template>
   <!-- -->
@@ -418,7 +450,7 @@ async function handleSearchResults(results: Entity[]) {
         </a-col>
       </a-row>
 
-      <a-form-item ref="address" label="Địa chỉ" name="address">
+      <a-form-item ref="address" label="Địa chỉ" name="address" required v-bind="validateInfosEditForm.addressId">
         <!-- <a-input v-model:value="formEditState.address!.fullName" /> -->
         <AddressForm v-if="openEditForm" :initial-address-id="formEditState.address?.id"
           @save="(addressId: any) => formEditState.address!.id = addressId" />
@@ -447,8 +479,7 @@ async function handleSearchResults(results: Entity[]) {
           </a-form-item>
         </a-col>
       </a-row>
-      <a-form-item ref="address" label="Địa chỉ" name="address">
-        <!-- <a-input v-model:value="formAddState.address!.fullName" /> -->
+      <a-form-item ref="address" label="Địa chỉ" name="address" required v-bind="validateInfosEditForm.addressId">
         <AddressForm @save="(addressId: any) => formAddState.address.id = addressId" />
       </a-form-item>
     </a-form>
